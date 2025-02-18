@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { GameEntity } from "@packages/game-data";
 
 dotenv.config();
 
@@ -11,7 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/health", (req, res) => {
-    res.status(200).send({ health: "ok" });
+    const unit = new GameEntity({ x: 0, y: 1 })
+
+    res.status(200).send({ health: "ok", data: { position: unit.getPosition() } });
 });
 
 app.listen(PORT, () => {

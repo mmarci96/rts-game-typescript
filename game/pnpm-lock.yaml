@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    dependencies:
+      '@packages/game-data':
+        specifier: link:packages/game-data
+        version: link:packages/game-data
 
   apps/game-server:
     dependencies:
@@ -51,7 +55,11 @@ importers:
         specifier: ^6.1.0
         version: 6.1.0(@types/node@22.13.4)
 
-  packages/game-data: {}
+  packages/game-data:
+    dependencies:
+      typescript:
+        specifier: ~5.7.2
+        version: 5.7.3
 
 packages:
 
