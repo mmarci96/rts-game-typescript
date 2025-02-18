@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "start:ui": "pnpm --filter game-ui dev", 
+    "start:server": "pnpm --filter game-server dev",
+    "start": "pnpm run start:ui & pnpm run start:server",
+    "build": "pnpm recursive run build",
+    "test": "pnpm recursive run test"
+ },
   "keywords": [],
   "author": "",
   "license": "ISC",
