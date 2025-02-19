@@ -14,7 +14,7 @@ const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
                 </label>
                 <input
                     ref={ref}
-                    className={`shadow appearance-none border bg-gray-300 rounded w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline ${error ? 'border-red-500' : ''
+                    className={`shadow appearance-none border bg-gray-300 rounded-xl w-full py-2 px-3 text-gray-900 leading-tight focus:outline-none focus:shadow-outline ${error ? 'border-red-500' : ''
                         }`}
                     {...props}
                 />

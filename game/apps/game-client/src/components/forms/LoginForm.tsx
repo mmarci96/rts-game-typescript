@@ -2,7 +2,7 @@ import { useState } from 'react';
 import FormInput from './FormInput';
 
 interface LoginFormProps {
-    onSubmit: (data: { email: string; password: string }) => void;
+    onSubmit: (data: { email: string; password: string }, isLogin: boolean) => void;
 }
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
@@ -11,7 +11,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ email, password });
+        onSubmit({ email, password }, true);
     };
 
     return (

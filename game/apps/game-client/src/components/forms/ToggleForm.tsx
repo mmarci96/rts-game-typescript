@@ -3,13 +3,13 @@ import { SignupForm } from './SignupForm';
 
 interface AuthFormProps {
     isLogin?: boolean;
-    onSubmit: (data: any) => void;
+    onSubmit: (data: any, isLogin: boolean) => void;
     onToggle: () => void;
 }
 
 export const ToggleForm = ({ isLogin = true, onSubmit, onToggle }: AuthFormProps) => {
     return (
-        <div className="w-full max-w-xs ring-indigo-600 ring-2 p-4 shadow-xl bg-transparent">
+        <div className="w-full max-w-xs bg-transparent">
             {isLogin ? (
                 <LoginForm onSubmit={onSubmit} />
             ) : (

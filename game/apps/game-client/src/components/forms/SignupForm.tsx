@@ -2,7 +2,7 @@ import { useState } from 'react';
 import FormInput from './FormInput';
 
 interface SignupFormProps {
-    onSubmit: (data: { username: string; email: string; password: string }) => void;
+    onSubmit: (data: { username: string; email: string; password: string }, isLogin: boolean) => void;
 }
 
 export const SignupForm = ({ onSubmit }: SignupFormProps) => {
@@ -12,7 +12,7 @@ export const SignupForm = ({ onSubmit }: SignupFormProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ username, email, password });
+        onSubmit({ username, email, password }, false);
     };
 
     return (

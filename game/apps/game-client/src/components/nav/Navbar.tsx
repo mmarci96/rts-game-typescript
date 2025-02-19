@@ -1,49 +1,44 @@
 import { useState } from "react"
 import { ToggleForm } from "../forms/ToggleForm";
+import PopupCard from "../common/PopupCard";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
     const [isLogin, setIsLogin] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const { handleAuthSubmit, userId, handleLogout } = useAuth();
 
-    const handleAuthSubmit = (data: any) => {
-        if (isLogin) {
-            console.log('Logging in:', data);
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-                .then(res => res.json())
-                .then(data => console.log(data))
-                .catch(err => console.error(err))
+    const onClose = () => {
+        setIsPopupOpen(false)
+    }
+    const onOpen = () => {
+        setIsPopupOpen(true)
+    }
 
-        } else {
-            fetch('/api/auth/signup', {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-                .then(res => res.json())
-                .then(data => console.log(data))
-                .catch(err => console.error(err))
-            console.log('Signing up:', data);
-        }
-    };
 
     return (
-        <div className="min-w-screen flex h-16 sticky">
-            <button onClick={() => setIsPopupOpen(!isPopupOpen)}>
-                Log in
-            </button>
+        <div className="w-screen flex justify-end h-16 sticky bg-[#181818]">
+            {userId ?
+                <button className="my-auto m-2" onClick={handleLogout}>
+                    Log out
+                </button>
+                :
+                <button className="my-auto m-2" onClick={onOpen}>
+                    Log in
+                </button>}
 
             {isPopupOpen &&
-                <div className="absolute -top-1/2 right-1/2 translate-1/2">
+                <PopupCard
+                    header="Login or Sign up to get started!"
+                    footer="Fun fun fun!"
+                    onClose={onClose}
+                >
                     <ToggleForm
                         isLogin={isLogin}
                         onSubmit={handleAuthSubmit}
                         onToggle={() => setIsLogin(!isLogin)}
                     />
-                </div>
+                </PopupCard>
             }
 
         </div>
