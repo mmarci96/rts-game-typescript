@@ -1,13 +1,16 @@
-import { useState } from 'react';
-import FormInput from './FormInput';
+import { useState } from "react";
+import { FormInput } from "./form-input";
 
 interface LoginFormProps {
-    onSubmit: (data: { email: string; password: string }, isLogin: boolean) => void;
+    onSubmit: (
+        data: { email: string; password: string },
+        isLogin: boolean,
+    ) => void;
 }
 
 export const LoginForm = ({ onSubmit }: LoginFormProps) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,11 +34,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
                 required
             />
             <div className="flex items-center flex-col">
-                <button
-                    type="submit"
-                >
-                    Login
-                </button>
+                <button type="submit">Login</button>
             </div>
         </form>
     );

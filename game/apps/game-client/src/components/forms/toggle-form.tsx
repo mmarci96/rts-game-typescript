@@ -1,5 +1,5 @@
-import { LoginForm } from './LoginForm';
-import { SignupForm } from './SignupForm';
+import { LoginForm } from "./login-form";
+import { SignupForm } from "./signup-form";
 
 interface AuthFormProps {
     isLogin?: boolean;
@@ -7,7 +7,11 @@ interface AuthFormProps {
     onToggle: () => void;
 }
 
-export const ToggleForm = ({ isLogin = true, onSubmit, onToggle }: AuthFormProps) => {
+export const ToggleForm = ({
+    isLogin = true,
+    onSubmit,
+    onToggle,
+}: AuthFormProps) => {
     return (
         <div className="w-full max-w-xs bg-transparent">
             {isLogin ? (
@@ -17,13 +21,12 @@ export const ToggleForm = ({ isLogin = true, onSubmit, onToggle }: AuthFormProps
             )}
             <div className="flex flex-col items-center text-center text-sm">
                 <p className="text-gray-300 mb-2">
-                    {isLogin ? "Don't have an account?" : "Already have an account?"}
+                    {isLogin
+                        ? "Don't have an account?"
+                        : "Already have an account?"}
                 </p>
-                <button
-                    type="button"
-                    onClick={onToggle}
-                >
-                    {isLogin ? 'Create account' : 'Sign in'}
+                <button type="button" onClick={onToggle}>
+                    {isLogin ? "Create account" : "Sign in"}
                 </button>
             </div>
         </div>

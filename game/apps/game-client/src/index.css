@@ -2,7 +2,7 @@
 
 @layer base {
     :root {
-        @apply font-sans text-white bg-black;
+        @apply font-sans text-white bg-[#11101b];
     }
 
     /* Light mode */
@@ -24,13 +24,6 @@
 
     h1 {
         @apply text-5xl leading-tight;
-    }
-
-    a {
-        @apply font-medium text-indigo-500 no-underline transition-colors;
-    }
-    a:hover {
-        @apply text-indigo-400;
     }
 
     button {
