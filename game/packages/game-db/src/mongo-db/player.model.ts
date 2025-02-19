@@ -11,7 +11,7 @@ interface IPlayer extends Document {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
     gameId: Types.ObjectId;
-    color: string;
+    color: PlayerColor;
     createdAt: Date;
     updatedAt?: Date;
 }
