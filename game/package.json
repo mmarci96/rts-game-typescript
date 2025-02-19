@@ -6,6 +6,8 @@
   "scripts": {
     "start:ui": "pnpm --filter game-ui dev",
     "start:server": "pnpm --filter game-server dev",
+    "start:api": "pnpm --filter game-api dev",
+    "start:client": "pnpm --filter game-client dev",
     "start": "pnpm run start:ui & pnpm run start:server",
     "build": "pnpm recursive run build",
     "test": "pnpm recursive run test"
