@@ -1,9 +1,13 @@
+import Navbar from "./components/nav/Navbar"
+
 function App() {
 
     return (
-        <div>
-            App!
-        </div>
+        <main>
+            <Navbar />
+            <div>
+            </div>
+        </main>
     )
 }
 
