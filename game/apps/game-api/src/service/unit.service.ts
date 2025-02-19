@@ -1,5 +1,6 @@
 import { PlayerColor, Position } from "@packages/game-data/dist/data/types";
 import { IUnit, UnitModel, UnitType } from "@packages/game-db/dist/mongo-db/unit.model";
+import { Types } from "mongoose";
 
 const UNIT_SIZE = { height: 64, width: 24 };
 
@@ -51,11 +52,12 @@ const getSpawnDirection = (color: PlayerColor) => {
     return direction;
 };
 
-const createUnit = (unitType: UnitType, position: Position, color: PlayerColor) => {
+const createUnit = (unitType: UnitType, position: Position, color: PlayerColor, gameId: Types.ObjectId) => {
     const stats = BASE_STATS[unitType];
     const unitData = {
         position,
         color,
+        gameId,
         type: unitType,
         size: UNIT_SIZE,
         ...stats
@@ -63,7 +65,7 @@ const createUnit = (unitType: UnitType, position: Position, color: PlayerColor) 
     return new UnitModel(unitData);
 };
 
-const createUnits = (unitType: UnitType, amount: number, color: PlayerColor, mapSize: number) => {
+const createUnits = (unitType: UnitType, amount: number, color: PlayerColor, mapSize: number, gameId: Types.ObjectId) => {
     const starterPosition = getStarterPositionByColor(color, mapSize);
     const direction = getSpawnDirection(color);
     const units = [];
@@ -71,26 +73,26 @@ const createUnits = (unitType: UnitType, amount: number, color: PlayerColor, map
         const spawnX = starterPosition.x + i * direction.dx;
         const spawnY = starterPosition.y + i * direction.dy;
         const position = { x: spawnX, y: spawnY };
-        const unit = createUnit(unitType, position, color);
+        const unit = createUnit(unitType, position, color, gameId);
         units.push(unit);
     }
     return units;
 };
 
 export const generateStarterUnits = async (
-    color: PlayerColor, mapSize: number): Promise<IUnit[] | void> => {
+    color: PlayerColor, mapSize: number, gameId: Types.ObjectId): Promise<IUnit[] | void> => {
     const warriorCount = 10;
     const workerCount = 2;
     const archerCount = 4;
 
     try {
-        const warriors = createUnits(UnitType.WARRIOR, warriorCount, color, mapSize);
+        const warriors = createUnits(UnitType.WARRIOR, warriorCount, color, mapSize, gameId);
         const savedWarriors = await UnitModel.insertMany(warriors);
 
-        const workers = createUnits(UnitType.WORKER, workerCount, color, mapSize);
+        const workers = createUnits(UnitType.WORKER, workerCount, color, mapSize, gameId);
         const savedWorkers = await UnitModel.insertMany(workers);
 
-        const archers = createUnits(UnitType.ARCHER, archerCount, color, mapSize);
+        const archers = createUnits(UnitType.ARCHER, archerCount, color, mapSize, gameId);
         const savedArchers = await UnitModel.insertMany(archers);
 
         const units: IUnit[] = [...savedWarriors, ...savedWorkers, ...savedArchers]

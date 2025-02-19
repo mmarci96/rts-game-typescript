@@ -23,8 +23,9 @@ interface IUnit extends Document {
     state: string;
     target: Target;
     size: { width: number, height: number };
+    gameId: Types.ObjectId;
     createdAt: Date;
-    updatedAt: Date;
+    updatedAt?: Date;
 }
 
 const targetSchema = new Schema({
@@ -45,6 +46,7 @@ const unitSchema = new Schema<IUnit>({
     state: { type: String, default: "idle" },
     target: { type: targetSchema, default: {} },
     size: { type: { width: Number, height: Number }, required: true },
+    gameId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Game" },
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
 });

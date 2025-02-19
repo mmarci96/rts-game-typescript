@@ -8,22 +8,16 @@ enum GameStatus {
 
 interface IGame extends Document {
     _id: Types.ObjectId;
-    players: Types.ObjectId[];
-    units: Types.ObjectId[];
-    buildings: Types.ObjectId[];
-    resources: Types.ObjectId[];
-    map: Types.ObjectId;
+    mapId: Types.ObjectId;
     createdAt: Date;
+    updatedAt?: Date;
 }
 
 const gameSchema = new Schema({
-    players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player', default: [] },
-    units: { type: [mongoose.Schema.Types.ObjectId], ref: 'Unit', default: [] },
-    buildings: { type: [mongoose.Schema.Types.ObjectId], ref: 'Building', default: [] },
-    resources: { type: [mongoose.Schema.Types.ObjectId], ref: 'Resource', default: [] },
-    map: { type: mongoose.Schema.Types.ObjectId, ref: 'Map' },
+    mapId: { type: mongoose.Schema.Types.ObjectId, ref: 'Map', required: true },
     status: { type: String, enum: GameStatus, default: GameStatus.WAITING },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date }
 })
 
 const GameModel = mongoose.model<IGame>('Game', gameSchema);

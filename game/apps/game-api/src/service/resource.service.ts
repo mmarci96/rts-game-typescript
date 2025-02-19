@@ -1,7 +1,7 @@
 import { IResource, ResourceModel } from "@packages/game-db"
 import { Types } from "mongoose";
 
-export const generateResources = async (mapSize: number) => {
+export const generateResources = async (mapSize: number, gameId: Types.ObjectId) => {
     const resources: IResource[] = [];
     const resourceSize = { width: 24, height: 48 };
     const availableResource = 200;
@@ -35,6 +35,7 @@ export const generateResources = async (mapSize: number) => {
             position: { x, y },
             availableResource,
             type,
+            gameId,
             size: resourceSize,
             createdAt: new Date(),
             updatedAt: new Date(),

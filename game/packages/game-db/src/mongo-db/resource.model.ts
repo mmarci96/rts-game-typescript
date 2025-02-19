@@ -7,6 +7,7 @@ interface IResource extends Document {
     availableResource: number;
     type: string;
     size: { width: number, height: number };
+    gameId: Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -19,6 +20,7 @@ const resourceSchema = new Schema<IResource>({
     availableResource: { type: Number, required: true },
     type: { type: String, required: true },
     size: { type: { width: Number, height: Number }, required: true },
+    gameId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Game" },
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
 });

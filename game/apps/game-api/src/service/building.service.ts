@@ -1,7 +1,8 @@
 import { PlayerColor } from "@packages/game-data/dist/data/types"
 import { BuildingModel } from "@packages/game-db";
+import { Types } from "mongoose";
 
-export const createMainBuilding = async (color: PlayerColor, mapSize: number) => {
+export const createMainBuilding = async (color: PlayerColor, mapSize: number, gameId: Types.ObjectId) => {
     try {
         const mainBuildingHealth = 200;
         const buildingSize = { width: 128, height: 196 };
@@ -25,6 +26,7 @@ export const createMainBuilding = async (color: PlayerColor, mapSize: number) =>
         const mainBuilding = new BuildingModel({
             position,
             color,
+            gameId,
             health: mainBuildingHealth,
             type: 'main',
             size: buildingSize
