@@ -1,18 +1,21 @@
-import { Position } from "../types";
+import { Position, Size } from "../types";
 
 class GameEntity {
-    #id
-    #position
-    #description
+    #id;
+    #position;
+    #description;
+    #size;
 
     /**
     * @param id string
     * @param position Position
     */
-    constructor(id: string, position: Position, description: string | undefined) {
+    constructor(
+        id: string, position: Position, description: string, size: Size) {
         this.#id = id;
         this.#position = position;
         this.#description = description || 'No info';
+        this.#size = size;
     }
 
     /**
@@ -69,6 +72,10 @@ class GameEntity {
     */
     getDescription() {
         return this.#description
+    }
+
+    getSize() {
+        return this.#size;
     }
 
 }

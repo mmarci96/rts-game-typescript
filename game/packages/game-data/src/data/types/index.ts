@@ -3,6 +3,11 @@ export interface Position {
     y: number;
 }
 
+export interface Size {
+    width: number;
+    height: number;
+}
+
 export enum PlayerColor {
     RED = 'red',
     BLUE = 'blue',
@@ -13,9 +18,28 @@ export enum PlayerColor {
 export interface ControlledEntityParams {
     id: string;
     position: Position;
-    description?: string;
+    description: string;
     color: PlayerColor;
     status: string;
+    size: Size;
 }
 
+export interface UnitParams {
+    controlledParams: ControlledEntityParams;
+    health: number;
+    damage: number;
+    speed: number;
+}
 
+export interface BuildingParams {
+    controlledParams: ControlledEntityParams,
+    health: number,
+}
+
+export interface ResourceParams {
+    id: string;
+    position: Position;
+    description: string;
+    availableResource: number;
+    size: Size;
+}

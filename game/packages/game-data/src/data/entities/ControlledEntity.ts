@@ -1,21 +1,13 @@
-import { PlayerColor, Position } from "../types";
+import { ControlledEntityParams } from "../types";
 import GameEntity from "./GameEntity";
-
-interface ControlledEntityParams {
-    id: string;
-    position: Position;
-    description?: string;
-    color: PlayerColor;
-    status: string;
-}
 
 class ControlledEntity extends GameEntity {
     #color
     #status
 
     constructor(params: ControlledEntityParams) {
-        const { id, position, description, color, status } = params;
-        super(id, position, description);
+        const { id, position, description, color, status, size } = params;
+        super(id, position, description, size);
         this.#color = color;
         this.#status = status;
     }
