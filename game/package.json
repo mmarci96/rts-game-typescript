@@ -28,6 +28,7 @@
     ],
     "onlyBuiltDependencies": [
       "@swc/core",
+      "bcrypt",
       "esbuild"
     ]
   }
