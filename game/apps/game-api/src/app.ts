@@ -20,7 +20,7 @@ app.get<{}, MessageResponse>('/health', (req, res) => {
     res.status(200).send({ message: 'OK' });
 });
 
-app.use('/api/v1', api);
+app.use('/api', api);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
