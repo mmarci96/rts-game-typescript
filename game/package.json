@@ -15,7 +15,8 @@
   "license": "ISC",
   "packageManager": "pnpm@10.4.1",
   "dependencies": {
-    "@packages/game-data": "link:packages/game-data"
+    "@packages/game-data": "link:packages/game-data",
+    "game-db": "link:game-db"
   },
   "pnpm": {
     "ignoredBuiltDependencies": [

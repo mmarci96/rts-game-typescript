@@ -16,10 +16,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get<{}, MessageResponse>('/', (req, res) => {
-  res.json({
-    message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄',
-  });
+app.get<{}, MessageResponse>('/health', (req, res) => {
+    res.status(200).send({ message: 'OK' });
 });
 
 app.use('/api/v1', api);
