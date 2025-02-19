@@ -1,5 +1,11 @@
 import mongoose, { Document, Schema, Date, Types } from 'mongoose';
 
+enum GameStatus {
+    RUNNING = 'running',
+    WAITING = 'waiting',
+    READY = 'ready'
+}
+
 interface IGame extends Document {
     _id: Types.ObjectId;
     players: Types.ObjectId[];
@@ -16,6 +22,7 @@ const gameSchema = new Schema({
     buildings: { type: [mongoose.Schema.Types.ObjectId], ref: 'Building' },
     resources: { type: [mongoose.Schema.Types.ObjectId], ref: 'Resource' },
     map: { type: mongoose.Schema.Types.ObjectId, ref: 'Map' },
+    status: { type: String, enum: GameStatus, default: GameStatus.WAITING },
     createdAt: { type: Date, default: Date.now }
 })
 
