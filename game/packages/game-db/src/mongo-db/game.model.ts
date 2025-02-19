@@ -17,10 +17,10 @@ interface IGame extends Document {
 }
 
 const gameSchema = new Schema({
-    players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player' },
-    units: { type: [mongoose.Schema.Types.ObjectId], ref: 'Unit' },
-    buildings: { type: [mongoose.Schema.Types.ObjectId], ref: 'Building' },
-    resources: { type: [mongoose.Schema.Types.ObjectId], ref: 'Resource' },
+    players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player', default: [] },
+    units: { type: [mongoose.Schema.Types.ObjectId], ref: 'Unit', default: [] },
+    buildings: { type: [mongoose.Schema.Types.ObjectId], ref: 'Building', default: [] },
+    resources: { type: [mongoose.Schema.Types.ObjectId], ref: 'Resource', default: [] },
     map: { type: mongoose.Schema.Types.ObjectId, ref: 'Map' },
     status: { type: String, enum: GameStatus, default: GameStatus.WAITING },
     createdAt: { type: Date, default: Date.now }
