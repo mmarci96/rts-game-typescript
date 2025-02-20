@@ -13,6 +13,7 @@ interface IPlayer extends Document {
     gameId: Types.ObjectId;
     name: string;
     color: PlayerColor;
+    isReady: boolean;
     createdAt: Date;
     updatedAt?: Date;
 }
@@ -29,6 +30,7 @@ const playerSchema = new Schema({
         ref: "Game",
     },
     name: { type: String, required: true },
+    isReady: { type: Boolean, default: false },
     color: { type: String, enum: PlayerColor, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
