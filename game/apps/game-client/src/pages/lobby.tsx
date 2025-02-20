@@ -1,9 +1,12 @@
+import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
 const Lobby = () => {
     return (
-        <DefaultLayout>
-            <div>Lobby</div>
-        </DefaultLayout>
+        <AnimatedComponent>
+            <DefaultLayout>
+                <div>Lobby</div>
+            </DefaultLayout>
+        </AnimatedComponent>
     );
 };
 
