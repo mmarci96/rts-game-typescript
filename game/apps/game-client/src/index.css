@@ -35,6 +35,9 @@
     h1 {
         @apply text-5xl leading-tight;
     }
+    h2 {
+        @apply text-xl m-2;
+    }
 
     button {
         @apply rounded-lg border border-transparent px-4 py-1 text-base font-medium bg-gray-800 transition duration-200 hover:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-blue-500;

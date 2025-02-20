@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
 import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
-interface GameMap {
+import { MapList } from "../components/game/map-list";
+
+export interface GameMap {
     _id: string;
     type: string;
     size: string;
 }
 const CreateGame = () => {
     const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
+    const [selectedMap, setSelectedMap] = useState<GameMap | null>(null);
     const fetchGameMaps = async () => {
         const res = await fetch("/api/maps");
         const { data } = await res.json();
-        console.log(data);
+        setGameMaps(data);
     };
     useEffect(() => {
         fetchGameMaps();
@@ -19,7 +22,13 @@ const CreateGame = () => {
     return (
         <AnimatedComponent>
             <DefaultLayout>
-                <div>Games</div>
+                <div className="m-4">
+                    {selectedMap ? (
+                        <p>next step</p>
+                    ) : (
+                        <MapList maps={gameMaps} onSelect={setSelectedMap} />
+                    )}
+                </div>
             </DefaultLayout>
         </AnimatedComponent>
     );
