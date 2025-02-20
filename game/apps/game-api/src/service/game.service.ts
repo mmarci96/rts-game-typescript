@@ -57,8 +57,9 @@ export const getGameById = async (gameId: Types.ObjectId) => {
     if (!game) {
         throw new Error("No game found with id!");
     }
+    const players = await PlayerModel.find({ gameId });
 
-    return game;
+    return { game, players };
 };
 
 export const startGame = async (gameId: Types.ObjectId) => {

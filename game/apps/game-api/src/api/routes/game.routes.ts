@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import {
     createGame,
     deleteGame,
+    getGameById,
     getGamesToJoin,
     joinGame,
     startGame,
@@ -9,6 +10,19 @@ import {
 import { Types } from "mongoose";
 
 const router = express.Router();
+
+router.get(
+    "/:gameId",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { gameId } = req.params;
+            const game = await getGameById(new Types.ObjectId(gameId));
+            res.status(200).send({ data: game });
+        } catch (err) {
+            next(err);
+        }
+    },
+);
 
 router.get("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
