@@ -2,9 +2,11 @@ import { Navbar } from "./components/nav/navbar";
 import { LoadingAnimation } from "./layouts/fallback";
 import { Route, Routes } from "react-router-dom";
 import { lazy, Suspense } from "react";
-import { Home } from "./pages/home";
-import { Games } from "./pages/games";
-import { Lobby } from "./pages/lobby";
+
+const Home = lazy(() => import("./pages/home"));
+const Games = lazy(() => import("./pages/games"));
+const Lobby = lazy(() => import("./pages/lobby"));
+const CreateGame = lazy(() => import("./pages/create-game"));
 
 function App() {
     return (
@@ -14,6 +16,7 @@ function App() {
                 <Route element={<Home />} path="/" />
                 <Route element={<Games />} path="/games" />
                 <Route element={<Lobby />} path="/lobby" />
+                <Route element={<CreateGame />} path="/create-game" />
             </Routes>
         </Suspense>
     );
