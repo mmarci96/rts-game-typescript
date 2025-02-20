@@ -6,6 +6,7 @@ import {
     CreateGameForm,
     PlayerColor,
 } from "../components/forms/create-game-form";
+import { useNavigate } from "react-router-dom";
 
 export interface GameMap {
     _id: string;
@@ -16,6 +17,8 @@ const CreateGame = () => {
     const [error, setError] = useState("");
     const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
     const [selectedMap, setSelectedMap] = useState<GameMap | null>(null);
+    const navigate = useNavigate();
+
     const fetchGameMaps = async () => {
         const res = await fetch("/api/maps");
         const { data } = await res.json();
@@ -38,7 +41,10 @@ const CreateGame = () => {
                 },
             });
             const { data } = await res.json();
-            console.log(data);
+            console.log(data.game._id);
+            if (data.game._id) {
+                navigate(`/lobby/${data.game._id}`);
+            }
         } catch (err) {
             setError(err as string);
         }
