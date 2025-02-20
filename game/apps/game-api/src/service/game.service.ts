@@ -3,6 +3,7 @@ import {
     GameStatus,
     MapModel,
     PlayerModel,
+    UserModel,
 } from "@packages/game-db";
 import { Types } from "mongoose";
 import { PlayerColor } from "@packages/game-data/dist/data/types";
@@ -19,10 +20,15 @@ export const createGame = async (
     const newGame = new GameModel({ mapId: mapId, maxPlayers });
     const game = await newGame.save();
     const gameId = game._id;
+    const user = await UserModel.findById(userId);
+    if (!user) {
+        throw new Error("No user found with id");
+    }
 
     const newPlayer = new PlayerModel({
         gameId,
         userId,
+        name: user.username,
         color,
     });
     const player = await newPlayer.save();
