@@ -22,6 +22,7 @@ router.get("/", async (req: Request, res: Response, next: NextFunction) => {
 router.post("/", async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { userId, mapId, color, maxPlayers } = req.body;
+
         const game = await createGame(
             userId,
             mapId,
@@ -31,6 +32,8 @@ router.post("/", async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(201).send({ data: game });
     } catch (err) {
+        console.log(err);
+
         next(err);
     }
 });

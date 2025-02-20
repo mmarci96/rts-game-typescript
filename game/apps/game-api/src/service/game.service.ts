@@ -16,7 +16,7 @@ export const createGame = async (
     color: PlayerColor,
     maxPlayers: number,
 ) => {
-    const newGame = new GameModel({ map: mapId, maxPlayers });
+    const newGame = new GameModel({ mapId: mapId, maxPlayers });
     const game = await newGame.save();
     const gameId = game._id;
 

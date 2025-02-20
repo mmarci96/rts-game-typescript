@@ -21,11 +21,11 @@ const CreateGame = () => {
         const { data } = await res.json();
         setGameMaps(data);
     };
-    const handleSubmit = async (color: PlayerColor, maxPlayer: number) => {
+    const handleSubmit = async (color: PlayerColor, maxPlayers: number) => {
         const userId = window.localStorage.getItem("userId");
         const requestData = {
             color,
-            maxPlayer,
+            maxPlayers,
             mapId: selectedMap?._id,
             userId,
         };

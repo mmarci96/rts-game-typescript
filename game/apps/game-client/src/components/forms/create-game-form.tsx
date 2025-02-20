@@ -37,6 +37,8 @@ export const CreateGameForm = ({ onSubmit }: GameFormProps) => {
                         value={formData.maxPlayers}
                         onChange={(e) => {
                             const selectedValue = parseInt(e.target.value, 10);
+                            console.log(selectedValue);
+
                             setFormData((prev) => ({
                                 ...prev,
                                 maxPlayers: selectedValue,
