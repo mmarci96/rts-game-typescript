@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
 import { MapList } from "../components/game/map-list";
+import {
+    CreateGameForm,
+    PlayerColor,
+} from "../components/forms/create-game-form";
 
 export interface GameMap {
     _id: string;
@@ -9,6 +13,7 @@ export interface GameMap {
     size: string;
 }
 const CreateGame = () => {
+    const [error, setError] = useState("");
     const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
     const [selectedMap, setSelectedMap] = useState<GameMap | null>(null);
     const fetchGameMaps = async () => {
@@ -16,15 +21,39 @@ const CreateGame = () => {
         const { data } = await res.json();
         setGameMaps(data);
     };
+    const handleSubmit = async (color: PlayerColor, maxPlayer: number) => {
+        const userId = window.localStorage.getItem("userId");
+        const requestData = {
+            color,
+            maxPlayer,
+            mapId: selectedMap?._id,
+            userId,
+        };
+        try {
+            const res = await fetch("/api/games", {
+                method: "POST",
+                body: JSON.stringify(requestData),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            const { data } = await res.json();
+            console.log(data);
+        } catch (err) {
+            setError(err as string);
+        }
+    };
+
     useEffect(() => {
         fetchGameMaps();
     }, []);
+
     return (
         <AnimatedComponent>
             <DefaultLayout>
                 <div className="m-4">
                     {selectedMap ? (
-                        <p>next step</p>
+                        <CreateGameForm onSubmt={handleSubmit} />
                     ) : (
                         <MapList maps={gameMaps} onSelect={setSelectedMap} />
                     )}
