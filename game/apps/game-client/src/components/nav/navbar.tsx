@@ -4,7 +4,7 @@ import { PopupCard } from "../common/popup-card";
 import { useAuth } from "../../hooks/use-auth";
 
 export const Navbar = () => {
-    const [isLogin, setIsLogin] = useState(false);
+    const [isLogin, setIsLogin] = useState(true);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const { handleAuthSubmit, userId, handleLogout } = useAuth();
 

@@ -10,7 +10,7 @@ const Home = () => {
                 <div className="flex flex-col items-center m-4">
                     <Card header="Home" footer="Online Browser RTS Game">
                         <div className="m-4 flex flex-col items-center p-4 ring-1 w-4/5 rounded-2xl">
-                            <h2 className="text-xl m-2">Join Game</h2>
+                            <h2 className="text-xl m-2">Create Game</h2>
                             <Link className="m-2" to={"/create-game"}>
                                 <button>New lobby</button>
                             </Link>
