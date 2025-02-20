@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Card } from "./card";
 import { CloseIcon } from "../../icons/close-icon";
+import { AnimatedComponent } from "./animated-component";
 
 interface PopupCardProps {
     header: string;
@@ -22,16 +23,18 @@ export const PopupCard = ({
                 className="fixed inset-0 flex items-center z-20 justify-center"
                 onClick={onClose}
             >
-                <div className="absolute scale-110 top-28 right-28 hover:scale-120 cursor-pointer">
+                <div className="absolute scale-110 top-2 right-2 hover:scale-120 cursor-pointer">
                     <CloseIcon />
                 </div>
                 <div
                     className="relative z-20  rounded-lg shadow-lg"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    <Card header={header} footer={footer}>
-                        {children}
-                    </Card>
+                    <AnimatedComponent>
+                        <Card header={header} footer={footer}>
+                            {children}
+                        </Card>
+                    </AnimatedComponent>
                 </div>
             </div>
         </>

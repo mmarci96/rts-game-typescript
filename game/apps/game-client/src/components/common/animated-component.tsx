@@ -11,7 +11,7 @@ export const AnimatedComponent = ({ children }: ComponentProps) => {
 
     return (
         <div
-            className={`animate-fade-in m-auto ${isVisible ? "animate-fade-in-active" : ""}`}
+            className={`animate-fade-in z-0 m-auto ${isVisible ? "animate-fade-in-active" : ""}`}
         >
             {children}
         </div>

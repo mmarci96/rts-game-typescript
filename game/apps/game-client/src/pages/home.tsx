@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { Card } from "../components/common/card";
 import { AnimatedComponent } from "../components/common/animated-component";
+import DefaultLayout from "../layouts/default";
 
 const Home = () => {
     return (
-        <AnimatedComponent
-            children={
+        <AnimatedComponent>
+            <DefaultLayout>
                 <div className="flex flex-col items-center m-4">
                     <Card header="Home" footer="Online Browser RTS Game">
                         <div className="m-4 flex flex-col items-center p-4 ring-1 w-4/5 rounded-2xl">
@@ -22,8 +23,8 @@ const Home = () => {
                         </div>
                     </Card>
                 </div>
-            }
-        />
+            </DefaultLayout>
+        </AnimatedComponent>
     );
 };
 
