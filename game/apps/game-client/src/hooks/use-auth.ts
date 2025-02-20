@@ -25,8 +25,9 @@ export const useAuth = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
-            const data = await response.json();
+            const { data } = await response.json();
             saveUser(data.id);
+
             window.location.reload();
         } catch (error) {
             console.error("Authentication failed:", error);

@@ -53,7 +53,7 @@ const CreateGame = () => {
             <DefaultLayout>
                 <div className="m-4">
                     {selectedMap ? (
-                        <CreateGameForm onSubmt={handleSubmit} />
+                        <CreateGameForm onSubmit={handleSubmit} />
                     ) : (
                         <MapList maps={gameMaps} onSelect={setSelectedMap} />
                     )}
