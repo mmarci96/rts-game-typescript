@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { Card } from "./card";
-import { CloseIcon } from "../../icons/close-icon";
+import { CloseIcon } from "./icons";
 import { AnimatedComponent } from "./animated-component";
 
 interface PopupCardProps {
