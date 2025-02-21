@@ -1,12 +1,7 @@
 import { SyntheticEvent, useState } from "react";
 import { Card } from "../common/card";
+import { PlayerColor } from "../../types";
 
-export enum PlayerColor {
-    RED = "red",
-    BLUE = "blue",
-    GREEN = "green",
-    YELLOW = "yellow",
-}
 interface GameFormProps {
     onSubmit: (color: PlayerColor, maxPlayers: number) => void;
 }

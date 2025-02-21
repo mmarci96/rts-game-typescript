@@ -1,4 +1,4 @@
-import { GameMap } from "../../pages/create-game";
+import { GameMap } from "../../types";
 import { LilCard } from "../common/lil-card";
 interface MapListProps {
     maps: GameMap[];

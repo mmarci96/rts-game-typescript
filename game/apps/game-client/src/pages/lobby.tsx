@@ -3,15 +3,7 @@ import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
 import { useEffect, useState } from "react";
 import { Player, PlayerSlot } from "../components/game/player-slot";
-import { PlayerColor } from "../components/forms/create-game-form";
-
-interface GameData {
-    _id: string;
-    mapId: string;
-    status: string;
-    maxPlayers: number;
-    createdAt: Date;
-}
+import { GameData } from "../types";
 
 const Lobby = () => {
     const [gameData, setGameData] = useState<GameData | null>(null);
@@ -47,6 +39,9 @@ const Lobby = () => {
             console.error(err);
         }
     };
+    const handleJoin = async () => {
+        console.log("Joining...");
+    };
 
     useEffect(() => {
         gameId && fetchGameData(gameId);
@@ -59,7 +54,10 @@ const Lobby = () => {
                     Players:
                     {players?.map((player: Player) => (
                         <li key={player.name}>
-                            <PlayerSlot player={player} />
+                            <PlayerSlot
+                                player={player}
+                                onClickJoin={handleJoin}
+                            />
                         </li>
                     ))}
                 </ul>

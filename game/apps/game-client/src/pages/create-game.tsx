@@ -7,12 +7,8 @@ import {
     PlayerColor,
 } from "../components/forms/create-game-form";
 import { useNavigate } from "react-router-dom";
+import { GameMap } from "../types";
 
-export interface GameMap {
-    _id: string;
-    type: string;
-    size: string;
-}
 const CreateGame = () => {
     const [error, setError] = useState("");
     const [gameMaps, setGameMaps] = useState<GameMap[]>([]);

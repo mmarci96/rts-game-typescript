@@ -11,3 +11,10 @@ export interface GameMap {
     type: string;
     size: string;
 }
+
+export enum PlayerColor {
+    RED = "red",
+    BLUE = "blue",
+    GREEN = "green",
+    YELLOW = "yellow",
+}
