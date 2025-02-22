@@ -65,6 +65,8 @@ router.patch(
             );
             res.status(202).send({ data: game });
         } catch (err) {
+            console.error("Join game route:", err);
+
             next(err);
         }
     },

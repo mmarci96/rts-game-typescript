@@ -9,7 +9,7 @@ import { PopupCard } from "../components/common/popup-card";
 
 const Lobby = () => {
     const [gameData, setGameData] = useState<GameData | null>(null);
-    const [selectedColor, setSelectedColor] = useState("red");
+    //const [selectedColor, setSelectedColor] = useState("red");
     const [players, setPlayers] = useState<Player[]>([]);
     const [emptySlots, setEmptySlots] = useState<string[]>([]);
     const [availableColors, setAvailableColors] = useState<PlayerColor[]>([]);
@@ -34,9 +34,9 @@ const Lobby = () => {
             console.error(err);
         }
     };
-    const joinLobby = async () => {
+    const handleJoin = async (selectedColor: PlayerColor) => {
         try {
-            const res = await fetch(`/api/games${gameId}`, {
+            const res = await fetch(`/api/games/${gameId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -58,9 +58,6 @@ const Lobby = () => {
     const handleOpen = () => {
         setIsPopupOpen(true);
     };
-    const handleJoin = async () => {
-        console.log("Joining...");
-    };
 
     useEffect(() => {
         gameId && fetchGameData(gameId);
@@ -81,22 +78,35 @@ const Lobby = () => {
             (player: Player) => player.color as PlayerColor,
         );
         const filterAvailable = colors.filter(
-            (color: PlayerColor) => colorsTaken.includes(color) && color,
+            (color: PlayerColor) => !colorsTaken.includes(color) && color,
         );
+        console.log(filterAvailable);
         setAvailableColors(filterAvailable);
-    }, [players]);
+    }, [players, isPopupOpen]);
 
     return (
         <AnimatedComponent>
             <DefaultLayout>
                 <div className="w-screen flex flex-col items-center justify-center p-4">
-                    <ul className="bg-gray-400 p-8 rounded-2xl backdrop-blur-2xl mt-8">
+                    {isPopupOpen && (
+                        <PopupCard
+                            onClose={handleClose}
+                            header="Choose color to join"
+                            footer="Joining"
+                        >
+                            <JoinGameForm
+                                onSubmit={handleJoin}
+                                availableColors={availableColors}
+                            />
+                        </PopupCard>
+                    )}
+                    <ul className="bg-gray-400 p-8 rounded-2xl mt-8">
                         Players:
                         {players?.map((player: Player) => (
                             <li key={player.name}>
                                 <PlayerSlot
                                     player={player}
-                                    onClickJoin={handleJoin}
+                                    onClickJoin={() => {}}
                                 />
                             </li>
                         ))}
@@ -110,18 +120,6 @@ const Lobby = () => {
                             </li>
                         ))}
                     </ul>
-                    {isPopupOpen && (
-                        <PopupCard
-                            onClose={handleClose}
-                            header="Choose color to join"
-                            footer="Joining"
-                        >
-                            <JoinGameForm
-                                onSubmit={setSelectedColor}
-                                availableColors={availableColors}
-                            />
-                        </PopupCard>
-                    )}
                 </div>
             </DefaultLayout>
         </AnimatedComponent>

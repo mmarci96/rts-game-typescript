@@ -27,7 +27,7 @@ export const PopupCard = ({
                     <CloseIcon />
                 </div>
                 <div
-                    className="relative z-20  rounded-lg shadow-lg"
+                    className="relative z-30  rounded-lg shadow-lg"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <AnimatedComponent>

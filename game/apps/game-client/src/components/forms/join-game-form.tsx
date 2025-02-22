@@ -30,7 +30,7 @@ export const JoinGameForm = ({ onSubmit, availableColors }: GameFormProps) => {
                         setSelectedColor(selected);
                     }}
                 >
-                    {Object.values(PlayerColor).map((color, i) => (
+                    {availableColors.map((color, i) => (
                         <option key={i} value={color}>
                             {color[0].toUpperCase() + color.substring(1)}
                         </option>
