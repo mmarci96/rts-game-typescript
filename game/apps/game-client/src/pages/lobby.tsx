@@ -22,6 +22,10 @@ const Lobby = () => {
 
             setGameData(data.game as GameData);
             setPlayers(data.players as Player[]);
+            const emptySlots = data.game.maxPlayers - data.players.length;
+            console.log(emptySlots);
+
+            setRemainingSlots(emptySlots);
         } catch (err) {
             console.error(err);
         }
