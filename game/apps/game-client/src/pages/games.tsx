@@ -4,6 +4,7 @@ import { useApiRequest } from "../hooks/use-api-request";
 import DefaultLayout from "../layouts/default";
 import { GameData, HttpMethod } from "../types";
 import { LoadingAnimation } from "../layouts/fallback";
+import { Link } from "react-router-dom";
 
 const Games = () => {
     const [gameLobbyList, setGameLobbyList] = useState<GameData[]>([]);
@@ -27,8 +28,22 @@ const Games = () => {
                 </div>
                 <ul className="flex flex-wrap ">
                     {gameLobbyList?.map((gameData: GameData) => (
-                        <li className="mx-4 m-2" key={gameData._id}>
-                            {gameData.status}
+                        <li
+                            className="mx-4 m-2 flex flex-col items-center"
+                            key={gameData._id}
+                        >
+                            <p>Game: {gameData._id}</p>
+                            <p>
+                                {gameData.status}/{gameData.maxPlayers}
+                            </p>
+                            <p>
+                                {new Date(
+                                    gameData.createdAt,
+                                ).toLocaleDateString()}
+                            </p>
+                            <Link to={`/lobby/${gameData._id}`}>
+                                <button>View Lobby</button>
+                            </Link>
                         </li>
                     ))}
                 </ul>
