@@ -26,3 +26,9 @@ export enum HttpMethod {
     DELETE = "DELETE",
     PUT = "PUT",
 }
+
+export interface Player {
+    name: string;
+    color: string;
+    isReady: boolean;
+}

@@ -1,8 +1,4 @@
-export interface Player {
-    name: string;
-    color: string;
-    isReady: boolean;
-}
+import { Player } from "../../types";
 
 interface PlayerSlotParams {
     player: Player | null;
