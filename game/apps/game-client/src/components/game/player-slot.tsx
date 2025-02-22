@@ -7,14 +7,19 @@ interface PlayerSlotParams {
 
 export const PlayerSlot = ({ player, onClickJoin }: PlayerSlotParams) => {
     return (
-        <div className="w-36 h-24 bg-gray-800 p-2 m-2 rounded-2xl">
+        <div className="w-40 h-28 bg-[#11101B] p-4 m-2 rounded-2xl">
             {player ? (
-                <p>
-                    Player: {player.name} - Status:{" "}
-                    {player.isReady ? "Ready" : "Waiting"}
-                </p>
+                <div className="flex flex-col">
+                    <p className="p-2"> Player: {player.name} </p>
+                    <p className="p-2">
+                        Status: {player.isReady ? "Ready" : "Waiting"}
+                    </p>
+                </div>
             ) : (
-                <button onClick={onClickJoin}>Join</button>
+                <div className="flex flex-col">
+                    <p className="p-2">Empty</p>
+                    <button onClick={onClickJoin}>Join</button>
+                </div>
             )}
         </div>
     );
