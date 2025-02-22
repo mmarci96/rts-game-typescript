@@ -1,5 +1,5 @@
 import { SyntheticEvent, useState } from "react";
-import { PlayerColor } from "./../../types";
+import { PlayerColor } from "../../types";
 
 interface GameFormProps {
     onSubmit: (color: PlayerColor) => void;

@@ -18,3 +18,11 @@ export enum PlayerColor {
     GREEN = "green",
     YELLOW = "yellow",
 }
+
+export enum HttpMethod {
+    GET = "GET",
+    POST = "POST",
+    PATCH = "PATCH",
+    DELETE = "DELETE",
+    PUT = "PUT",
+}
