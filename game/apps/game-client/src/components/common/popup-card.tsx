@@ -18,9 +18,9 @@ export const PopupCard = ({
 }: PopupCardProps) => {
     return (
         <>
-            <div className=" backdrop-blur-xs w-screen h-screen z-10 absolute"></div>
+            <div className="backdrop-blur-xs w-screen h-screen absolute"></div>
             <div
-                className="fixed inset-0 flex items-center z-20 justify-center"
+                className="fixed inset-0 flex items-center z-30 justify-center"
                 onClick={onClose}
             >
                 <div className="absolute scale-110 top-2 right-2 hover:scale-120 cursor-pointer">

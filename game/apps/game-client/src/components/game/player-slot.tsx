@@ -2,7 +2,7 @@ import { Player } from "../../types";
 
 interface PlayerSlotParams {
     player: Player | null;
-    onClickJoin: () => {};
+    onClickJoin: () => void;
 }
 
 export const PlayerSlot = ({ player, onClickJoin }: PlayerSlotParams) => {
