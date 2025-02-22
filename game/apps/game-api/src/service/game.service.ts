@@ -1,7 +1,6 @@
 import {
     GameModel,
     GameStatus,
-    IPlayer,
     MapModel,
     PlayerModel,
     UserModel,
@@ -41,10 +40,6 @@ export const joinGame = async (
     color: PlayerColor,
     gameId: Types.ObjectId,
 ) => {
-    console.log("userId", userId);
-    console.log("color", color);
-    console.log("gameId", gameId);
-
     const game = await GameModel.findById(gameId);
     if (!game) {
         throw new Error("Game not found!");
@@ -66,6 +61,7 @@ export const joinGame = async (
 
     const player = new PlayerModel({
         gameId: game._id,
+        userId,
         name: user.username,
         color,
     });
