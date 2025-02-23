@@ -14,9 +14,9 @@ const Lobby = () => {
     const [availableColors, setAvailableColors] = useState<PlayerColor[]>([]);
     const [remainingSlots, setRemainingSlots] = useState(0);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [counter, setCounter] = useState(0);
     const [isStartable, setStartable] = useState(false);
-
+    const [showCountdown, setShowCountdown] = useState(false);
+    const [countdown, setCountdown] = useState(5);
     const { gameId } = useParams();
     const { fetchApiData, error } = useApiRequest();
 
@@ -26,6 +26,19 @@ const Lobby = () => {
             HttpMethod.GET,
             null,
         );
+        if (game?.status === "ready") {
+            console.log(game.status);
+            setShowCountdown(true);
+            let timeLeft = 5;
+            const countdownInterval = setInterval(() => {
+                setCountdown(timeLeft);
+                timeLeft -= 1;
+                if (timeLeft < 0) {
+                    clearInterval(countdownInterval);
+                    window.location.href = "http://localhost:3000";
+                }
+            }, 1000);
+        }
 
         if (players.length !== joinedPlayers.length) {
             onUpdateLobby(game, players);
@@ -58,9 +71,9 @@ const Lobby = () => {
     };
     const handleStart = async () => {
         const url = "/api/games/start/" + gameId;
-        const res = await fetchApiData(url, HttpMethod.PATCH, null);
-        console.log(res);
+        await fetchApiData(url, HttpMethod.PATCH, null);
     };
+
     const onUpdateLobby = (game: GameData, players: Player[]) => {
         setGameData(game as GameData);
         setJoinedPlayers(players as Player[]);
@@ -70,13 +83,17 @@ const Lobby = () => {
     const handleClose = () => {
         setIsPopupOpen(false);
     };
+
     const handleOpen = () => {
         setIsPopupOpen(true);
     };
 
     useEffect(() => {
-        gameId && fetchGameData(gameId);
-    }, [counter]);
+        !gameData && gameId && fetchGameData(gameId);
+        setInterval(() => {
+            gameId && fetchGameData(gameId);
+        }, 3000);
+    }, []);
 
     useEffect(() => {
         const colors = Object.values(PlayerColor);
@@ -89,12 +106,6 @@ const Lobby = () => {
         );
         setAvailableColors(filterAvailable);
     }, [joinedPlayers, isPopupOpen]);
-
-    useEffect(() => {
-        setInterval(() => {
-            setCounter((counter: number) => counter + 1);
-        }, 3000);
-    }, []);
 
     return (
         <AnimatedComponent>
@@ -110,6 +121,17 @@ const Lobby = () => {
                                 onSubmit={handleJoin}
                                 availableColors={availableColors}
                             />
+                        </PopupCard>
+                    )}
+                    {showCountdown && (
+                        <PopupCard
+                            onClose={() => {}}
+                            header="Game Starting"
+                            footer="Get Ready!"
+                        >
+                            <p className="text-center text-xl font-bold">
+                                {countdown} seconds remaining...
+                            </p>
                         </PopupCard>
                     )}
                     <Slots
