@@ -28,13 +28,13 @@ export const Slots = ({
     return (
         <ul className="bg-gray-400 p-8 rounded-2xl mt-8">
             Players:
-            {players?.map((player: Player) => (
-                <li key={player.name}>
+            {players?.map((player: Player, i) => (
+                <li key={player?.name || i}>
                     <PlayerSlot player={player} onClickJoin={() => {}} />
                 </li>
             ))}
             {emptySlots?.map((slot: string, i: number) => (
-                <li key={i}>
+                <li key={slot + i}>
                     <p>{slot}</p>
                     <PlayerSlot player={null} onClickJoin={onClickJoin} />
                 </li>

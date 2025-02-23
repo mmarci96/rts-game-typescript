@@ -2,54 +2,55 @@ import { useParams } from "react-router-dom";
 import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
 import { useEffect, useState } from "react";
-import { GameData, Player, PlayerColor } from "../types";
+import { useApiRequest } from "../hooks/use-api-request";
+import { GameData, HttpMethod, Player, PlayerColor } from "../types";
 import { JoinGameForm } from "../components/forms/join-game-form";
 import { PopupCard } from "../components/common/popup-card";
 import { Slots } from "../components/game/slots";
 
 const Lobby = () => {
     const [gameData, setGameData] = useState<GameData | null>(null);
-    const [players, setPlayers] = useState<Player[]>([]);
+    const [joinedPlayers, setJoinedPlayers] = useState<Player[]>([]);
     const [availableColors, setAvailableColors] = useState<PlayerColor[]>([]);
     const [remainingSlots, setRemainingSlots] = useState(0);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
+    const [counter, setCounter] = useState(0);
+
     const { gameId } = useParams();
+    const { fetchApiData, error } = useApiRequest();
 
     const fetchGameData = async (gameId: string) => {
-        try {
-            const res = await fetch(`/api/games/${gameId}`);
-            const { data } = await res.json();
+        const { game, players } = await fetchApiData(
+            `/api/games/${gameId}`,
+            HttpMethod.GET,
+            null,
+        );
 
-            setGameData(data.game as GameData);
-            setPlayers(data.players as Player[]);
-            const emptySlots = data.game.maxPlayers - data.players.length;
-            console.log(emptySlots);
-
-            setRemainingSlots(emptySlots);
-        } catch (err) {
-            console.error(err);
+        if (players.length !== joinedPlayers.length) {
+            onUpdateLobby(game, players);
         }
     };
     const handleJoin = async (selectedColor: PlayerColor) => {
-        try {
-            const res = await fetch(`/api/games/${gameId}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    userId: window.localStorage.getItem("userId"),
-                    color: selectedColor,
-                }),
-            });
-            const { data } = await res.json();
-            const emptySlots = data.maxPlayers - data.length;
-            setRemainingSlots(emptySlots);
-            console.log(data);
-        } catch (err) {
-            console.error(err);
+        const player: Player = await fetchApiData(
+            `/api/games/${gameId}`,
+            HttpMethod.PATCH,
+            {
+                userId: window.localStorage.getItem("userId"),
+                color: selectedColor,
+            },
+        );
+
+        if (player && gameId) {
+            setIsPopupOpen(false);
+            await fetchGameData(gameId);
         }
     };
+    const onUpdateLobby = (game: GameData, players: Player[]) => {
+        setGameData(game as GameData);
+        setJoinedPlayers(players as Player[]);
+        setRemainingSlots(game.maxPlayers - players.length);
+    };
+
     const handleClose = () => {
         setIsPopupOpen(false);
     };
@@ -59,20 +60,25 @@ const Lobby = () => {
 
     useEffect(() => {
         gameId && fetchGameData(gameId);
-    }, []);
+    }, [counter]);
 
     useEffect(() => {
         const colors = Object.values(PlayerColor);
 
-        const colorsTaken: PlayerColor[] = players.flatMap(
+        const colorsTaken: PlayerColor[] = joinedPlayers.flatMap(
             (player: Player) => player.color as PlayerColor,
         );
         const filterAvailable = colors.filter(
             (color: PlayerColor) => !colorsTaken.includes(color) && color,
         );
-        console.log(filterAvailable);
         setAvailableColors(filterAvailable);
-    }, [players, isPopupOpen]);
+    }, [joinedPlayers, isPopupOpen]);
+
+    useEffect(() => {
+        setInterval(() => {
+            setCounter((counter: number) => counter + 1);
+        }, 3000);
+    }, []);
 
     return (
         <AnimatedComponent>
@@ -91,11 +97,13 @@ const Lobby = () => {
                         </PopupCard>
                     )}
                     <Slots
-                        players={players}
+                        players={joinedPlayers}
                         remainingSlots={remainingSlots}
                         onClickJoin={handleOpen}
                     />
                 </div>
+
+                {error && <p>{error}</p>}
             </DefaultLayout>
         </AnimatedComponent>
     );
