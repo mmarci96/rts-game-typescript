@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+
+@layer utilities {
+  .animate-fade-in {
+    @apply opacity-0 scale-95 translate-y-2 transition-all duration-200 ease-out;
+  }
+
+  .animate-fade-in-active {
+    @apply opacity-100 scale-100 translate-y-0;
+  }
+}
 @layer base {
     :root {
-        @apply font-sans text-white bg-black;
+        @apply font-sans text-white bg-[#11101b];
     }
 
     /* Light mode */
@@ -25,12 +35,8 @@
     h1 {
         @apply text-5xl leading-tight;
     }
-
-    a {
-        @apply font-medium text-indigo-500 no-underline transition-colors;
-    }
-    a:hover {
-        @apply text-indigo-400;
+    h2 {
+        @apply text-xl m-2;
     }
 
     button {

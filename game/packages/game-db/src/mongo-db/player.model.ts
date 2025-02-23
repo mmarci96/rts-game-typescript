@@ -11,14 +11,26 @@ interface IPlayer extends Document {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
     gameId: Types.ObjectId;
-    color: string;
+    name: string;
+    color: PlayerColor;
+    isReady: boolean;
     createdAt: Date;
     updatedAt?: Date;
 }
 
 const playerSchema = new Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
-    gameId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Game" },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "User",
+    },
+    gameId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Game",
+    },
+    name: { type: String, required: true },
+    isReady: { type: Boolean, default: false },
     color: { type: String, enum: PlayerColor, required: true },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date },
@@ -27,4 +39,3 @@ const playerSchema = new Schema({
 const PlayerModel = mongoose.model<IPlayer>("Player", playerSchema);
 
 export { PlayerModel, IPlayer };
-

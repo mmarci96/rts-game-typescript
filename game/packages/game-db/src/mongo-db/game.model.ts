@@ -1,24 +1,27 @@
-import mongoose, { Document, Schema, Date, Types } from 'mongoose';
+import mongoose, { Document, Schema, Date, Types } from "mongoose";
+
+enum GameStatus {
+    RUNNING = "running",
+    WAITING = "waiting",
+    READY = "ready",
+}
 
 interface IGame extends Document {
     _id: Types.ObjectId;
-    players: Types.ObjectId[];
-    units: Types.ObjectId[];
-    buildings: Types.ObjectId[];
-    resources: Types.ObjectId[];
-    map: Types.ObjectId;
+    mapId: Types.ObjectId;
+    status: GameStatus;
+    maxPlayers: number;
     createdAt: Date;
+    updatedAt?: Date;
 }
 
 const gameSchema = new Schema({
-    players: { type: [mongoose.Schema.Types.ObjectId], ref: 'Player' },
-    units: { type: [mongoose.Schema.Types.ObjectId], ref: 'Unit' },
-    buildings: { type: [mongoose.Schema.Types.ObjectId], ref: 'Building' },
-    resources: { type: [mongoose.Schema.Types.ObjectId], ref: 'Resource' },
-    map: { type: mongoose.Schema.Types.ObjectId, ref: 'Map' },
-    createdAt: { type: Date, default: Date.now }
-})
+    mapId: { type: mongoose.Schema.Types.ObjectId, ref: "Map", required: true },
+    status: { type: String, enum: GameStatus, default: GameStatus.WAITING },
+    maxPlayers: { type: Number, required: true },
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date },
+});
 
-const GameModel = mongoose.model<IGame>('Game', gameSchema);
-export { GameModel, IGame };
-
+const GameModel = mongoose.model<IGame>("Game", gameSchema);
+export { GameModel, IGame, GameStatus };
