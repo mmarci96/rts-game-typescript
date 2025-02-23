@@ -15,6 +15,7 @@ const Lobby = () => {
     const [remainingSlots, setRemainingSlots] = useState(0);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [counter, setCounter] = useState(0);
+    const [isStartable, setStartable] = useState(false);
 
     const { gameId } = useParams();
     const { fetchApiData, error } = useApiRequest();
@@ -28,6 +29,9 @@ const Lobby = () => {
 
         if (players.length !== joinedPlayers.length) {
             onUpdateLobby(game, players);
+        }
+        if (players.length === game.maxPlayers) {
+            setStartable(true);
         }
     };
     const handleJoin = async (selectedColor: PlayerColor) => {
@@ -44,6 +48,18 @@ const Lobby = () => {
             setIsPopupOpen(false);
             await fetchGameData(gameId);
         }
+    };
+    const handleLeave = async () => {
+        const url = "/api/players/" + window.localStorage.getItem("userId");
+        const res = await fetchApiData(url, HttpMethod.DELETE, null);
+        if (res) {
+            console.log(res);
+        }
+    };
+    const handleStart = async () => {
+        const url = "/api/games/start/" + gameId;
+        const res = await fetchApiData(url, HttpMethod.PATCH, null);
+        console.log(res);
     };
     const onUpdateLobby = (game: GameData, players: Player[]) => {
         setGameData(game as GameData);
@@ -101,6 +117,18 @@ const Lobby = () => {
                         remainingSlots={remainingSlots}
                         onClickJoin={handleOpen}
                     />
+
+                    <div className="flex">
+                        {isStartable && (
+                            <button onClick={handleStart}>Start</button>
+                        )}
+                        <button
+                            className="accent-red-600"
+                            onClick={handleLeave}
+                        >
+                            Leave
+                        </button>
+                    </div>
                 </div>
 
                 {error && <p>{error}</p>}
