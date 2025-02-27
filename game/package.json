@@ -8,7 +8,7 @@
     "start:server": "pnpm --filter game-server dev",
     "start:api": "pnpm --filter game-api dev",
     "start:client": "pnpm --filter game-client dev",
-    "start": "pnpm run start:ui & pnpm run start:server",
+    "start": "pnpm run start:ui & pnpm run start:server & pnpm run start:client & pnpm run start:api",
     "build": "pnpm recursive run build",
     "test": "pnpm recursive run test"
   },
