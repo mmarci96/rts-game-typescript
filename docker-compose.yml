@@ -1,14 +1,14 @@
 services:
   mongodb:
     image: mongo:6.0
-    container_name: mongodb
+    container_name: game-mongodb
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
   redis:
     image: redis:latest
-    container_name: my-redis
+    container_name: game-redis-db
     restart: always
     ports:
       - "6379:6379"
