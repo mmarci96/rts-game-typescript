@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
-import Redis from "ioredis";
 const app = express();
 
 app.get("/health", (req, res) => {
