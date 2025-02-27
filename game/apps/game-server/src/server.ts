@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
+import { websocketController } from "./ws";
 const app = express();
 
 app.get("/health", (req, res) => {
@@ -18,5 +19,6 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
     },
 });
+websocketController(io);
 
 export default server;
