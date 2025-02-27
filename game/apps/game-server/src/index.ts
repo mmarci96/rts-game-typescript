@@ -1,19 +1,23 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
+import mongoose from "mongoose";
+import redis from "./redis";
+import server from "./server";
+import { config } from "./config";
 
-dotenv.config();
+const { MONGO_URI, PORT, HOST } = config;
 
-const app = express();
-const PORT = process.env.PORT || 8080;
+const main = async () => {
+    try {
+        redis.on("connect", () => console.log("Connected to Redis"));
+        redis.on("error", (err) => console.error("Redis Error:", err));
+        await mongoose.connect(MONGO_URI);
 
-app.use(cors());
-app.use(express.json());
+        server.listen(Number(PORT), HOST, () => {
+            console.log(`Server is running on http://${HOST}:${PORT}`);
+        });
+    } catch (err) {
+        console.error(err);
+        return;
+    }
+};
 
-app.get("/health", (req, res) => {
-    res.status(200).send({ health: "ok" });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+main();
