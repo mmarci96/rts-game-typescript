@@ -31,11 +31,14 @@ const Lobby = () => {
             setShowCountdown(true);
             let timeLeft = 5;
             const countdownInterval = setInterval(() => {
+                const userId = window.localStorage.getItem("userId");
+                const player = players.find((player: Player) => player.userId === userId && player);
                 setCountdown(timeLeft);
                 timeLeft -= 1;
                 if (timeLeft < 0) {
                     clearInterval(countdownInterval);
-                    window.location.href = "http://localhost:3000";
+                    const gameUrl = `http://localhost:3000/${gameId}/${player._id}`;
+                    window.location.href = gameUrl;
                 }
             }, 1000);
         }
@@ -125,7 +128,7 @@ const Lobby = () => {
                     )}
                     {showCountdown && (
                         <PopupCard
-                            onClose={() => {}}
+                            onClose={() => { }}
                             header="Game Starting"
                             footer="Get Ready!"
                         >
