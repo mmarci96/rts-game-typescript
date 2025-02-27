@@ -1,5 +1,5 @@
 import Player from "./Player";
-import { BuildingParams, UnitParams, ResourceParams } from "./types";
-
+import GameMap from "./GameMap";
+export * from "./types";
 export * from "./entities";
-export { Player, BuildingParams, UnitParams, ResourceParams };
+export { Player, GameMap };
