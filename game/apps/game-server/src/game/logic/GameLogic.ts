@@ -1,14 +1,21 @@
 import { GameMap, Size } from "@packages/game-data";
 import { GameEntityData, IMap, IUnit } from "@packages/game-db";
 import UnitController from "./UnitController";
+import ResourceController from "./ResourceController";
+import BuildingController from "./BuildingController";
 
 class GameLogic {
     #unitController;
+    #buildingController;
+    #resourceController;
     #gameMap;
 
     constructor(gameData: GameEntityData, gameMap: IMap) {
         this.#unitController = new UnitController();
-        this.loadUnits(gameData.units);
+        this.#resourceController = new ResourceController();
+        this.#buildingController = new BuildingController();
+
+        this.loadMongoData(gameData);
         const size: Size = {
             width: gameMap.tiles.length,
             height: gameMap.tiles.length,
@@ -16,8 +23,10 @@ class GameLogic {
         this.#gameMap = new GameMap(gameMap.tiles, size);
     }
 
-    loadUnits(units: IUnit[]) {
-        this.#unitController.loadUnits(units);
+    loadMongoData(data: GameEntityData) {
+        this.#buildingController.loadBuildings(data.buildings);
+        this.#resourceController.loadResources(data.resources);
+        this.#unitController.loadUnits(data.units);
     }
 }
 

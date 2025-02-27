@@ -1,7 +1,7 @@
 import { Archer, Unit, Worker, Warrior } from "@packages/game-data";
 import { IUnit } from "@packages/game-db";
 import { UnitType } from "@packages/game-db/dist/mongo-db/unit.model";
-import mapUnitToUnitParams from "../../utils/parseData";
+import { mapUnitToUnitParams } from "../../utils/parseData";
 
 class UnitController {
     #units;
