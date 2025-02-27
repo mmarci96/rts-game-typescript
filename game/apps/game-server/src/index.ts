@@ -3,13 +3,11 @@ import mongoose from "mongoose";
 import server from "./server";
 import { config } from "./config";
 
-const { MONGO_URI, PORT, HOST, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT } =
-    config;
+const { MONGO_URI, PORT, HOST } = config;
 
 const main = async () => {
     try {
         const redis = new Redis();
-        redis.connect();
 
         redis.on("connect", () => console.log("Connected to Redis"));
         redis.on("error", (err) => console.error("Redis Error:", err));
