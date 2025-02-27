@@ -31,4 +31,6 @@ export interface Player {
     name: string;
     color: string;
     isReady: boolean;
+    userId?: string;
+    _id: string;
 }
