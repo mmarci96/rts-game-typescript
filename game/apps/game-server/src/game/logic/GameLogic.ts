@@ -17,11 +17,8 @@ class GameLogic {
         this.#buildingController = new BuildingController();
 
         this.loadData(gameData);
-        const size: Size = {
-            width: gameMap.tiles.length,
-            height: gameMap.tiles.length,
-        };
-        this.#gameMap = new GameMap(gameMap.tiles, size);
+
+        this.#gameMap = new GameMap(gameMap.tiles);
     }
 
     loadData(data: GameState) {
