@@ -1,17 +1,101 @@
-import Redis from "ioredis";
+import Redis, { ChainableCommander } from "ioredis";
 import { IBuilding, IResource, IUnit } from "@packages/game-db";
 import { BuildingData, ResourceData, UnitData } from "@packages/game-data";
 
 const redis = new Redis();
 
-/**
- * Save a unit to Redis
- * @param unit - The unit object to cache
- */
-export const cacheUnit = async (unit: IUnit) => {
-    const key = `unit:${unit._id.toString()}`;
+const gameKey = (gameId: string, type: string, id?: string) =>
+    `game:${gameId}:${type}${id ? `:${id}` : ""}`;
 
-    await redis.hmset(key, {
+export const cacheGameEntities = async (
+    entities: {
+        units?: IUnit[];
+        buildings?: IBuilding[];
+        resources?: IResource[];
+    },
+    ttl: number = 3600,
+) => {
+    const pipeline = redis.pipeline();
+
+    entities.units?.forEach((unit) => cacheUnit(unit, pipeline, ttl));
+
+    entities.buildings?.forEach((building) =>
+        cacheBuilding(building, pipeline, ttl),
+    );
+
+    entities.resources?.forEach((resource) =>
+        cacheResource(resource, pipeline, ttl),
+    );
+
+    await pipeline.exec();
+};
+
+export const getGameState = async (gameId: string) => {
+    const [units, buildings, resources] = await Promise.all([
+        getGameEntities<UnitData>(gameId, "unit"),
+        getGameEntities<BuildingData>(gameId, "building"),
+        getGameEntities<ResourceData>(gameId, "resource"),
+    ]);
+
+    return { units, buildings, resources };
+};
+
+const getGameEntities = async <T>(
+    gameId: string,
+    entityType: string,
+): Promise<T[]> => {
+    const pattern = gameKey(gameId, entityType, "*");
+    const keys = await scanKeys(pattern);
+
+    if (keys.length === 0) return [];
+
+    const pipeline = redis.pipeline();
+    keys.forEach((key) => pipeline.hgetall(key));
+    const results = await pipeline.exec();
+    if (!results) throw new Error("no results");
+
+    return results
+        .filter(([err, data]) => !err && data)
+        .map(([_, data]) => parseEntity<T>(data as Record<string, string>));
+};
+
+const parseEntity = <T>(data: Record<string, string>): T => {
+    const parsed: any = {};
+
+    for (const [key, value] of Object.entries(data)) {
+        parsed[key] =
+            key === "position" || key === "target" || key === "size"
+                ? JSON.parse(value)
+                : !isNaN(Number(value)) && value !== ""
+                  ? Number(value)
+                  : value;
+    }
+
+    return parsed as T;
+};
+
+const scanKeys = async (pattern: string): Promise<string[]> => {
+    let cursor = "0";
+    let keys: string[] = [];
+
+    do {
+        const [newCursor, newKeys] = await redis.scan(cursor, "MATCH", pattern);
+        cursor = newCursor;
+        keys = [...keys, ...newKeys];
+    } while (cursor !== "0");
+
+    return keys;
+};
+
+export const cacheUnit = async (
+    unit: IUnit,
+    pipeline?: ChainableCommander,
+    ttl: number = 3600,
+) => {
+    const key = gameKey(unit.gameId.toString(), "unit", unit._id.toString());
+    const executor = pipeline || redis;
+
+    await executor.hmset(key, {
         id: unit._id.toString(),
         position: JSON.stringify(unit.position),
         color: unit.color,
@@ -27,12 +111,22 @@ export const cacheUnit = async (unit: IUnit) => {
         updatedAt: unit.updatedAt?.toISOString() || "",
     });
 
-    await redis.expire(key, 3600); // Cache expires after 1 hour (optional)
+    if (ttl > 0) await executor.expire(key, ttl);
 };
 
-export const cacheBuilding = async (building: IBuilding) => {
-    const key = `building:${building._id.toString()}`;
-    await redis.hmset(key, {
+export const cacheBuilding = async (
+    building: IBuilding,
+    pipeline?: ChainableCommander,
+    ttl: number = 3600,
+) => {
+    const key = gameKey(
+        building.gameId.toString(),
+        "building",
+        building._id.toString(),
+    );
+    const executor = pipeline || redis;
+
+    await executor.hmset(key, {
         id: building._id.toString(),
         position: JSON.stringify(building.position),
         color: building.color,
@@ -44,30 +138,22 @@ export const cacheBuilding = async (building: IBuilding) => {
         createdAt: building.createdAt.toISOString(),
         updatedAt: building.updatedAt?.toISOString() || "",
     });
-    await redis.expire(key, 3600);
+    if (ttl > 0) await executor.expire(key, ttl);
 };
 
-export const getCachedBuilding = async (
-    id: string,
-): Promise<BuildingData | null> => {
-    const key = `building:${id}`;
-    const data = await redis.hgetall(key);
-    if (!data || Object.keys(data).length === 0) return null;
-    return {
-        id: id,
-        position: JSON.parse(data.position),
-        color: data.color as any,
-        health: parseInt(data.health),
-        type: data.type as any,
-        state: data.state,
-        size: JSON.parse(data.size),
-        gameId: data.gameId,
-    };
-};
+export const cacheResource = async (
+    resource: IResource,
+    pipeline?: ChainableCommander,
+    ttl: number = 3600,
+) => {
+    const key = gameKey(
+        resource.gameId.toString(),
+        "resource",
+        resource._id.toString(),
+    );
+    const executor = pipeline || redis;
 
-export const cacheResources = async (resource: IResource) => {
-    const key = `resource:${resource._id.toString()}`;
-    await redis.hmset(key, {
+    await executor.hmset(key, {
         id: resource._id.toString(),
         position: JSON.stringify(resource.position),
         type: resource.type,
@@ -78,53 +164,34 @@ export const cacheResources = async (resource: IResource) => {
         updatedAt: resource.updatedAt?.toISOString() || "",
     });
 
-    await redis.expire(key, 3600);
+    if (ttl > 0) await executor.expire(key, ttl);
+};
+
+export const getCachedBuilding = async (
+    gameId: string,
+    buildingId: string,
+): Promise<BuildingData | null> => {
+    const key = gameKey(gameId, "building", buildingId);
+    const data = await redis.hgetall(key);
+    return data ? parseEntity<BuildingData>(data) : null;
 };
 
 export const getCachedResource = async (
-    id: string,
+    gameId: string,
+    resourceId: string,
 ): Promise<ResourceData | null> => {
-    const key = `resource:${id}`;
+    const key = gameKey(gameId, "resource", resourceId);
     const data = await redis.hgetall(key);
-
-    if (!data || Object.keys(data).length === 0) return null;
-
-    return {
-        id: id,
-        position: JSON.parse(data.position),
-        type: data.type as string,
-        availableResource: parseInt(data.availableResource),
-        size: JSON.parse(data.size),
-        gameId: data.gameId,
-    };
+    return data ? parseEntity<ResourceData>(data) : null;
 };
-
-/**
- * Get a unit from Redis
- * @param id - The unit's ID
- * @returns The unit object or null if not found
- */
-export const getCachedUnit = async (id: string): Promise<UnitData | null> => {
-    const key = `unit:${id}`;
+export const getCachedUnit = async (
+    gameId: string,
+    unitId: string,
+): Promise<UnitData | null> => {
+    const key = gameKey(gameId, "unit", unitId);
     const data = await redis.hgetall(key);
-
-    if (!data || Object.keys(data).length === 0) return null;
-
-    return {
-        id: id,
-        position: JSON.parse(data.position),
-        color: data.color as any,
-        health: parseInt(data.health),
-        speed: parseInt(data.speed),
-        damage: parseInt(data.damage),
-        type: data.type as any,
-        state: data.state,
-        target: JSON.parse(data.target),
-        size: JSON.parse(data.size),
-        gameId: data.gameId,
-    };
+    return data ? parseEntity<UnitData>(data) : null;
 };
-
 /**
  * Delete a unit from Redis
  * @param id - The unit's ID
