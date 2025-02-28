@@ -1,4 +1,4 @@
-import { Tile, GameState, UnitController } from "@packages/game-data";
+import { Tile, GameState, UnitController, Resource } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -6,6 +6,7 @@ import KeyEventHandler from "../control/KeyEventHandler";
 import GameCanvas from "../ui/GameCanvas";
 import EntityManager from "./EntityManager";
 import Game from "../Game";
+import Drawable from "../data/Drawable";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -38,24 +39,38 @@ class GameLogic {
         this.#entityManager = new EntityManager();
     }
     updateGameState(data: GameState) {
-        console.log(data);
+        //console.log(data);
         this.#entityManager.loadGameState(data);
     }
 
     gameLoop() {
         const units = this.#entityManager.getUnitsController().getUnits();
+        const resources = this.#entityManager
+            .getResourceController()
+            .getResources();
         const ctx = this.#gameCanvas.getContext();
+        if (!ctx) {
+            throw new Error("KK");
+        }
 
         const animate = () => {
-            ctx?.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
+            ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
             const unit = units[0];
-            ctx?.rect(
+            ctx.rect(
                 unit.getX(),
                 unit.getY(),
                 unit.getSize().width,
                 unit.getSize().height,
             );
 
+            resources.forEach((resource: Resource) => {
+                const img = this.#assets.getImage("wheat");
+                if (!img) {
+                    throw new Error("not found");
+                }
+                const drawable = new Drawable(img);
+                drawable.draw(ctx, this.#camera, resource);
+            });
             requestAnimationFrame(animate);
         };
         animate();
