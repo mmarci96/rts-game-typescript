@@ -4,15 +4,17 @@ import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
 import KeyEventHandler from "../control/KeyEventHandler";
 import GameCanvas from "../ui/GameCanvas";
+import EntityManager from "./EntityManager";
+import Game from "../Game";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
-    #camera;
-    #gameMapDrawer;
-    #assets;
-    #keyEventHandler;
-    #gameCanvas;
-    #unitController;
+    #camera: Camera;
+    #gameMapDrawer: GameMapDrawer;
+    #assets: AssetManager;
+    #keyEventHandler: KeyEventHandler;
+    #gameCanvas: GameCanvas;
+    #entityManager: EntityManager;
 
     constructor(assets: AssetManager, tiles: Tile[][]) {
         this.#camera = new Camera(
@@ -21,7 +23,6 @@ class GameLogic {
             GameLogic.CAMERA_SIZE,
             GameLogic.CAMERA_SIZE,
         );
-        this.#unitController = new UnitController();
         this.#assets = assets;
         this.#gameMapDrawer = new GameMapDrawer(
             tiles,
@@ -33,9 +34,31 @@ class GameLogic {
         this.#gameMapDrawer.drawMap();
         this.#keyEventHandler = new KeyEventHandler(this.#camera);
         this.#keyEventHandler.setupCameraControl(this.#gameMapDrawer);
+
+        this.#entityManager = new EntityManager();
     }
     updateGameState(data: GameState) {
         console.log(data);
+        this.#entityManager.loadGameState(data);
+    }
+
+    gameLoop() {
+        const units = this.#entityManager.getUnitsController().getUnits();
+        const ctx = this.#gameCanvas.getContext();
+
+        const animate = () => {
+            ctx?.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
+            const unit = units[0];
+            ctx?.rect(
+                unit.getX(),
+                unit.getY(),
+                unit.getSize().width,
+                unit.getSize().height,
+            );
+
+            requestAnimationFrame(animate);
+        };
+        animate();
     }
 }
 

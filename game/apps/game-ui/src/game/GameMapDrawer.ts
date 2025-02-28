@@ -5,9 +5,9 @@ import AssetManager from "./data/AssetManager";
 import Game from "./Game";
 
 class GameMapDrawer {
-    #tiles;
-    #assets;
-    #camera;
+    #tiles: Tile[][];
+    #assets: AssetManager;
+    #camera: Camera;
     #canvas: HTMLCanvasElement;
 
     constructor(tiles: Tile[][], camera: Camera, assets: AssetManager) {

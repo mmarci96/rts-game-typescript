@@ -2,7 +2,7 @@ import Camera from "./Camera";
 import Game from "../Game";
 
 class GameCanvas {
-    #camera;
+    #camera: Camera;
     #gameCanvas: HTMLCanvasElement;
 
     constructor(camera: Camera) {
