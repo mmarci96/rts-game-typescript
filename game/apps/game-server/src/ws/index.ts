@@ -53,6 +53,7 @@ export const websocketController = (io: Server) => {
                                 gameState,
                                 game: new Game(gameId, map, gameState),
                             };
+                            console.log("GAME: ", games[gameId]);
                             delete pendingGameCreations[gameId];
                         })();
                     }
