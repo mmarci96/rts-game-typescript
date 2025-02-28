@@ -64,7 +64,10 @@ class GameLogic {
             );
 
             resources.forEach((resource: Resource) => {
-                const img = this.#assets.getImage("wheat");
+                let img = this.#assets.getImage(resource.getType());
+                if (resource.getType() === "tree") {
+                    img = this.#assets.getImage("directional_sign");
+                }
                 if (!img) {
                     throw new Error("not found");
                 }

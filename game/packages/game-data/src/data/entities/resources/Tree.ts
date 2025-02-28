@@ -3,7 +3,10 @@ import Resource from "./Resource";
 
 class Tree extends Resource {
     constructor(parameters: ResourceParams) {
-        super(parameters)
+        super(parameters);
+    }
+    getType(): string {
+        return "tree";
     }
 }
 

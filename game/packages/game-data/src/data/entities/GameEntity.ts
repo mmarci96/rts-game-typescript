@@ -81,6 +81,9 @@ class GameEntity {
     getSize() {
         return this.#size;
     }
+    getType() {
+        return "entity";
+    }
 }
 
 export default GameEntity;

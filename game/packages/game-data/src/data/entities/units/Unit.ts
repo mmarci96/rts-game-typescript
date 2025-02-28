@@ -32,7 +32,7 @@ class Unit extends ControlledEntity {
     }
 
     getType() {
-        return "";
+        return "unit";
     }
 }
 
