@@ -1,15 +1,15 @@
-import { GameEntity } from "@packages/game-data";
+import { GameEntity, Tree } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 
 class Drawable {
     #spriteSheet: CanvasImageSource;
-    #isSelected: boolean;
+    isSelected: boolean;
     #hasShadow: boolean;
 
     constructor(spriteSheet: CanvasImageSource) {
         this.#spriteSheet = spriteSheet;
-        this.#isSelected = false;
+        this.isSelected = false;
         this.#hasShadow = false;
     }
 
@@ -32,8 +32,8 @@ class Drawable {
             camera.getX(),
             camera.getY(),
         );
-        if (this.#isSelected) {
-            this.drawSelector(ctx, px, py, gameEntity.getSize().height);
+        if (this.isSelected) {
+            console.log("wtf");
         }
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);

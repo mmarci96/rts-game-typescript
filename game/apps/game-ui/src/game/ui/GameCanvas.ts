@@ -9,7 +9,7 @@ class GameCanvas {
         this.#camera = camera;
         const gameCanvas = document.getElementById("game-canvas");
         if (!(gameCanvas instanceof HTMLCanvasElement)) {
-            throw new TypeError("Must be html canvas element ");
+            throw new Error("Must be html canvas element ");
         }
         this.#gameCanvas = gameCanvas;
         this.#gameCanvas.width = Game.WIDTH;

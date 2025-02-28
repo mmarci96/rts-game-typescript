@@ -50,71 +50,26 @@ class GameLogic {
         this.#entityManager = new EntityManager();
     }
     updateGameState(data: GameState) {
-        //console.log(data);
         this.#entityManager.loadGameState(data);
     }
 
     gameLoop() {
-        const units = this.#entityManager.getUnitsController().getUnits();
-        const buildings = this.#entityManager
-            .getBuildingController()
-            .getBuildings();
-        const resources = this.#entityManager
-            .getResourceController()
-            .getResources();
-        const ctx = this.#gameCanvas.getContext();
-
+        const ctx: CanvasRenderingContext2D | null =
+            this.#gameCanvas.getContext();
         if (!ctx) {
-            throw new Error("KK");
+            throw new Error("Fuck my like");
         }
-        const drawables = new Map<Drawable, GameEntity>();
 
-        units.forEach((unit: Unit) => {
-            const color = unit.getColor();
-            const img = this.#assets.getImage(
-                `${unit.getType().toLowerCase()}_${color}`,
-            );
-            if (!img) {
-                throw new Error("not found");
-            }
-            const animatedSprite = new AnimatedSprite(img);
-            drawables.set(animatedSprite, unit);
-        });
-
-        buildings.forEach((building: Building) => {
-            const color = building.getColor();
-            const img = this.#assets.getImage(`house_${color.toLowerCase()}`);
-            if (!img) {
-                throw new Error("not found");
-            }
-            const drawable = new Drawable(img);
-            drawables.set(drawable, building);
-        });
-
-        resources.forEach((resource: Resource) => {
-            const img = this.#assets.getImage(resource.getType());
-            if (!img) {
-                throw new Error("not found");
-            }
-            switch (resource.getType()) {
-                case ResourceType.TREE:
-                    const tree = new AnimatedTree(img);
-                    drawables.set(tree, resource);
-                    break;
-                case ResourceType.WHEAT:
-                    const drawable = new Drawable(img);
-                    drawables.set(drawable, resource);
-                    break;
-                default:
-                    break;
-            }
-        });
+        const drawables = this.#entityManager.getDrawableEntities(
+            ctx,
+            this.#assets,
+        );
 
         const animate = () => {
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
-            drawables.forEach((value: GameEntity, key: Drawable) => {
-                key.draw(ctx, this.#camera, value);
+            drawables.forEach((value: Drawable, key: GameEntity) => {
+                value.draw(ctx, this.#camera, key);
             });
 
             requestAnimationFrame(animate);

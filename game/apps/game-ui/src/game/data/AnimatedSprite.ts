@@ -23,13 +23,11 @@ class AnimatedSprite extends Drawable {
         this.frameX = 0;
         this.frameY = 0;
         this.gameFrame = 0;
-        this.staggerFrames = 6; // requestAnimationFrame(60FPS)/ 6 = 10 FPS
+        this.staggerFrames = 8; // requestAnimationFrame(60FPS)/ 6 = 10 FPS
         this.maxFrame = 5;
         this.skullFrames = 0;
         this.isAnimationComplete = false;
     }
-
-    //draw(ctx: CanvasRenderingContext2D, camera: Camera, gameEntity: Unit) {}
 
     updateAnimation() {
         //if (this.isDying && this.maxFrame === 6) {
