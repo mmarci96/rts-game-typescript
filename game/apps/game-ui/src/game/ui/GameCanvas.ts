@@ -16,6 +16,11 @@ class GameCanvas {
         this.#gameCanvas.height = Game.HEIGHT;
         this.#gameCanvas.style.zIndex = "3";
     }
+
+    getContext() {
+        const ctx = this.#gameCanvas.getContext("2d");
+        return ctx;
+    }
 }
 
 export default GameCanvas;

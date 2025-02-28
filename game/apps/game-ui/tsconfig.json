@@ -10,6 +10,8 @@
     "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
+    "allowJs": true,
+    "checkJs": false ,
     "moduleDetection": "force",
     "noEmit": true,
 
@@ -20,5 +22,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts"],
 }

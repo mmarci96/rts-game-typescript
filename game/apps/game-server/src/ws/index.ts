@@ -31,13 +31,13 @@ const websocketUpdater = (io: Server, gameId: string) => {
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
         const gameData = await getGameState(gameId);
-        io.to(gameId).emit("game_state", gameData);
         count++;
         if (count >= saveRate) {
-            //count = 0;
-            clearInterval(socketUpdateInterval);
+            io.to(gameId).emit("game_state", gameData);
+            count = 0;
+            //clearInterval(socketUpdateInterval);
         }
-    }, 100);
+    }, 1000);
 };
 
 export const websocketController = (io: Server) => {

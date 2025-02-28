@@ -15,9 +15,8 @@ const socketHandler = (
         socket.emit("load_game", data);
     });
     socket.on("game_state", (data: GameState) => {
-        console.log(data);
-        console.log(game);
-        //game.getLogic().loadGameState(data);
+        //console.log(data);
+        game.getLogic().updateGameState(data);
     });
 };
 
