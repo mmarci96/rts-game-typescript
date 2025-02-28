@@ -7,77 +7,80 @@ class GameEntity {
     #size;
 
     /**
-    * @param id string
-    * @param position Position
-    */
+     * @param id string
+     * @param position Position
+     */
     constructor(
-        id: string, position: Position, description: string, size: Size) {
+        id: string,
+        position: Position,
+        description: string,
+        size: Size,
+    ) {
         this.#id = id;
         this.#position = position;
-        this.#description = description || 'No info';
+        this.#description = description || "No info";
         this.#size = size;
     }
 
     /**
-    * @returns string
-    */
+     * @returns string
+     */
     getId() {
         return this.#id;
     }
 
     /**
-    * @returns Position
-    */
+     * @returns Position
+     */
     getPosition() {
         return this.#position;
     }
 
     /**
-    * @returns number
-    */
+     * @returns number
+     */
     getX() {
-        return this.#position.x
+        return this.#position.x;
     }
 
     /**
-    * @returns number
-    */
+     * @returns number
+     */
     getY() {
-        return this.#position.y
+        return this.#position.y;
     }
 
     /**
-    * @param position Position
-    */
+     * @param position Position
+     */
     setPosition(position: Position) {
         this.#position = position;
     }
 
     /**
-    * @param x number 
-    */
+     * @param x number
+     */
     setX(x: number) {
         this.#position.x = x;
     }
 
     /**
-    * @param y number
-    */
+     * @param y number
+     */
     setY(y: number) {
         this.#position.y = y;
     }
 
     /**
-    * @returns string
-    */
+     * @returns string
+     */
     getDescription() {
-        return this.#description
+        return this.#description;
     }
 
     getSize() {
         return this.#size;
     }
-
 }
 
 export default GameEntity;

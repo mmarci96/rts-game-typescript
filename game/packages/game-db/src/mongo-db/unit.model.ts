@@ -19,10 +19,11 @@ interface IUnit extends Document {
     color: PlayerColor;
     health: number;
     speed: number;
+    damage: number;
     type: UnitType;
     state: string;
     target: Target;
-    size: { width: number, height: number };
+    size: { width: number; height: number };
     gameId: Types.ObjectId;
     createdAt: Date;
     updatedAt?: Date;
@@ -42,11 +43,16 @@ const unitSchema = new Schema<IUnit>({
     color: { type: String, enum: PlayerColor, required: true },
     health: { type: Number, required: true },
     speed: { type: Number, required: true },
+    damage: { type: Number, required: true },
     type: { type: String, enum: UnitType, required: true },
     state: { type: String, default: "idle" },
     target: { type: targetSchema, default: {} },
     size: { type: { width: Number, height: Number }, required: true },
-    gameId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Game" },
+    gameId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: "Game",
+    },
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
 });
@@ -54,4 +60,3 @@ const unitSchema = new Schema<IUnit>({
 const UnitModel = mongoose.model<IUnit>("Unit", unitSchema);
 
 export { UnitModel, IUnit, UnitType, Target };
-
