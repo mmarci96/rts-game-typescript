@@ -4,8 +4,8 @@ import Game from "./Game";
 import AssetManager from "./data/AssetManager";
 
 class GameLoader {
-    static async fetchMapById(id: string) {
-        const res = await fetch("/api/maps/" + id);
+    static async fetchMapByGameId(gameId: string) {
+        const res = await fetch("/api/maps/by-game-id/" + gameId);
         const { data } = await res.json();
         const gameMap: IMap = data;
         return gameMap.tiles;
@@ -15,11 +15,10 @@ class GameLoader {
         await assetManager.loadAssets();
         return assetManager;
     }
-    static async loadGame(mapId: string) {
-        const mapTiles: Tile[][] = await this.fetchMapById(mapId);
-        const gameMap = new GameMap(mapTiles);
+    static async loadGame(gameId: string) {
+        const mapTiles: Tile[][] = await this.fetchMapByGameId(gameId);
         const assetManager = await this.loadAssets();
-        const game = new Game(gameMap, assetManager);
+        const game = new Game(assetManager, mapTiles);
         return game;
     }
 }
