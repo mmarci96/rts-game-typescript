@@ -3,7 +3,7 @@ import { Tile } from "@packages/game-data/dist/data/types";
 
 interface IMap extends Document {
     _id: Types.ObjectId;
-    tiles: Tile[];
+    tiles: Tile[][];
     type: string;
     size: string;
     createdAt: Date;
