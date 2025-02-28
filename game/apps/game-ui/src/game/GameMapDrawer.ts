@@ -22,7 +22,7 @@ class GameMapDrawer {
         }
         this.#canvas = canvasElement;
 
-        this.#canvas.style.zIndex = "10";
+        this.#canvas.style.zIndex = "0";
         this.#canvas.width = Game.WIDTH;
         this.#canvas.height = Game.HEIGHT;
     }
@@ -43,14 +43,12 @@ class GameMapDrawer {
 
         const minX = cameraX - camera.getWidth();
         const maxX = cameraX + camera.getWidth();
-        console.log(this.#tiles);
 
         for (let y = minY; y <= maxY; y++) {
             if (y < 0 || y >= this.#tiles.length) {
                 continue;
             }
             const row = this.#tiles[y];
-            console.log("row", row);
 
             for (let x = minX; x <= maxX; x++) {
                 if (x < 0 || x >= row.length) {
