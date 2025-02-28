@@ -1,14 +1,16 @@
-import { IBuilding, IResource, IUnit } from "@packages/game-db";
 import {
     UnitParams,
     ControlledEntityParams,
     BuildingParams,
     ResourceParams,
+    BuildingData,
+    ResourceData,
+    UnitData,
 } from "@packages/game-data";
 
-export const mapUnitToUnitParams = (unit: IUnit): UnitParams => {
+export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
     const controlledParams: ControlledEntityParams = {
-        id: unit._id.toString(),
+        id: unit.id.toString(),
         position: unit.position,
         description: `A ${unit.type} unit`,
         color: unit.color,
@@ -25,10 +27,10 @@ export const mapUnitToUnitParams = (unit: IUnit): UnitParams => {
 };
 
 export const mapBuildingToBuildingParams = (
-    building: IBuilding,
+    building: BuildingData,
 ): BuildingParams => {
     const controlledParams = {
-        id: building._id.toString(),
+        id: building.id.toString(),
         position: building.position,
         description: `A ${building.type} building`,
         color: building.color,
@@ -43,10 +45,10 @@ export const mapBuildingToBuildingParams = (
 };
 
 export const mapResourceToResourceParams = (
-    resource: IResource,
+    resource: ResourceData,
 ): ResourceParams => {
     return {
-        id: resource._id.toString(),
+        id: resource.id.toString(),
         position: resource.position,
         description: `A ${resource.type} field`,
         availableResource: resource.availableResource,

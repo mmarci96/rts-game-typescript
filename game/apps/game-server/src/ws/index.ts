@@ -1,5 +1,4 @@
 import {
-    GameEntityData,
     getEntitiesByGameId,
     getGameById,
     getMapById,
@@ -9,10 +8,12 @@ import {
 } from "@packages/game-db";
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
+import { cacheGameEntities, getGameState } from "../redis";
+import { GameState } from "../types";
 
 interface GameData {
     gameData: IGame;
-    gameEntities: GameEntityData;
+    gameState: GameState;
     game: Game;
 }
 
@@ -44,11 +45,13 @@ export const websocketController = (io: Server) => {
                             if (!gameData) throw new Error("Game not found");
                             const map = await getMapById(gameData.mapId);
                             if (!map) throw new Error("Map not found");
+                            await cacheGameEntities(gameEntities);
 
+                            const gameState = await getGameState(gameId);
                             games[gameId] = {
                                 gameData,
-                                gameEntities,
-                                game: new Game(gameId, map, gameEntities),
+                                gameState,
+                                game: new Game(gameId, map, gameState),
                             };
                             delete pendingGameCreations[gameId];
                         })();

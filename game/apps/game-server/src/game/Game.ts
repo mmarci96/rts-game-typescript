@@ -1,14 +1,15 @@
 import { Player } from "@packages/game-data";
 import { PlayerColor } from "@packages/game-data/dist/data/types";
-import { GameEntityData, IMap } from "@packages/game-db";
+import { IMap } from "@packages/game-db";
 import GameLogic from "./logic/GameLogic";
+import { GameState } from "../types";
 
 class Game {
     #id;
     #players: Map<string, Player>;
     #gameLogic;
 
-    constructor(gameId: string, map: IMap, gameData: GameEntityData) {
+    constructor(gameId: string, map: IMap, gameData: GameState) {
         this.#id = gameId;
         this.#players = new Map();
         this.#gameLogic = new GameLogic(gameData, map);

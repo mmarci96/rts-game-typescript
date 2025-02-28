@@ -3,16 +3,22 @@ export interface Position {
     y: number;
 }
 
+export interface Target {
+    x: number | null;
+    y: number | null;
+    id: string | null;
+}
+
 export interface Size {
     width: number;
     height: number;
 }
 
 export enum PlayerColor {
-    RED = 'red',
-    BLUE = 'blue',
-    PURPLE = 'purple',
-    YELLOW = 'yellow'
+    RED = "red",
+    BLUE = "blue",
+    PURPLE = "purple",
+    YELLOW = "yellow",
 }
 
 export interface ControlledEntityParams {
@@ -32,16 +38,49 @@ export interface UnitParams {
 }
 
 export interface BuildingParams {
-    controlledParams: ControlledEntityParams,
-    health: number,
+    controlledParams: ControlledEntityParams;
+    health: number;
 }
-
 export interface ResourceParams {
     id: string;
     position: Position;
     description: string;
     availableResource: number;
     size: Size;
+}
+
+export interface UnitData {
+    id: string;
+    position: Position;
+    color: PlayerColor;
+    health: number;
+    speed: number;
+    damage: number;
+    type: string;
+    state: string;
+    target: Target;
+    size: Size;
+    gameId: string;
+}
+
+export interface BuildingData {
+    id: string;
+    position: Position;
+    color: PlayerColor;
+    health: number;
+    type: string;
+    state: string;
+    size: Size;
+    gameId: string;
+}
+
+export interface ResourceData {
+    id: string;
+    position: Position;
+    availableResource: number;
+    type: string;
+    size: Size;
+    gameId: string;
 }
 
 export enum TileName {
@@ -71,7 +110,7 @@ export enum TileName {
     STONE_SLAB = "stone_slab",
     STONE_STAIR = "stone_stair",
     WATER1 = "water1",
-    WHEAT = "wheat"
+    WHEAT = "wheat",
 }
 
 export interface Tile {

@@ -1,5 +1,4 @@
-import { Building, MainBuilding } from "@packages/game-data";
-import { IBuilding } from "@packages/game-db";
+import { Building, BuildingData, MainBuilding } from "@packages/game-data";
 import { mapBuildingToBuildingParams } from "../../utils/parseData";
 
 class BuildingController {
@@ -8,8 +7,8 @@ class BuildingController {
         this.#buildings = new Map<string, Building>();
     }
 
-    loadBuildings(buildingsData: IBuilding[]) {
-        buildingsData.forEach((buildingData: IBuilding) => {
+    loadBuildings(buildingsData: BuildingData[]) {
+        buildingsData.forEach((buildingData: BuildingData) => {
             const buildingParams = mapBuildingToBuildingParams(buildingData);
             switch (buildingData.type) {
                 case "main":

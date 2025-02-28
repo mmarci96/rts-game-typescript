@@ -1,5 +1,4 @@
-import { Resource, Tree, WheatField } from "@packages/game-data";
-import { IResource } from "@packages/game-db";
+import { Resource, ResourceData, Tree, WheatField } from "@packages/game-data";
 import { mapResourceToResourceParams } from "../../utils/parseData";
 
 class ResourceController {
@@ -8,8 +7,8 @@ class ResourceController {
         this.#resources = new Map<string, Resource>();
     }
 
-    loadResources(resourcesData: IResource[]) {
-        resourcesData.forEach((resourceData: IResource) => {
+    loadResources(resourcesData: ResourceData[]) {
+        resourcesData.forEach((resourceData: ResourceData) => {
             const resourceParams = mapResourceToResourceParams(resourceData);
             switch (resourceData.type) {
                 case "wheatfield":

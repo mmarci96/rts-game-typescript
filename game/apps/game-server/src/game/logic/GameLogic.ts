@@ -3,6 +3,7 @@ import { GameEntityData, IMap, IUnit } from "@packages/game-db";
 import UnitController from "./UnitController";
 import ResourceController from "./ResourceController";
 import BuildingController from "./BuildingController";
+import { GameState } from "../../types";
 
 class GameLogic {
     #unitController;
@@ -10,7 +11,7 @@ class GameLogic {
     #resourceController;
     #gameMap;
 
-    constructor(gameData: GameEntityData, gameMap: IMap) {
+    constructor(gameData: GameState, gameMap: IMap) {
         this.#unitController = new UnitController();
         this.#resourceController = new ResourceController();
         this.#buildingController = new BuildingController();
@@ -23,7 +24,7 @@ class GameLogic {
         this.#gameMap = new GameMap(gameMap.tiles, size);
     }
 
-    loadMongoData(data: GameEntityData) {
+    loadMongoData(data: GameState) {
         this.#buildingController.loadBuildings(data.buildings);
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);

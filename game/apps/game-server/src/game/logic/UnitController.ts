@@ -1,5 +1,4 @@
-import { Archer, Unit, Worker, Warrior } from "@packages/game-data";
-import { IUnit } from "@packages/game-db";
+import { Archer, Unit, Worker, Warrior, UnitData } from "@packages/game-data";
 import { UnitType } from "@packages/game-db/dist/mongo-db/unit.model";
 import { mapUnitToUnitParams } from "../../utils/parseData";
 
@@ -9,8 +8,8 @@ class UnitController {
         this.#units = new Map<string, Unit>();
     }
 
-    loadUnits(unitsData: IUnit[]) {
-        unitsData.forEach((unitData: IUnit) => {
+    loadUnits(unitsData: UnitData[]) {
+        unitsData.forEach((unitData: UnitData) => {
             const unitParam = mapUnitToUnitParams(unitData);
             switch (unitData.type) {
                 case UnitType.ARCHER:
