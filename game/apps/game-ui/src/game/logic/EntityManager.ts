@@ -31,6 +31,8 @@ class EntityManager {
     getResourceController() {
         return this.#resourceController;
     }
+
+    getDrawableEntities() {}
 }
 
 export default EntityManager;

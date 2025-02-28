@@ -47,6 +47,7 @@ class AnimatedSprite extends Drawable {
     }
 
     draw(context: CanvasRenderingContext2D, camera: Camera, unit: Unit) {
+        this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
             return;
@@ -57,46 +58,31 @@ class AnimatedSprite extends Drawable {
             unit.getY(),
         );
 
-        if (isVisible) {
-            const { px, py } = VectorTransformer.positionToCanvas(
-                unit.getX(),
-                unit.getY(),
-                camera.getX(),
-                camera.getY(),
-            );
-
-            if (unit) {
-                this.drawSelector(context, px, py);
-            }
-
-            context.drawImage(
-                this.spriteSheet,
-                this.frameX * this.frameWidth,
-                this.frameY * this.frameHeight,
-                this.frameWidth,
-                this.frameHeight,
-                px - 64,
-                py - 64,
-                128,
-                128,
-            );
+        if (!isVisible) {
+            return;
         }
-    }
-
-    drawSelector(ctx: CanvasRenderingContext2D, x: number, y: number) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(
-            x,
-            y,
-            128 / 4,
-            0,
-            Math.PI * 2, // Full circle
+        const { px, py } = VectorTransformer.positionToCanvas(
+            unit.getX(),
+            unit.getY(),
+            camera.getX(),
+            camera.getY(),
         );
-        ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
-        ctx.fill();
-        ctx.closePath();
-        ctx.restore();
+
+        if (unit) {
+            this.drawSelector(context, px, py);
+        }
+
+        context.drawImage(
+            this.spriteSheet,
+            this.frameX * this.frameWidth,
+            this.frameY * this.frameHeight,
+            this.frameWidth,
+            this.frameHeight,
+            px - 64,
+            py - 64,
+            128,
+            128,
+        );
     }
 
     setAnimationType(state: string) {

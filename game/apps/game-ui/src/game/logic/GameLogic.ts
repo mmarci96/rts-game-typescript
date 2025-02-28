@@ -6,6 +6,7 @@ import {
     Building,
     Unit,
     GameEntity,
+    ResourceType,
 } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
@@ -16,6 +17,7 @@ import EntityManager from "./EntityManager";
 import Game from "../Game";
 import Drawable from "../data/Drawable";
 import AnimatedSprite from "../data/AnimatedSprite";
+import AnimatedTree from "../data/AnimatedTree";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -65,17 +67,13 @@ class GameLogic {
         if (!ctx) {
             throw new Error("KK");
         }
-
         const drawables = new Map<Drawable, GameEntity>();
 
-        // Add units to drawables
         units.forEach((unit: Unit) => {
             const color = unit.getColor();
             const img = this.#assets.getImage(
                 `${unit.getType().toLowerCase()}_${color}`,
             );
-            console.log(img, `${unit.getType()}_${color}`);
-
             if (!img) {
                 throw new Error("not found");
             }
@@ -83,7 +81,6 @@ class GameLogic {
             drawables.set(animatedSprite, unit);
         });
 
-        // Add buildings to drawables
         buildings.forEach((building: Building) => {
             const color = building.getColor();
             const img = this.#assets.getImage(`house_${color.toLowerCase()}`);
@@ -94,28 +91,30 @@ class GameLogic {
             drawables.set(drawable, building);
         });
 
-        // Add resources to drawables
         resources.forEach((resource: Resource) => {
-            let img = this.#assets.getImage(resource.getType());
-            if (resource.getType() === "tree") {
-                img = this.#assets.getImage("directional_sign");
-            }
+            const img = this.#assets.getImage(resource.getType());
             if (!img) {
                 throw new Error("not found");
             }
-            const drawable = new Drawable(img);
-            drawables.set(drawable, resource);
+            switch (resource.getType()) {
+                case ResourceType.TREE:
+                    const tree = new AnimatedTree(img);
+                    drawables.set(tree, resource);
+                    break;
+                case ResourceType.WHEAT:
+                    const drawable = new Drawable(img);
+                    drawables.set(drawable, resource);
+                    break;
+                default:
+                    break;
+            }
         });
 
-        // Animation loop
         const animate = () => {
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
             drawables.forEach((value: GameEntity, key: Drawable) => {
                 key.draw(ctx, this.#camera, value);
-                if (key instanceof AnimatedSprite) {
-                    key.updateAnimation();
-                }
             });
 
             requestAnimationFrame(animate);

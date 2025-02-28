@@ -37,7 +37,7 @@ const websocketUpdater = (io: Server, gameId: string) => {
             count = 0;
             //clearInterval(socketUpdateInterval);
         }
-    }, 1000);
+    }, 200);
 };
 
 export const websocketController = (io: Server) => {

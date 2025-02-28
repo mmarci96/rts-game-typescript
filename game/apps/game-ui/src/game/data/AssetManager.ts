@@ -120,6 +120,8 @@ class AssetManager {
                     "house_destroyed",
                     "/assets/House/House_Destroyed.png",
                 ),
+                // Tiny Swords
+                this.loadImage("tree", "/assets/TileSet/Tree.png"),
 
                 // Tileset
                 this.loadImage(
