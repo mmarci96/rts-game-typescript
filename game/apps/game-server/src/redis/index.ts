@@ -79,9 +79,9 @@ const getGameEntities = async <T>(
     if (!results) return [];
 
     return results
-        .filter(([err]) => !err) // Filter out failed commands
+        .filter(([err]) => !err)
         .map(([_, data]) => parseEntity<T>(data as Record<string, string>))
-        .filter(Boolean); // Remove null values
+        .filter((entity): entity is T => entity !== null); // Type guard
 };
 
 /**

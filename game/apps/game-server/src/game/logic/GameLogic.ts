@@ -16,7 +16,7 @@ class GameLogic {
         this.#resourceController = new ResourceController();
         this.#buildingController = new BuildingController();
 
-        this.loadMongoData(gameData);
+        this.loadData(gameData);
         const size: Size = {
             width: gameMap.tiles.length,
             height: gameMap.tiles.length,
@@ -24,7 +24,7 @@ class GameLogic {
         this.#gameMap = new GameMap(gameMap.tiles, size);
     }
 
-    loadMongoData(data: GameState) {
+    loadData(data: GameState) {
         this.#buildingController.loadBuildings(data.buildings);
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);
