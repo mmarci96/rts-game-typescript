@@ -1,8 +1,10 @@
-import { GameMap, Size } from "@packages/game-data";
-import { GameEntityData, IMap, IUnit } from "@packages/game-db";
-import UnitController from "./UnitController";
-import ResourceController from "./ResourceController";
-import BuildingController from "./BuildingController";
+import {
+    GameMap,
+    UnitController,
+    ResourceController,
+    BuildingController,
+} from "@packages/game-data";
+import { IMap } from "@packages/game-db";
 import { GameState } from "../../types";
 
 class GameLogic {

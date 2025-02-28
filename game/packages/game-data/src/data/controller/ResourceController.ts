@@ -1,5 +1,6 @@
-import { Resource, ResourceData, Tree, WheatField } from "@packages/game-data";
-import { mapResourceToResourceParams } from "../../utils/parseData";
+import { ResourceData } from "../types";
+import { Resource, WheatField, Tree } from "../entities";
+import { mapResourceToResourceParams } from "../utils";
 
 class ResourceController {
     #resources;
@@ -22,6 +23,9 @@ class ResourceController {
                     break;
             }
         });
+    }
+    getResources() {
+        return [...this.#resources.values()];
     }
 }
 

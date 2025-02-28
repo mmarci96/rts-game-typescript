@@ -1,17 +1,19 @@
 import ControlledEntity from "../ControlledEntity";
-import { UnitParams } from "../../types";
+import { UnitParams, Target } from "../../types";
 import Attackable from "../Attackable";
 
 class Unit extends ControlledEntity {
-    attackable
+    attackable;
     #damage;
     #speed;
+    #target;
 
     constructor(parameters: UnitParams) {
         super(parameters.controlledParams);
         this.attackable = new Attackable(parameters.health);
         this.#damage = parameters.damage;
         this.#speed = parameters.speed;
+        this.#target = parameters.target;
     }
 
     getDamage() {
@@ -22,8 +24,15 @@ class Unit extends ControlledEntity {
         return this.#speed;
     }
 
+    getTarget(): Target {
+        return this.#target;
+    }
+    setTarget(target: Target) {
+        this.#target = target;
+    }
+
     getType() {
-        return ''
+        return "";
     }
 }
 

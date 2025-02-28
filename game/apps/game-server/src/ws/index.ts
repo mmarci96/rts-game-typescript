@@ -35,7 +35,6 @@ const websocketUpdater = (io: Server, gameId: string) => {
         count++;
         if (count >= saveRate) {
             //count = 0;
-
             clearInterval(socketUpdateInterval);
         }
     }, 100);

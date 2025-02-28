@@ -1,5 +1,6 @@
-import { Building, BuildingData, MainBuilding } from "@packages/game-data";
-import { mapBuildingToBuildingParams } from "../../utils/parseData";
+import { Building, MainBuilding } from "../entities";
+import { BuildingData } from "../types";
+import { mapBuildingToBuildingParams } from "../utils";
 
 class BuildingController {
     #buildings;
@@ -19,6 +20,9 @@ class BuildingController {
                     break;
             }
         });
+    }
+    getBuildings() {
+        return [...this.#buildings.values()];
     }
 }
 

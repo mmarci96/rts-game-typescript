@@ -35,6 +35,7 @@ export interface UnitParams {
     health: number;
     damage: number;
     speed: number;
+    target: Target;
 }
 
 export interface BuildingParams {
@@ -118,4 +119,22 @@ export interface Tile {
     y?: number;
     z: number;
     tile: TileName;
+}
+
+export enum UnitType {
+    ARCHER = "archer",
+    WARRIOR = "warrior",
+    WORKER = "worker",
+}
+
+export enum ResourceType {
+    TREE = "tree",
+    WHEAT = "wheatfield",
+}
+
+export interface UnitUpdateData {
+    id: string;
+    position: Position;
+    target: Target;
+    state: string;
 }
