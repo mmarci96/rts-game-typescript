@@ -18,11 +18,13 @@ class EntityManager {
     #unitController: UnitController;
     #buildingController: BuildingController;
     #resourceController: ResourceController;
+    #drawables: Map<GameEntity, Drawable>;
 
     constructor() {
         this.#unitController = new UnitController();
         this.#resourceController = new ResourceController();
         this.#buildingController = new BuildingController();
+        this.#drawables = new Map<GameEntity, Drawable>();
     }
 
     loadGameState(gameState: GameState) {
@@ -40,12 +42,12 @@ class EntityManager {
     getResourceController() {
         return this.#resourceController;
     }
+    getDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
+        this.loadDrawableEntities(ctx, assets);
+        return this.#drawables;
+    }
 
-    getDrawableEntities(
-        ctx: CanvasRenderingContext2D,
-        assets: AssetManager,
-    ): Map<GameEntity, Drawable> {
-        const drawables = new Map<GameEntity, Drawable>();
+    loadDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
         const units = this.getUnitsController().getUnits();
         const buildings = this.getBuildingController().getBuildings();
         const resources = this.getResourceController().getResources();
@@ -61,7 +63,7 @@ class EntityManager {
                 throw new Error("not found");
             }
             const animatedSprite = new AnimatedSprite(img);
-            drawables.set(unit, animatedSprite);
+            this.#drawables.set(unit, animatedSprite);
         });
 
         buildings.forEach((building: Building) => {
@@ -71,7 +73,7 @@ class EntityManager {
                 throw new Error("not found");
             }
             const drawable = new Drawable(img);
-            drawables.set(building, drawable);
+            this.#drawables.set(building, drawable);
         });
 
         resources.forEach((resource: Resource) => {
@@ -82,15 +84,14 @@ class EntityManager {
             switch (resource.getType()) {
                 case ResourceType.TREE:
                     const tree = new AnimatedTree(img);
-                    drawables.set(resource, tree);
+                    this.#drawables.set(resource, tree);
                     break;
                 default:
                     const drawable = new Drawable(img);
-                    drawables.set(resource, drawable);
+                    this.#drawables.set(resource, drawable);
                     break;
             }
         });
-        return drawables;
     }
 }
 

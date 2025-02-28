@@ -5,6 +5,7 @@ class GameEntity {
     #position;
     #description;
     #size;
+    isSelected;
 
     /**
      * @param id string
@@ -20,6 +21,7 @@ class GameEntity {
         this.#position = position;
         this.#description = description || "No info";
         this.#size = size;
+        this.isSelected = false;
     }
 
     /**

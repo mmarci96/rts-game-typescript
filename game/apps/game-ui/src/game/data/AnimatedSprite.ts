@@ -66,9 +66,9 @@ class AnimatedSprite extends Drawable {
             camera.getY(),
         );
 
-        if (unit) {
-            this.drawSelector(context, px, py);
-        }
+        //if () {
+        //    this.drawSelector(context, px, py);
+        //}
 
         context.drawImage(
             this.spriteSheet,
