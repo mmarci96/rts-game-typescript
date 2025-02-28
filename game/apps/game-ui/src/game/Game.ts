@@ -1,4 +1,4 @@
-import { GameMap, Tile } from "@packages/game-data";
+import { Tile } from "@packages/game-data";
 import AssetManager from "./data/AssetManager";
 import GameLogic from "./logic/GameLogic";
 
@@ -9,6 +9,9 @@ class Game {
 
     constructor(assets: AssetManager, tiles: Tile[][]) {
         this.#gameLogic = new GameLogic(assets, tiles);
+    }
+    getLogic() {
+        return this.#gameLogic;
     }
 }
 

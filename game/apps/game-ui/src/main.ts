@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "./game/GameLoader";
 import Game from "./game/Game";
+import { GameState } from "@packages/game-data";
 
 const socketHandler = (
     socket: Socket,
@@ -13,9 +14,10 @@ const socketHandler = (
         const data = { playerId, gameId };
         socket.emit("load_game", data);
     });
-    socket.on("game_state", (data) => {
+    socket.on("game_state", (data: GameState) => {
         console.log(data);
         console.log(game);
+        //game.getLogic().loadGameState(data);
     });
 };
 

@@ -1,15 +1,8 @@
-import { Tile } from "@packages/game-data";
+import { Tile, GameState } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
-import { BuildingData, ResourceData, UnitData } from "@packages/game-data";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
 import KeyEventHandler from "../control/KeyEventHandler";
-
-export interface GameState {
-    units: UnitData[];
-    resources: ResourceData[];
-    buildings: BuildingData[];
-}
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -17,6 +10,7 @@ class GameLogic {
     #gameMapDrawer;
     #assets;
     #keyEventHandler;
+
     constructor(assets: AssetManager, tiles: Tile[][]) {
         this.#camera = new Camera(
             16,

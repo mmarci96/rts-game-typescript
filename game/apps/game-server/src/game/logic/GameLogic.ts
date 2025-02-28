@@ -2,10 +2,10 @@ import {
     GameMap,
     UnitController,
     ResourceController,
+    GameState,
     BuildingController,
 } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
-import { GameState } from "../../types";
 
 class GameLogic {
     #unitController;

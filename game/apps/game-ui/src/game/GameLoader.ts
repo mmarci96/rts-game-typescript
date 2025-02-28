@@ -1,4 +1,4 @@
-import { GameMap, Tile } from "@packages/game-data";
+import { Tile } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
 import Game from "./Game";
 import AssetManager from "./data/AssetManager";

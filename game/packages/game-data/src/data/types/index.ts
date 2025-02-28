@@ -138,3 +138,9 @@ export interface UnitUpdateData {
     target: Target;
     state: string;
 }
+
+export interface GameState {
+    units: UnitData[];
+    resources: ResourceData[];
+    buildings: BuildingData[];
+}

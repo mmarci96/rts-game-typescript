@@ -1,7 +1,11 @@
 import Redis, { ChainableCommander } from "ioredis";
 import { IBuilding, IResource, IUnit } from "@packages/game-db";
-import { BuildingData, ResourceData, UnitData } from "@packages/game-data";
-import { GameState } from "../types";
+import {
+    BuildingData,
+    ResourceData,
+    UnitData,
+    GameState,
+} from "@packages/game-data";
 
 const redis = new Redis();
 

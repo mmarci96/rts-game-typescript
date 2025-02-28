@@ -9,7 +9,7 @@ import {
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
 import { cacheGameEntities, getGameState } from "../redis";
-import { GameState } from "../types";
+import { GameState } from "@packages/game-data";
 
 interface GameData {
     gameData: IGame;
