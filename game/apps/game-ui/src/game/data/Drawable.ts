@@ -1,4 +1,4 @@
-import { GameEntity, Tree } from "@packages/game-data";
+import { GameEntity } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 
@@ -38,7 +38,7 @@ class Drawable {
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);
         }
-        console.log("Game entitt Height: ", gameEntity.getSize().height);
+        //console.log("Game entitt Height: ", gameEntity.getSize().height);
 
         ctx.drawImage(this.#spriteSheet, px, py);
     }
