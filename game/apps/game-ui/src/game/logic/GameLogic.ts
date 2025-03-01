@@ -18,6 +18,9 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import AnimatedSprite from "../data/AnimatedSprite";
 import AnimatedTree from "../data/AnimatedTree";
+import MouseEventHandler from "../control/MouseEventHandler";
+import Overlay from "../ui/Overlay";
+import SelectionBox from "../ui/SelectionBox";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -25,6 +28,7 @@ class GameLogic {
     #gameMapDrawer: GameMapDrawer;
     #assets: AssetManager;
     #keyEventHandler: KeyEventHandler;
+    #mouseEventHandler: MouseEventHandler;
     #gameCanvas: GameCanvas;
     #entityManager: EntityManager;
 
@@ -46,6 +50,12 @@ class GameLogic {
         this.#gameMapDrawer.drawMap();
         this.#keyEventHandler = new KeyEventHandler(this.#camera);
         this.#keyEventHandler.setupCameraControl(this.#gameMapDrawer);
+
+        this.#mouseEventHandler = new MouseEventHandler(
+            this.#camera,
+            new SelectionBox(),
+            this.#assets,
+        );
 
         this.#entityManager = new EntityManager();
     }
@@ -71,6 +81,7 @@ class GameLogic {
             drawables.forEach((value: Drawable, key: GameEntity) => {
                 value.draw(ctx, this.#camera, key);
             });
+            this.#mouseEventHandler.drawSelection();
 
             requestAnimationFrame(animate);
         };
