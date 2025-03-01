@@ -46,6 +46,9 @@ class EntityManager {
         this.loadDrawableEntities(ctx, assets);
         return this.#drawables;
     }
+    getEntities() {
+        return this.#drawables.keys();
+    }
 
     loadDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
         const units = this.getUnitsController().getUnits();

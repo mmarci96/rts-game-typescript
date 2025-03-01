@@ -1,6 +1,8 @@
+import { GameEntity } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
+import Drawable from "../data/Drawable";
 
 class MouseEventHandler {
     #canvas: HTMLCanvasElement;
@@ -8,7 +10,7 @@ class MouseEventHandler {
     #selectionBox: SelectionBox;
     selectionActive: boolean = false;
     #assets: AssetManager;
-    #selectables = [];
+    #entities: Array<GameEntity>;
     constructor(
         camera: Camera,
         selectionBox: SelectionBox,
@@ -26,9 +28,11 @@ class MouseEventHandler {
         this.#camera = camera;
         this.#selectionBox = selectionBox;
         this.#assets = assets;
+        this.#entities = [];
     }
 
-    drawSelection() {
+    addCanvasEventListeners(drawables: Iterable<GameEntity>) {
+        this.#entities = Array.from(drawables);
         const ctx = this.#canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");
@@ -62,16 +66,24 @@ class MouseEventHandler {
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
 
+            //[...this.#entities.values()].forEach((gameEntity: GameEntity) => {
+            //    gameEntity.isSelected = false;
+            //});
+
+            console.log(this.#entities);
+
             this.#selectionBox.drawBox(startX, startY, finalX, finalY);
             ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
             isSelecting = false;
             //this.#selectables.push(...this.#units, ...this.#playerBuildings);
 
             const selectedUnits = this.#selectionBox.handleSelecting(
-                this.#selectables,
+                this.#entities,
                 this.#camera,
             );
-            this.#selectables = [];
+            console.log(selectedUnits);
+
+            //this.#entities = [];
             if (selectedUnits.length > 0) {
                 this.selectionActive = true;
                 //this.#uiOverlay.setVisible();

@@ -31,6 +31,7 @@ class GameLogic {
     #mouseEventHandler: MouseEventHandler;
     #gameCanvas: GameCanvas;
     #entityManager: EntityManager;
+    #drawables: Map<GameEntity, Drawable>;
 
     constructor(assets: AssetManager, tiles: Tile[][]) {
         this.#camera = new Camera(
@@ -58,6 +59,7 @@ class GameLogic {
         );
 
         this.#entityManager = new EntityManager();
+        this.#drawables = new Map();
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
@@ -70,19 +72,18 @@ class GameLogic {
             throw new Error("Fuck my like");
         }
 
-        const drawables = this.#entityManager.getDrawableEntities(
+        this.#drawables = this.#entityManager.getDrawableEntities(
             ctx,
             this.#assets,
         );
+        this.#mouseEventHandler.addCanvasEventListeners(this.#drawables.keys());
 
         const animate = () => {
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
-            drawables.forEach((value: Drawable, key: GameEntity) => {
+            this.#drawables.forEach((value: Drawable, key: GameEntity) => {
                 value.draw(ctx, this.#camera, key);
             });
-            this.#mouseEventHandler.drawSelection();
-
             requestAnimationFrame(animate);
         };
 

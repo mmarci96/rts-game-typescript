@@ -32,8 +32,9 @@ class Drawable {
             camera.getX(),
             camera.getY(),
         );
-        if (this.isSelected) {
+        if (gameEntity.isSelected) {
             console.log("wtf");
+            this.drawSelector(ctx, px, py, 96);
         }
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);
@@ -47,7 +48,7 @@ class Drawable {
         ctx: CanvasRenderingContext2D,
         x: number,
         y: number,
-        radius: number = 32,
+        radius: number = 122,
     ) {
         ctx.save();
         ctx.beginPath();
