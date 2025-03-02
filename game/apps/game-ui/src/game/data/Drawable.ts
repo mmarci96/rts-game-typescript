@@ -6,33 +6,31 @@ class Drawable {
     #spriteSheet: CanvasImageSource;
     isSelected: boolean;
     #hasShadow: boolean;
+    entity: GameEntity;
 
-    constructor(spriteSheet: CanvasImageSource) {
+    constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         this.#spriteSheet = spriteSheet;
         this.isSelected = false;
         this.#hasShadow = false;
+        this.entity = entity;
     }
 
-    draw(
-        ctx: CanvasRenderingContext2D,
-        camera: Camera,
-        gameEntity: GameEntity,
-    ) {
+    draw(ctx: CanvasRenderingContext2D, camera: Camera) {
         const isVisible = this.checkOutOfBounds(
             camera,
-            gameEntity.getX(),
-            gameEntity.getY(),
+            this.entity.getX(),
+            this.entity.getY(),
         );
         if (!isVisible) {
             return;
         }
         const { px, py } = VectorTransformer.positionToCanvas(
-            gameEntity.getX(),
-            gameEntity.getY(),
+            this.entity.getX(),
+            this.entity.getY(),
             camera.getX(),
             camera.getY(),
         );
-        if (gameEntity.isSelected) {
+        if (this.entity.isSelected) {
             console.log("wtf");
             this.drawSelector(ctx, px, py, 96);
         }

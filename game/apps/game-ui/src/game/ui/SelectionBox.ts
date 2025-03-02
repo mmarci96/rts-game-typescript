@@ -1,4 +1,3 @@
-import { GameEntity } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import VectorTransformer from "../utils/VectorTransformer";
 import Camera from "./Camera";
@@ -29,7 +28,7 @@ class SelectionBox {
         this.#finalY = endY;
     }
 
-    handleSelecting(gameEntities: GameEntity[], camera: Camera) {
+    handleSelecting(drawables: Drawable[], camera: Camera) {
         const selectionRect = {
             left: Math.min(this.#startX, this.#finalX) + 28,
             top: Math.min(this.#startY, this.#finalY) + 28,
@@ -37,10 +36,10 @@ class SelectionBox {
             bottom: Math.max(this.#startY, this.#finalY) + 28,
         };
 
-        return gameEntities.filter((entity) => {
+        return drawables.filter((drawable) => {
             const { px, py } = VectorTransformer.positionToCanvas(
-                entity.getX(),
-                entity.getY(),
+                drawable.entity.getX(),
+                drawable.entity.getY(),
                 camera.getX(),
                 camera.getY(),
             );
@@ -58,9 +57,9 @@ class SelectionBox {
                 selectionRect.bottom >= unitRect.top &&
                 selectionRect.top <= unitRect.bottom;
 
-            entity.isSelected = isPartiallyInside;
+            drawable.entity.isSelected = isPartiallyInside;
 
-            return entity.isSelected;
+            return drawable.isSelected;
         });
     }
 }

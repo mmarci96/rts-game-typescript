@@ -10,7 +10,7 @@ class MouseEventHandler {
     #selectionBox: SelectionBox;
     selectionActive: boolean = false;
     #assets: AssetManager;
-    #entities: Array<GameEntity>;
+    #entities: Array<Drawable>;
     constructor(
         camera: Camera,
         selectionBox: SelectionBox,
@@ -31,7 +31,7 @@ class MouseEventHandler {
         this.#entities = [];
     }
 
-    addCanvasEventListeners(drawables: Iterable<GameEntity>) {
+    addCanvasEventListeners(drawables: Iterable<Drawable>) {
         this.#entities = Array.from(drawables);
         const ctx = this.#canvas.getContext("2d");
         if (!ctx) {

@@ -1,8 +1,9 @@
+import { GameEntity } from "@packages/game-data";
 import AnimatedSprite from "./AnimatedSprite";
 
 class AnimatedTree extends AnimatedSprite {
-    constructor(sprite: CanvasImageSource) {
-        super(sprite);
+    constructor(sprite: CanvasImageSource, entity: GameEntity) {
+        super(sprite, entity);
         this.frameWidth = 768 / 4;
         this.frameHeight = 576 / 3;
         this.frameY = 0;

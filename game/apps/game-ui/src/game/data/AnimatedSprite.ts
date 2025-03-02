@@ -1,4 +1,4 @@
-import { Unit } from "@packages/game-data";
+import { GameEntity, Unit } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";
@@ -15,8 +15,8 @@ class AnimatedSprite extends Drawable {
     skullFrames: number;
     isAnimationComplete: boolean;
 
-    constructor(spriteSheet: CanvasImageSource) {
-        super(spriteSheet);
+    constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
+        super(spriteSheet, entity);
         this.spriteSheet = spriteSheet;
         this.frameWidth = 1152 / 6;
         this.frameHeight = 1536 / 8;
@@ -44,7 +44,7 @@ class AnimatedSprite extends Drawable {
         this.gameFrame++;
     }
 
-    draw(context: CanvasRenderingContext2D, camera: Camera, unit: Unit) {
+    draw(context: CanvasRenderingContext2D, camera: Camera) {
         this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
@@ -52,16 +52,16 @@ class AnimatedSprite extends Drawable {
         }
         const isVisible = this.checkOutOfBounds(
             camera,
-            unit.getX(),
-            unit.getY(),
+            this.entity.getX(),
+            this.entity.getY(),
         );
 
         if (!isVisible) {
             return;
         }
         const { px, py } = VectorTransformer.positionToCanvas(
-            unit.getX(),
-            unit.getY(),
+            this.entity.getX(),
+            this.entity.getY(),
             camera.getX(),
             camera.getY(),
         );

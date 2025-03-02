@@ -1,13 +1,4 @@
-import {
-    Tile,
-    GameState,
-    UnitController,
-    Resource,
-    Building,
-    Unit,
-    GameEntity,
-    ResourceType,
-} from "@packages/game-data";
+import { Tile, GameState } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -16,10 +7,7 @@ import GameCanvas from "../ui/GameCanvas";
 import EntityManager from "./EntityManager";
 import Game from "../Game";
 import Drawable from "../data/Drawable";
-import AnimatedSprite from "../data/AnimatedSprite";
-import AnimatedTree from "../data/AnimatedTree";
 import MouseEventHandler from "../control/MouseEventHandler";
-import Overlay from "../ui/Overlay";
 import SelectionBox from "../ui/SelectionBox";
 
 class GameLogic {
@@ -31,7 +19,6 @@ class GameLogic {
     #mouseEventHandler: MouseEventHandler;
     #gameCanvas: GameCanvas;
     #entityManager: EntityManager;
-    #drawables: Map<GameEntity, Drawable>;
 
     constructor(assets: AssetManager, tiles: Tile[][]) {
         this.#camera = new Camera(
@@ -59,7 +46,6 @@ class GameLogic {
         );
 
         this.#entityManager = new EntityManager();
-        this.#drawables = new Map();
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
@@ -71,19 +57,23 @@ class GameLogic {
         if (!ctx) {
             throw new Error("Fuck my like");
         }
+        this.#entityManager.loadDrawableEntities(ctx, this.#assets);
 
-        this.#drawables = this.#entityManager.getDrawableEntities(
-            ctx,
-            this.#assets,
+        //this.#drawables = this.#entityManager.getDrawableEntities(
+        //    ctx,
+        //    this.#assets,
+        //);
+        this.#mouseEventHandler.addCanvasEventListeners(
+            this.#entityManager.getDrawables().values(),
         );
-        this.#mouseEventHandler.addCanvasEventListeners(this.#drawables.keys());
 
         const animate = () => {
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
-
-            this.#drawables.forEach((value: Drawable, key: GameEntity) => {
-                value.draw(ctx, this.#camera, key);
-            });
+            [...this.#entityManager.getDrawables().values()].forEach(
+                (drawable: Drawable) => {
+                    drawable.draw(ctx, this.#camera);
+                },
+            );
             requestAnimationFrame(animate);
         };
 
