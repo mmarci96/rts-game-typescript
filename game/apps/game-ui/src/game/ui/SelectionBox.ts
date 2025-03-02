@@ -36,7 +36,7 @@ class SelectionBox {
             bottom: Math.max(this.#startY, this.#finalY) + 28,
         };
 
-        return drawables.filter((drawable) => {
+        return drawables.filter((drawable: Drawable) => {
             const { px, py } = VectorTransformer.positionToCanvas(
                 drawable.entity.getX(),
                 drawable.entity.getY(),
@@ -59,7 +59,7 @@ class SelectionBox {
 
             drawable.entity.isSelected = isPartiallyInside;
 
-            return drawable.isSelected;
+            return drawable.entity.isSelected;
         });
     }
 }

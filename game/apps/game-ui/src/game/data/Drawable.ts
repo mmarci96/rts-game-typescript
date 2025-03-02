@@ -4,13 +4,11 @@ import VectorTransformer from "../utils/VectorTransformer";
 
 class Drawable {
     #spriteSheet: CanvasImageSource;
-    isSelected: boolean;
     #hasShadow: boolean;
     entity: GameEntity;
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         this.#spriteSheet = spriteSheet;
-        this.isSelected = false;
         this.#hasShadow = false;
         this.entity = entity;
     }

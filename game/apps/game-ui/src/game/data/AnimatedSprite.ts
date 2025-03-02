@@ -1,4 +1,4 @@
-import { GameEntity, Unit } from "@packages/game-data";
+import { GameEntity } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";
@@ -65,10 +65,6 @@ class AnimatedSprite extends Drawable {
             camera.getX(),
             camera.getY(),
         );
-
-        //if () {
-        //    this.drawSelector(context, px, py);
-        //}
 
         context.drawImage(
             this.spriteSheet,
