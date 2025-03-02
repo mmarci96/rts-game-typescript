@@ -35,9 +35,7 @@ class Drawable {
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);
         }
-        //console.log("Game entitt Height: ", gameEntity.getSize().height);
-
-        ctx.drawImage(this.#spriteSheet, px, py);
+        ctx.drawImage(this.#spriteSheet, px - 64, py - 96);
     }
 
     drawSelector(
@@ -48,13 +46,7 @@ class Drawable {
     ) {
         ctx.save();
         ctx.beginPath();
-        ctx.arc(
-            x + (radius * 2) / 3,
-            y + radius,
-            radius,
-            0,
-            Math.PI * 2, // Full circle
-        );
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
         ctx.fill();
         ctx.closePath();

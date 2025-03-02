@@ -15,7 +15,7 @@ const socketHandler = (
         socket.emit("load_game", data);
         setTimeout(() => {
             game.getLogic().gameLoop();
-        }, 5000);
+        }, 1000);
     });
     socket.on("game_state", (data: GameState) => {
         //console.log(data);
