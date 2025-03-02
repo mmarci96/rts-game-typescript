@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { getMapById, getMaps } from "../../service/map.service";
 import { Types } from "mongoose";
+import { getGameById } from "../../service/game.service";
 
 const router = express.Router();
 
@@ -19,6 +20,20 @@ router.get(
         try {
             const { mapId } = req.params;
             const map = await getMapById(new Types.ObjectId(mapId));
+            res.status(200).send({ data: map });
+        } catch (err) {
+            next(err);
+        }
+    },
+);
+
+router.get(
+    "/by-game-id/:gameId",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { gameId } = req.params;
+            const { game } = await getGameById(new Types.ObjectId(gameId));
+            const map = await getMapById(game.mapId);
             res.status(200).send({ data: map });
         } catch (err) {
             next(err);

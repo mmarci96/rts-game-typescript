@@ -25,6 +25,9 @@ class Resource extends Neutral {
     getAvailableResource() {
         return this.#availableResource;
     }
+    getType(): string {
+        return "resource";
+    }
 }
 
 export default Resource;

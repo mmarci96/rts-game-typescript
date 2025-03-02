@@ -1,8 +1,7 @@
-import { Player } from "@packages/game-data";
+import { Player, GameState } from "@packages/game-data";
 import { PlayerColor } from "@packages/game-data/dist/data/types";
 import { IMap } from "@packages/game-db";
 import GameLogic from "./logic/GameLogic";
-import { GameState } from "../types";
 
 class Game {
     #id;

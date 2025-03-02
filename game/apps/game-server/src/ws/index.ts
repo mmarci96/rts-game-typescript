@@ -9,7 +9,7 @@ import {
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
 import { cacheGameEntities, getGameState } from "../redis";
-import { GameState } from "../types";
+import { GameState } from "@packages/game-data";
 
 interface GameData {
     gameData: IGame;
@@ -26,6 +26,20 @@ const games: Record<string, GameData> = {};
 const connectedPlayers: Record<string, ConnectionData> = {};
 const pendingGameCreations: Record<string, Promise<void>> = {};
 
+const websocketUpdater = (io: Server, gameId: string) => {
+    let count = 0;
+    const saveRate = 5;
+    const socketUpdateInterval = setInterval(async () => {
+        const gameData = await getGameState(gameId);
+        count++;
+        if (count >= saveRate) {
+            io.to(gameId).emit("game_state", gameData);
+            count = 0;
+            //clearInterval(socketUpdateInterval);
+        }
+    }, 200);
+};
+
 export const websocketController = (io: Server) => {
     io.on("connection", (socket: Socket) => {
         console.log("New connection: ", socket.id);
@@ -33,7 +47,6 @@ export const websocketController = (io: Server) => {
         socket.on("load_game", async (data) => {
             try {
                 const { playerId, gameId } = data;
-
                 if (!games[gameId]) {
                     if (!pendingGameCreations[gameId]) {
                         pendingGameCreations[gameId] = (async () => {
@@ -53,7 +66,7 @@ export const websocketController = (io: Server) => {
                                 gameState,
                                 game: new Game(gameId, map, gameState),
                             };
-                            console.log("GAME: ", games[gameId]);
+                            websocketUpdater(io, gameId);
                             delete pendingGameCreations[gameId];
                         })();
                     }
@@ -61,6 +74,8 @@ export const websocketController = (io: Server) => {
                 }
 
                 const playerData = await getPlayerById(playerId);
+                socket.join(gameId);
+
                 if (!playerData) throw new Error("Player not found");
 
                 connectedPlayers[socket.id] = {
@@ -69,12 +84,6 @@ export const websocketController = (io: Server) => {
                 };
 
                 games[gameId].game.addPlayer(playerId, playerData.color);
-
-                console.log(`Player ${playerId} added to game ${gameId}`);
-                console.log(
-                    "Connected players",
-                    games[gameId].game.getPlayers(),
-                );
             } catch (error) {
                 console.error("Error loading game:", error);
                 socket.emit("error", { message: "error occured" });

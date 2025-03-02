@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import path from "path";
 
 export default defineConfig({
     plugins: [],
@@ -11,6 +12,18 @@ export default defineConfig({
                 changeOrigin: true,
                 ws: true,
             },
+            "/api": {
+                target: "http://localhost:5000",
+                changeOrigin: true,
+            },
+        },
+    },
+    resolve: {
+        alias: {
+            "@packages/game-data": path.resolve(
+                __dirname,
+                "../../node_modules/@packages/game-data/src/index.ts",
+            ),
         },
     },
 });

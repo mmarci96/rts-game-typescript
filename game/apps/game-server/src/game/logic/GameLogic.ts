@@ -1,9 +1,11 @@
-import { GameMap, Size } from "@packages/game-data";
-import { GameEntityData, IMap, IUnit } from "@packages/game-db";
-import UnitController from "./UnitController";
-import ResourceController from "./ResourceController";
-import BuildingController from "./BuildingController";
-import { GameState } from "../../types";
+import {
+    GameMap,
+    UnitController,
+    ResourceController,
+    GameState,
+    BuildingController,
+} from "@packages/game-data";
+import { IMap } from "@packages/game-db";
 
 class GameLogic {
     #unitController;
@@ -17,11 +19,8 @@ class GameLogic {
         this.#buildingController = new BuildingController();
 
         this.loadData(gameData);
-        const size: Size = {
-            width: gameMap.tiles.length,
-            height: gameMap.tiles.length,
-        };
-        this.#gameMap = new GameMap(gameMap.tiles, size);
+
+        this.#gameMap = new GameMap(gameMap.tiles);
     }
 
     loadData(data: GameState) {

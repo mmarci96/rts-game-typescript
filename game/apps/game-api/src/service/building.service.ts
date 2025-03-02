@@ -1,11 +1,15 @@
-import { PlayerColor } from "@packages/game-data/dist/data/types"
+import { PlayerColor } from "@packages/game-data/dist/data/types";
 import { BuildingModel } from "@packages/game-db";
 import { Types } from "mongoose";
 
-export const createMainBuilding = async (color: PlayerColor, mapSize: number, gameId: Types.ObjectId) => {
+export const createMainBuilding = async (
+    color: PlayerColor,
+    mapSize: number,
+    gameId: Types.ObjectId,
+) => {
     try {
         const mainBuildingHealth = 200;
-        const buildingSize = { width: 128, height: 196 };
+        const buildingSize = { width: 64, height: 64 };
         const position = { x: 4, y: 4 };
         switch (color) {
             case PlayerColor.RED:
@@ -28,13 +32,12 @@ export const createMainBuilding = async (color: PlayerColor, mapSize: number, ga
             color,
             gameId,
             health: mainBuildingHealth,
-            type: 'main',
-            size: buildingSize
-        })
+            type: "main",
+            size: buildingSize,
+        });
         const savedMain = await mainBuilding.save();
         return savedMain;
     } catch (err) {
         console.error(err);
-
     }
-}
+};

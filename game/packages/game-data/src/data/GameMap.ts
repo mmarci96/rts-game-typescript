@@ -1,22 +1,16 @@
-import { Size, Tile } from "./types";
+import { Tile } from "./types";
 
 class GameMap {
     static TILE_WIDTH = 48;
     static TILE_HEIGHT = 24;
     #tiles;
-    #size;
 
-    constructor(tiles: Tile[], size: Size) {
+    constructor(tiles: Tile[][]) {
         this.#tiles = tiles;
-        this.#size = size;
     }
 
     getTiles() {
         return [...this.#tiles];
-    }
-
-    getSize() {
-        return this.#size;
     }
 }
 

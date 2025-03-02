@@ -1,32 +1,31 @@
-import { PlayerColor } from "./types"
+import { PlayerColor } from "./types";
 
 class Player {
-    #playerId
-    #color
+    #playerId;
+    #color;
 
     /**
-    * @param { string } playerId
-    * @param { string } color
-    */
+     * @param { string } playerId
+     * @param { string } color
+     */
     constructor(playerId: string, color: PlayerColor) {
-        this.#playerId = playerId
-        this.#color = color
+        this.#playerId = playerId;
+        this.#color = color;
     }
 
     /**
-    * @returns PlayerColor 
-    */
+     * @returns PlayerColor
+     */
     getColor() {
-        return this.#color
+        return this.#color;
     }
 
     /**
-    * @returns string
-    */
+     * @returns string
+     */
     getId() {
-        return this.#playerId
+        return this.#playerId;
     }
-
 }
 
 export default Player;
