@@ -59,10 +59,6 @@ class GameLogic {
         }
         this.#entityManager.loadDrawableEntities(ctx, this.#assets);
 
-        //this.#drawables = this.#entityManager.getDrawableEntities(
-        //    ctx,
-        //    this.#assets,
-        //);
         this.#mouseEventHandler.addCanvasEventListeners(
             this.#entityManager.getDrawables().values(),
         );

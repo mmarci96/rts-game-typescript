@@ -44,7 +44,7 @@ class AnimatedSprite extends Drawable {
         this.gameFrame++;
     }
 
-    draw(context: CanvasRenderingContext2D, camera: Camera) {
+    draw(ctx: CanvasRenderingContext2D, camera: Camera) {
         this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
@@ -59,6 +59,7 @@ class AnimatedSprite extends Drawable {
         if (!isVisible) {
             return;
         }
+
         const { px, py } = VectorTransformer.positionToCanvas(
             this.entity.getX(),
             this.entity.getY(),
@@ -66,7 +67,16 @@ class AnimatedSprite extends Drawable {
             camera.getY(),
         );
 
-        context.drawImage(
+        if (this.entity.isSelected) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(px, py, 32, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255, 255, 0, 0.5)";
+            ctx.fill();
+            ctx.closePath();
+            ctx.restore();
+        }
+        ctx.drawImage(
             this.spriteSheet,
             this.frameX * this.frameWidth,
             this.frameY * this.frameHeight,

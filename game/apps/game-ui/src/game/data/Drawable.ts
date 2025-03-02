@@ -44,13 +44,13 @@ class Drawable {
         ctx: CanvasRenderingContext2D,
         x: number,
         y: number,
-        radius: number = 122,
+        radius: number,
     ) {
         ctx.save();
         ctx.beginPath();
         ctx.arc(
-            x,
-            y,
+            x + (radius * 2) / 3,
+            y + radius,
             radius,
             0,
             Math.PI * 2, // Full circle
