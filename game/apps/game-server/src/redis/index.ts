@@ -5,9 +5,71 @@ import {
     ResourceData,
     UnitData,
     GameState,
+    Unit,
+    Building,
+    Resource,
 } from "@packages/game-data";
 
 const redis = new Redis();
+
+/**
+ * Generate consistent Redis key for game entities
+ * @param gameId - Parent game identifier
+ * @param unit - Unit class from game logic
+ * @returns Redis key string
+ */
+export const updateUnitCache = async (gameId: string, unit: Unit) => {
+    const unitId = unit.getId();
+    const key = gameKey(gameId, "unit", unitId);
+
+    const updatedFields: Record<string, string> = {
+        position: JSON.stringify(unit.getPosition()),
+        health: unit.attackable.getHealth().toString(),
+        state: unit.getStatus(),
+        target: JSON.stringify(unit.getTarget()),
+        updatedAt: new Date().toISOString(),
+    };
+
+    await redis.hmset(key, updatedFields);
+};
+
+/**
+ * Generate consistent Redis key for game entities
+ * @param gameId - Parent game identifier
+ * @param building - Building class from game logic
+ * @returns Redis key string
+ */
+export const updateBuildingCache = async (
+    gameId: string,
+    building: Building,
+) => {
+    const buildingId = building.getId();
+    const key = gameKey(gameId, "building", buildingId);
+    const updatedFields: Record<string, string> = {
+        health: building.attackable.getHealth().toString(),
+        state: building.getStatus(),
+        updatedAt: new Date().toISOString(),
+    };
+    await redis.hmset(key, updatedFields);
+};
+
+/**
+ * Generate consistent Redis key for game entities
+ * @param gameId - Parent game identifier
+ * @param resource - Resource class from game logic
+ * @returns Redis key string
+ */
+export const updateResourceField = async (
+    gameId: string,
+    resource: Resource,
+) => {
+    const resourceId = resource.getId();
+    const key = gameKey(gameId, "resource", resourceId);
+    const updatedFields: Record<string, string> = {
+        availableResource: resource.getAvailableResource().toString(),
+    };
+    await redis.hmset(key, updatedFields);
+};
 
 /**
  * Generate consistent Redis key for game entities
@@ -170,6 +232,7 @@ export const cacheUnit = async (
         health: unit.health,
         speed: unit.speed,
         damage: unit.damage,
+        attackSpeed: unit.attackSpeed,
         type: unit.type,
         state: unit.state,
         target: JSON.stringify(unit.target),

@@ -28,6 +28,10 @@ class GameLogic {
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);
     }
+
+    updateGameState() {
+        //TODO refresh states and pass the updater forward
+    }
 }
 
 export default GameLogic;
