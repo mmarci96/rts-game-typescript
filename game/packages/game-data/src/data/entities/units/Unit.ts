@@ -1,12 +1,14 @@
 import ControlledEntity from "../ControlledEntity";
 import { UnitParams, Target } from "../../types";
 import Attackable from "../Attackable";
+import Movable from "../Movable";
 
 class Unit extends ControlledEntity {
     attackable;
     #damage;
     #speed;
     #target;
+    movable: Movable;
 
     constructor(parameters: UnitParams) {
         super(parameters.controlledParams);
@@ -14,7 +16,10 @@ class Unit extends ControlledEntity {
         this.#damage = parameters.damage;
         this.#speed = parameters.speed;
         this.#target = parameters.target;
+        this.movable = new Movable(this.#speed);
     }
+
+    updatePosition() {}
 
     getDamage() {
         return this.#damage;
