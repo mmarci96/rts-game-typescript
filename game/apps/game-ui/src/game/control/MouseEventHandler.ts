@@ -1,4 +1,4 @@
-import { GameEntity, Unit } from "@packages/game-data";
+import { Building, GameEntity, Unit } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -68,22 +68,17 @@ class MouseEventHandler {
 
         this.#canvas.addEventListener("mouseup", (e) => {
             if (e.button === 2) return;
-            //this.#units.forEach((u) => u.setSelected(false));
+            this.#entities.forEach(
+                (entity: Drawable) => (entity.entity.isSelected = false),
+            );
             console.log(e.clientX, e.clientY);
             const rect = this.#canvas.getBoundingClientRect();
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
 
-            //[...this.#entities.values()].forEach((gameEntity: GameEntity) => {
-            //    gameEntity.isSelected = false;
-            //});
-
-            console.log(this.#entities);
-
             this.#selectionBox.drawBox(startX, startY, finalX, finalY);
             ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
             isSelecting = false;
-            //this.#selectables.push(...this.#units, ...this.#playerBuildings);
 
             const selectedUnits = this.#selectionBox.handleSelecting(
                 this.#entities,
@@ -91,7 +86,6 @@ class MouseEventHandler {
             );
             console.log(selectedUnits);
 
-            //this.#entities = [];
             if (selectedUnits.length > 0) {
                 this.selectionActive = true;
                 //this.#uiOverlay.setVisible();
@@ -103,33 +97,59 @@ class MouseEventHandler {
         });
         this.#canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
-                //const target = this.getTargetPosition(
-                //    this.#units,
-                //    e.clientX,
-                //    e.clientY,
-                //);
-                //mouseControl(target);
+                const target = this.getTargetPosition(
+                    this.#entities,
+                    e.clientX,
+                    e.clientY,
+                );
+                createCommand(target);
             }
         });
     }
 
-    getTargetPosition(units: Unit[], clientX: number, clientY: number) {
+    createMoveUnitCommand(targetX: number, targetY: number, unitId: string) {
+        const action = "moving";
+        return {
+            unitId: unitId,
+            action: action,
+            targetX: targetX,
+            targetY: targetY,
+        };
+    }
+
+    createAttackCommand(targetUnit: Unit | Building, unitId: string): Command {
+        const action = "attack";
+        return {
+            unitId: unitId,
+            action: action,
+            targetX: targetUnit.getX(),
+            targetY: targetUnit.getY(),
+            targetId: targetUnit.getId(),
+        };
+    }
+
+    getTargetPosition(units: Drawable[], clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
         const commands: Command[] = [];
         const gridSize = Math.round(Math.sqrt(units.length));
         units.forEach((unit, index) => {
-            if (unit.isSelected) {
-                if (this.hoveredEnemy) {
-                    const targetEnemy = this.hoveredEnemy;
-                    const attackCommand = this.createAttackCommand(
-                        targetEnemy,
-                        unit.getId(),
-                    );
-                    commands.push(attackCommand);
+            if (unit.entity.isSelected) {
+                if (this.hoveredEntity) {
+                    const targetEnemy = this.hoveredEntity;
+                    if (
+                        targetEnemy instanceof Unit ||
+                        targetEnemy instanceof Building
+                    ) {
+                        const attackCommand = this.createAttackCommand(
+                            targetEnemy,
+                            unit.entity.getId(),
+                        );
+                        commands.push(attackCommand);
+                    }
                 } else {
                     const { targetX, targetY } = this.createCheapGrid(
-                        unit.getX(),
-                        unit.getY(),
+                        unit.entity.getX(),
+                        unit.entity.getY(),
                         worldX,
                         worldY,
                         gridSize,
@@ -138,7 +158,7 @@ class MouseEventHandler {
                     const moveCommand = this.createMoveUnitCommand(
                         targetX,
                         targetY,
-                        unit.getId(),
+                        unit.entity.getId(),
                     );
                     commands.push(moveCommand);
                 }
@@ -176,6 +196,25 @@ class MouseEventHandler {
             this.#camera.getX(),
             this.#camera.getY(),
         );
+    }
+    createCheapGrid(
+        unitX: number,
+        unitY: number,
+        tx: number,
+        ty: number,
+        gridSize: number,
+        i: number,
+    ) {
+        let accX = 1.2;
+        let accY = -1.2;
+        if (unitX > tx) accX = -1.2;
+        if (unitY > ty) accY = 1.2;
+
+        const row = Math.floor(i / gridSize) * accX;
+        const col = (i % gridSize) * accY;
+        const targetX = tx + col;
+        const targetY = ty + row;
+        return { targetX, targetY };
     }
 }
 
