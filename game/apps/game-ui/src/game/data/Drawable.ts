@@ -28,14 +28,13 @@ class Drawable {
             camera.getX(),
             camera.getY(),
         );
-        if (this.entity.isSelected) {
-            console.log("wtf");
-            this.drawSelector(ctx, px, py, 96);
-        }
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);
         }
         ctx.drawImage(this.#spriteSheet, px - 64, py - 96);
+        if (this.entity.isSelected) {
+            this.drawSelector(ctx, px, py, 96);
+        }
     }
 
     drawSelector(
