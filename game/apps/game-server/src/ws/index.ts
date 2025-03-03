@@ -90,6 +90,12 @@ export const websocketController = (io: Server) => {
             }
         });
 
+        socket.on("pendingCommands", (commands) => {
+            const gameId = connectedPlayers[socket.id].gameId;
+            console.log("GAME ID: ", gameId);
+            console.log(commands);
+        });
+
         socket.on("disconnect", () => {
             console.log("Connection ended: ", socket.id);
             const connectionData = connectedPlayers[socket.id];
