@@ -24,6 +24,7 @@ export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
         damage: unit.damage,
         target: unit.target,
         speed: unit.speed,
+        attackSpeed: unit.attackSpeed,
     };
 };
 

@@ -36,6 +36,7 @@ export interface UnitParams {
     damage: number;
     speed: number;
     target: Target;
+    attackSpeed: number;
 }
 
 export interface BuildingParams {

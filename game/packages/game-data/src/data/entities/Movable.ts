@@ -16,8 +16,7 @@ class Movable {
 
     move(startX: number, startY: number, deltaTime: number) {
         if (!this.#targetX || !this.#targetY) {
-            console.error("No target to move to");
-            return;
+            return { newX: startX, newY: startY, progress: "completed" };
         }
         const deltaX = this.#targetX - startX;
         const deltaY = this.#targetY - startY;

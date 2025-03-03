@@ -19,7 +19,28 @@ class Unit extends ControlledEntity {
         this.movable = new Movable(this.#speed);
     }
 
-    updatePosition() {}
+    updatePosition(deltaTime: number) {
+        const { newX, newY, progress } = this.movable.move(
+            this.getX(),
+            this.getY(),
+            deltaTime,
+        );
+
+        if (progress !== "completed") {
+            this.setX(newX);
+            this.setY(newY);
+            this.setStatus("moving");
+            return;
+        }
+
+        if (this.#target.id !== null) {
+            this.setStatus("attack");
+            return;
+        }
+
+        this.setStatus("idle");
+        return;
+    }
 
     getDamage() {
         return this.#damage;
