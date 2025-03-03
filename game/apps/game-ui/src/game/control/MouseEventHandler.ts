@@ -1,8 +1,10 @@
-import { GameEntity } from "@packages/game-data";
+import { GameEntity, Unit } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
+import { Command } from "../../main";
+import VectorTransformer from "../utils/VectorTransformer";
 
 class MouseEventHandler {
     #canvas: HTMLCanvasElement;
@@ -11,11 +13,14 @@ class MouseEventHandler {
     selectionActive: boolean = false;
     #assets: AssetManager;
     #entities: Array<Drawable>;
+    hoveredEntity: GameEntity | null;
+
     constructor(
         camera: Camera,
         selectionBox: SelectionBox,
         assets: AssetManager,
     ) {
+        this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw new Error("Must be html canvas element ");
@@ -31,7 +36,10 @@ class MouseEventHandler {
         this.#entities = [];
     }
 
-    addCanvasEventListeners(drawables: Iterable<Drawable>) {
+    addCanvasEventListeners(
+        drawables: Iterable<Drawable>,
+        createCommand: (commands: Command[]) => void,
+    ) {
         this.#entities = Array.from(drawables);
         const ctx = this.#canvas.getContext("2d");
         if (!ctx) {
@@ -105,6 +113,40 @@ class MouseEventHandler {
         });
     }
 
+    getTargetPosition(units: Unit[], clientX: number, clientY: number) {
+        const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
+        const commands: Command[] = [];
+        const gridSize = Math.round(Math.sqrt(units.length));
+        units.forEach((unit, index) => {
+            if (unit.isSelected) {
+                if (this.hoveredEnemy) {
+                    const targetEnemy = this.hoveredEnemy;
+                    const attackCommand = this.createAttackCommand(
+                        targetEnemy,
+                        unit.getId(),
+                    );
+                    commands.push(attackCommand);
+                } else {
+                    const { targetX, targetY } = this.createCheapGrid(
+                        unit.getX(),
+                        unit.getY(),
+                        worldX,
+                        worldY,
+                        gridSize,
+                        index,
+                    );
+                    const moveCommand = this.createMoveUnitCommand(
+                        targetX,
+                        targetY,
+                        unit.getId(),
+                    );
+                    commands.push(moveCommand);
+                }
+            }
+        });
+        return commands;
+    }
+
     onSelecting(
         clientX: number,
         clientY: number,
@@ -124,6 +166,16 @@ class MouseEventHandler {
         ctx.strokeStyle = "green";
         ctx.lineWidth = 1;
         ctx.strokeRect(startX, startY, width, height);
+    }
+
+    convertCursorPosition(clientX: number, clientY: number) {
+        const rect = this.#canvas.getBoundingClientRect();
+        return VectorTransformer.getPositionFromCanvas(
+            clientX - rect.left,
+            clientY - rect.top,
+            this.#camera.getX(),
+            this.#camera.getY(),
+        );
     }
 }
 

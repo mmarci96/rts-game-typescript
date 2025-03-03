@@ -9,6 +9,7 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
+import { Command } from "../../main";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -51,7 +52,7 @@ class GameLogic {
         this.#entityManager.loadGameState(data);
     }
 
-    gameLoop() {
+    gameLoop(createCommand: (commands: Command[]) => void) {
         const ctx: CanvasRenderingContext2D | null =
             this.#gameCanvas.getContext();
         if (!ctx) {
@@ -61,6 +62,7 @@ class GameLogic {
 
         this.#mouseEventHandler.addCanvasEventListeners(
             this.#entityManager.getDrawables().values(),
+            createCommand,
         );
 
         const animate = () => {
