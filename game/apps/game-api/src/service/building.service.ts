@@ -9,7 +9,7 @@ export const createMainBuilding = async (
 ) => {
     try {
         const mainBuildingHealth = 200;
-        const buildingSize = { width: 64, height: 64 };
+        const buildingSize = { width: 96, height: 64 };
         const position = { x: 4, y: 4 };
         switch (color) {
             case PlayerColor.RED:
