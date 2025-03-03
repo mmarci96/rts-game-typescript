@@ -2,21 +2,23 @@ import ControlledEntity from "../ControlledEntity";
 import { UnitParams, Target } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
+import Attacker from "../Attacker";
 
 class Unit extends ControlledEntity {
     attackable;
-    #damage;
     #speed;
     #target;
+    idleTime: number = 0;
     movable: Movable;
+    attacker: Attacker;
 
     constructor(parameters: UnitParams) {
         super(parameters.controlledParams);
         this.attackable = new Attackable(parameters.health);
-        this.#damage = parameters.damage;
         this.#speed = parameters.speed;
         this.#target = parameters.target;
         this.movable = new Movable(this.#speed);
+        this.attacker = new Attacker(parameters.damage, parameters.attackSpeed);
     }
 
     updatePosition(deltaTime: number) {
@@ -40,10 +42,6 @@ class Unit extends ControlledEntity {
 
         this.setStatus("idle");
         return;
-    }
-
-    getDamage() {
-        return this.#damage;
     }
 
     getSpeed() {
