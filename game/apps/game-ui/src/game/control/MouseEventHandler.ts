@@ -1,4 +1,10 @@
-import { Building, GameEntity, Player, Unit } from "@packages/game-data";
+import {
+    Building,
+    ControlledEntity,
+    GameEntity,
+    Player,
+    Unit,
+} from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -82,9 +88,21 @@ class MouseEventHandler {
             this.#selectionBox.drawBox(startX, startY, finalX, finalY);
             ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
             isSelecting = false;
+            const selectableEntities: Drawable[] = [];
+            this.#entities.forEach((drawable: Drawable) => {
+                if (drawable.entity instanceof ControlledEntity) {
+                    if (
+                        drawable.entity.getColor() === this.#player.getColor()
+                    ) {
+                        selectableEntities.push(drawable);
+                    }
+                } else {
+                    selectableEntities.push(drawable);
+                }
+            });
 
             const selectedUnits = this.#selectionBox.handleSelecting(
-                this.#entities,
+                selectableEntities,
                 this.#camera,
             );
             console.log(selectedUnits);
