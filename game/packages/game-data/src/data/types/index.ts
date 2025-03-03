@@ -58,6 +58,7 @@ export interface UnitData {
     health: number;
     speed: number;
     damage: number;
+    attackSpeed: number;
     type: string;
     state: string;
     target: Target;
