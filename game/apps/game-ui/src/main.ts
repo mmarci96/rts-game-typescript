@@ -41,6 +41,8 @@ const socketHandler = (
     const commandInterval = setInterval(() => {
         if (pendingCommands.length >= 1) {
             socket.emit("pendingCommands", pendingCommands);
+            console.log(pendingCommands);
+
             pendingCommands = [];
             console.log("Commands added to stack");
         }
@@ -62,7 +64,7 @@ const loadEvent = async () => {
     const url = window.location.pathname;
     const { gameId, playerId } = getIdFromUrl(url);
 
-    const game = await GameLoader.loadGame(gameId);
+    const game = await GameLoader.loadGame(gameId, playerId);
     const socket = io();
     socketHandler(socket, playerId, gameId, game);
 };

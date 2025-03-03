@@ -1,4 +1,4 @@
-import { Building, GameEntity, Unit } from "@packages/game-data";
+import { Building, GameEntity, Player, Unit } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -7,6 +7,7 @@ import { Command } from "../../main";
 import VectorTransformer from "../utils/VectorTransformer";
 
 class MouseEventHandler {
+    #player: Player;
     #canvas: HTMLCanvasElement;
     #camera: Camera;
     #selectionBox: SelectionBox;
@@ -16,10 +17,12 @@ class MouseEventHandler {
     hoveredEntity: GameEntity | null;
 
     constructor(
+        player: Player,
         camera: Camera,
         selectionBox: SelectionBox,
         assets: AssetManager,
     ) {
+        this.#player = player;
         this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
@@ -97,12 +100,11 @@ class MouseEventHandler {
         });
         this.#canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
-                const target = this.getTargetPosition(
-                    this.#entities,
+                const commands = this.createCommandsOnRightClick(
                     e.clientX,
                     e.clientY,
                 );
-                createCommand(target);
+                createCommand(commands);
             }
         });
     }
@@ -128,11 +130,11 @@ class MouseEventHandler {
         };
     }
 
-    getTargetPosition(units: Drawable[], clientX: number, clientY: number) {
+    createCommandsOnRightClick(clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
         const commands: Command[] = [];
-        const gridSize = Math.round(Math.sqrt(units.length));
-        units.forEach((unit, index) => {
+        const entityArrSize = Math.round(Math.sqrt(this.#entities.length));
+        this.#entities.forEach((unit, index) => {
             if (unit.entity.isSelected) {
                 if (this.hoveredEntity) {
                     const targetEnemy = this.hoveredEntity;
@@ -152,7 +154,7 @@ class MouseEventHandler {
                         unit.entity.getY(),
                         worldX,
                         worldY,
-                        gridSize,
+                        entityArrSize,
                         index,
                     );
                     const moveCommand = this.createMoveUnitCommand(
@@ -202,7 +204,7 @@ class MouseEventHandler {
         unitY: number,
         tx: number,
         ty: number,
-        gridSize: number,
+        maxGrid: number,
         i: number,
     ) {
         let accX = 1.2;
@@ -210,8 +212,8 @@ class MouseEventHandler {
         if (unitX > tx) accX = -1.2;
         if (unitY > ty) accY = 1.2;
 
-        const row = Math.floor(i / gridSize) * accX;
-        const col = (i % gridSize) * accY;
+        const row = Math.floor(i / maxGrid) * accX;
+        const col = (i % maxGrid) * accY;
         const targetX = tx + col;
         const targetY = ty + row;
         return { targetX, targetY };

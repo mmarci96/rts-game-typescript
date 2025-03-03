@@ -1,4 +1,4 @@
-import { Tile, GameState } from "@packages/game-data";
+import { Tile, GameState, Player } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -13,6 +13,7 @@ import { Command } from "../../main";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
+    #player: Player;
     #camera: Camera;
     #gameMapDrawer: GameMapDrawer;
     #assets: AssetManager;
@@ -21,7 +22,8 @@ class GameLogic {
     #gameCanvas: GameCanvas;
     #entityManager: EntityManager;
 
-    constructor(assets: AssetManager, tiles: Tile[][]) {
+    constructor(assets: AssetManager, tiles: Tile[][], currentPlayer: Player) {
+        this.#player = currentPlayer;
         this.#camera = new Camera(
             16,
             16,
@@ -41,6 +43,7 @@ class GameLogic {
         this.#keyEventHandler.setupCameraControl(this.#gameMapDrawer);
 
         this.#mouseEventHandler = new MouseEventHandler(
+            this.#player,
             this.#camera,
             new SelectionBox(),
             this.#assets,
