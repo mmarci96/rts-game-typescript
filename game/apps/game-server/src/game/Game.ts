@@ -29,6 +29,9 @@ class Game {
     getId() {
         return this.#id;
     }
+    getLogic() {
+        return this.#gameLogic;
+    }
 }
 
 export default Game;

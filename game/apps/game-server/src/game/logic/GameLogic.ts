@@ -7,6 +7,7 @@ import {
 } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
 import EntityController from "./EntityController";
+import { PlayerCommand } from "../../types";
 
 class GameLogic {
     #entityController: EntityController;
@@ -33,6 +34,12 @@ class GameLogic {
     updateGameState(deltaTime: number) {
         //TODO refresh states and pass the updater forward
         this.#entityController.refreshEntities(deltaTime);
+    }
+
+    handlePlayerCommands(commands: PlayerCommand[]) {
+        commands.forEach((command: PlayerCommand) => {
+            this.#entityController.handlePlayerCommand(command);
+        });
     }
 }
 

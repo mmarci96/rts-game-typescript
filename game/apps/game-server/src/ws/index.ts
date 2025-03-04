@@ -91,9 +91,9 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("pendingCommands", (commands) => {
-            console.log(commands);
+            //console.log(commands);
             const gameId = connectedPlayers[socket.id].gameId;
-            console.log("GAME ID: ", gameId);
+            games[gameId].game.getLogic().handlePlayerCommands(commands);
         });
 
         socket.on("disconnect", () => {
