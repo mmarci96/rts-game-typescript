@@ -45,6 +45,9 @@ class EntityManager {
     getDrawables() {
         return this.#drawables;
     }
+    refreshEntities(deltaTime: number) {
+        //this.#unitController.refreshUnits(deltaTime);
+    }
     updateGameState(gameState: GameState) {
         //this.#unitController.updateUnits(gameState.units);
         gameState.units.forEach((unitData: UnitData) => {
@@ -52,8 +55,10 @@ class EntityManager {
             if (!unit) {
                 return;
             }
-            if (unit.entity instanceof Unit) {
+            if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
+                unit.setAnimationType(unitData.state);
+
                 unit.entity.movable.setTarget(
                     unitData.target.x,
                     unitData.target.y,

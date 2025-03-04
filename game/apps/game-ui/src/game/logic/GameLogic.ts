@@ -10,7 +10,6 @@ import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
 import { Command } from "../../main";
-import AnimatedSprite from "../data/AnimatedSprite";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -78,14 +77,11 @@ class GameLogic {
             lastTime = now;
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
+
             [...this.#entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {
-                    if (
-                        drawable.entity instanceof Unit &&
-                        drawable instanceof AnimatedSprite
-                    ) {
+                    if (drawable.entity instanceof Unit) {
                         drawable.entity.updatePosition(deltaTime);
-                        drawable.setAnimationType(drawable.entity.getStatus());
                     }
                     drawable.draw(ctx, this.#camera);
                 },
