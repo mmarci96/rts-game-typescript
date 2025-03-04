@@ -21,6 +21,7 @@ class MouseEventHandler {
     #assets: AssetManager;
     #entities: Array<Drawable>;
     hoveredEntity: GameEntity | null;
+    #selectedUnits: Array<Drawable>;
 
     constructor(
         player: Player,
@@ -43,6 +44,7 @@ class MouseEventHandler {
         this.#selectionBox = selectionBox;
         this.#assets = assets;
         this.#entities = [];
+        this.#selectedUnits = [];
     }
 
     addCanvasEventListeners(
@@ -101,13 +103,13 @@ class MouseEventHandler {
                 }
             });
 
-            const selectedUnits = this.#selectionBox.handleSelecting(
+            this.#selectedUnits = this.#selectionBox.handleSelecting(
                 selectableEntities,
                 this.#camera,
             );
-            console.log(selectedUnits);
+            console.log(this.#selectedUnits);
 
-            if (selectedUnits.length > 0) {
+            if (this.#selectedUnits.length > 0) {
                 this.selectionActive = true;
                 //this.#uiOverlay.setVisible();
             } else {
@@ -127,10 +129,14 @@ class MouseEventHandler {
         });
     }
 
-    createMoveUnitCommand(targetX: number, targetY: number, unitId: string) {
+    createMoveUnitCommand(
+        targetX: number,
+        targetY: number,
+        unitId: string,
+    ): Command {
         const action = "moving";
         return {
-            unitId: unitId,
+            entityId: unitId,
             action: action,
             targetX: targetX,
             targetY: targetY,
@@ -140,7 +146,7 @@ class MouseEventHandler {
     createAttackCommand(targetUnit: Unit | Building, unitId: string): Command {
         const action = "attack";
         return {
-            unitId: unitId,
+            entityId: unitId,
             action: action,
             targetX: targetUnit.getX(),
             targetY: targetUnit.getY(),
@@ -151,8 +157,8 @@ class MouseEventHandler {
     createCommandsOnRightClick(clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
         const commands: Command[] = [];
-        const entityArrSize = Math.round(Math.sqrt(this.#entities.length));
-        this.#entities.forEach((unit, index) => {
+        const entityArrSize = Math.round(Math.sqrt(this.#selectedUnits.length));
+        this.#selectedUnits.forEach((unit, index) => {
             if (unit.entity.isSelected) {
                 if (this.hoveredEntity) {
                     const targetEnemy = this.hoveredEntity;

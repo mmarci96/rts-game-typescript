@@ -7,7 +7,7 @@ let pendingCommands: Command[] = [];
 
 export interface Command {
     action: string;
-    unitId: string;
+    entityId: string;
     targetX?: number;
     targetY?: number;
     targetId?: string;

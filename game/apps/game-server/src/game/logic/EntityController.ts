@@ -55,6 +55,9 @@ class EntityController {
     handlePlayerCommand(command: PlayerCommand) {
         const entity = this.getEntityById(command.entityId);
         console.log(command);
+        if (entity instanceof ControlledEntity) {
+            entity.setStatus(command.action);
+        }
         switch (command.action) {
             case "moving":
                 if (
@@ -75,9 +78,6 @@ class EntityController {
                 }
                 break;
             default:
-                if (entity instanceof ControlledEntity) {
-                    entity.setStatus(command.action);
-                }
                 console.log("Invalid command", command);
                 break;
         }
