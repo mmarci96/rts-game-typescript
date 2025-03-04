@@ -13,6 +13,7 @@ import { Command } from "../../main";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
+    running: boolean = false;
     #player: Player;
     #camera: Camera;
     #gameMapDrawer: GameMapDrawer;
@@ -57,7 +58,8 @@ class GameLogic {
         //console.log(data.units);
     }
 
-    gameLoop(createCommand: (commands: Command[]) => void) {
+    startGameLoop(createCommand: (commands: Command[]) => void) {
+        this.running = true;
         const ctx: CanvasRenderingContext2D | null =
             this.#gameCanvas.getContext();
         if (!ctx) {

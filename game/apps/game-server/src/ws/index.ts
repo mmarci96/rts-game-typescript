@@ -47,8 +47,6 @@ const websocketUpdater = (io: Server, gameId: string) => {
 
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
-        const cachedGameState = await getGameState(gameId);
-
         const now = Date.now();
         const deltaTime = (now - lastTime) / 1000;
         lastTime = now;

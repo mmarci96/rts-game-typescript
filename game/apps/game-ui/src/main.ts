@@ -29,12 +29,12 @@ const socketHandler = (
         console.log("connected");
         const data = { playerId, gameId };
         socket.emit("load_game", data);
-        setTimeout(() => {
-            game.getLogic().gameLoop(createCommand);
-        }, 1000);
     });
     socket.on("game_state", (data: GameState) => {
         game.getLogic().updateGameState(data);
+        if (!game.getLogic().running) {
+            game.getLogic().startGameLoop(createCommand);
+        }
     });
 
     const commandInterval = setInterval(() => {
