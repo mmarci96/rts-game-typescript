@@ -13,6 +13,7 @@ import { Command } from "../../main";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
+    running: boolean = false;
     #player: Player;
     #camera: Camera;
     #gameMapDrawer: GameMapDrawer;
@@ -57,7 +58,8 @@ class GameLogic {
         //console.log(data.units);
     }
 
-    gameLoop(createCommand: (commands: Command[]) => void) {
+    startGameLoop(createCommand: (commands: Command[]) => void) {
+        this.running = true;
         const ctx: CanvasRenderingContext2D | null =
             this.#gameCanvas.getContext();
         if (!ctx) {
@@ -75,14 +77,12 @@ class GameLogic {
             const now = Date.now();
             const deltaTime = (now - lastTime) / 1000;
             lastTime = now;
+            this.#entityManager.refreshEntities(deltaTime);
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
             [...this.#entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {
-                    if (drawable.entity instanceof Unit) {
-                        drawable.entity.updatePosition(deltaTime);
-                    }
                     drawable.draw(ctx, this.#camera);
                 },
             );

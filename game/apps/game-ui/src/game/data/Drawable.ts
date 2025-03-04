@@ -6,6 +6,7 @@ class Drawable {
     #spriteSheet: CanvasImageSource;
     #hasShadow: boolean;
     entity: GameEntity;
+    isSelected: boolean = false;
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         this.#spriteSheet = spriteSheet;
@@ -31,9 +32,13 @@ class Drawable {
         if (this.#hasShadow) {
             this.drawShadow(ctx, px, py);
         }
-        ctx.drawImage(this.#spriteSheet, px - 64, py - 96);
-        if (this.entity.isSelected) {
-            this.drawSelector(ctx, px, py, 96);
+        ctx.drawImage(
+            this.#spriteSheet,
+            px - this.entity.getSize().height,
+            py - this.entity.getSize().width,
+        );
+        if (this.isSelected) {
+            this.drawSelector(ctx, px, py, this.entity.getSize().width);
         }
     }
 

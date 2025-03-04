@@ -75,6 +75,7 @@ class EntityController {
                         command.targetX,
                         command.targetY,
                     );
+                    entity.attacker.resetTarget();
                 }
                 break;
             case "attack":

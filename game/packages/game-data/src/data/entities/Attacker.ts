@@ -24,6 +24,10 @@ class Attacker {
         this.#targetId = targetId;
     }
 
+    resetTarget() {
+        this.#targetId = null;
+    }
+
     getTargetId() {
         return this.#targetId;
     }

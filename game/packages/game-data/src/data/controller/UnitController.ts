@@ -12,7 +12,6 @@ class UnitController {
         [...this.#units.values()].forEach((unit: Unit) => {
             if (unit.attackable.getHealth() <= 0) {
                 unit.setStatus("dead");
-                //TODO handle death
             }
             let state = unit.getStatus();
             switch (state) {
@@ -33,6 +32,10 @@ class UnitController {
                 case "delete":
                     this.#units.delete(unit.getId().toString());
                     break;
+                case "dead":
+                    setTimeout(() => {
+                        unit.setStatus("delete");
+                    }, 1000);
                 default:
                     break;
             }

@@ -45,11 +45,29 @@ class EntityManager {
     getDrawables() {
         return this.#drawables;
     }
+
     refreshEntities(deltaTime: number) {
-        //this.#unitController.refreshUnits(deltaTime);
+        this.#unitController.refreshUnits(deltaTime);
+        this.#unitController.getUnits().forEach((unit: Unit) => {
+            const drawable = this.#drawables.get(unit.getId());
+            if (
+                drawable &&
+                drawable.entity instanceof Unit &&
+                drawable instanceof AnimatedSprite
+            ) {
+                drawable.entity = unit;
+                if (
+                    unit.getStatus() === "attack" ||
+                    unit.getStatus() === "cooldown"
+                ) {
+                    drawable.setAnimationType("attackLeft1");
+                } else {
+                    drawable.setAnimationType(unit.getStatus());
+                }
+            }
+        });
     }
     updateGameState(gameState: GameState) {
-        //this.#unitController.updateUnits(gameState.units);
         gameState.units.forEach((unitData: UnitData) => {
             const unit = this.#drawables.get(unitData.id);
             if (!unit) {
@@ -57,7 +75,12 @@ class EntityManager {
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
-                unit.setAnimationType(unitData.state);
+                if (
+                    unitData.state !== "attack" &&
+                    unitData.state !== "cooldown"
+                ) {
+                    unit.setAnimationType(unitData.state);
+                }
 
                 unit.entity.movable.setTarget(
                     unitData.target.x,
