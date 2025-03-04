@@ -140,7 +140,10 @@ class UnitController {
         }
         unit.setPosition(unitUpdateData.position);
         unit.setStatus(unitUpdateData.state);
-        unit.setTarget(unitUpdateData.target);
+        unit.movable.setTarget(
+            unitUpdateData.target.x,
+            unitUpdateData.target.y,
+        );
     }
 
     checkForOverlaps() {
