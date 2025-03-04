@@ -69,6 +69,7 @@ class UnitController {
     handleAttack(unit: Unit) {
         const targetId = unit.attacker.getTargetId();
         if (!targetId) {
+            unit.setStatus("idle")
             return;
         }
         const targetUnit = this.getUnitById(targetId);
@@ -76,23 +77,23 @@ class UnitController {
             unit.setStatus("idle");
             return;
         }
-        const dx = targetUnit.getX() - unit.getX();
-        const dy = targetUnit.getY() - unit.getY();
+        const tx = targetUnit.getX();
+        const ty = targetUnit.getY()
+        const dx = tx - unit.getX();
+        const dy = tx - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
         const attackRange = 1.2;
         if (distance <= attackRange) {
             const status = unit.attacker.attackUnit(targetUnit.attackable);
+            unit.movable.setTarget(null, null)
             unit.setStatus(status);
         } else {
             const directionX = dx / distance;
             const directionY = dy / distance;
-
-            const targetX =
-                targetUnit.getX() - directionX * (attackRange - 0.1);
-            const targetY =
-                targetUnit.getY() - directionY * (attackRange - 0.1);
-            unit.setStatus("moving");
+            const targetX = tx - directionX * (attackRange - 0.1);
+            const targetY = ty - directionY * (attackRange - 0.1);
             unit.movable.setTarget(targetX, targetY);
+            unit.setStatus("moving");
         }
     }
 

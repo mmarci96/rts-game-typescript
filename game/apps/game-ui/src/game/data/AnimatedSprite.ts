@@ -1,4 +1,4 @@
-import { GameEntity } from "@packages/game-data";
+import { GameEntity, Unit } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";
@@ -45,7 +45,7 @@ class AnimatedSprite extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
-        this.updateAnimation();
+        //this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
             return;
@@ -90,6 +90,30 @@ class AnimatedSprite extends Drawable {
         );
     }
 
+
+    move(targetX: number, targetY: number, deltaTime: number) {
+        const x = this.entity.getX()
+        const y = this.entity.getY();
+        if (!(this.entity instanceof Unit)) {
+            return { x, y };
+        }
+        const dx = targetX - x;
+        const dy = targetY - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const speed = this.entity.movable.getSpeed() / 4
+        const stepDistance = speed * deltaTime;
+        if (distance <= stepDistance) {
+            return { x, y };
+        }
+        const nx = dx / distance;
+        const ny = dy / distance;
+
+        const tx = x + nx * stepDistance;
+        const ty = y + ny * stepDistance;
+
+        return { x: tx, y: ty };
+    }
+
     setAnimationType(state: string) {
         switch (state) {
             case "moving":
@@ -100,6 +124,9 @@ class AnimatedSprite extends Drawable {
                 break;
             case "cooldown":
                 this.frameY = 2;
+                break;
+            case "attack":
+                this.frameY = 3;
                 break;
             case "attackLeft1":
                 this.frameY = 2;

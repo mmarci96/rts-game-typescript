@@ -77,25 +77,13 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             x: unit.movable.getTarget().targetX,
             y: unit.movable.getTarget().targetY,
         };
-        if (unit.getStatus() === "delete") {
-            console.log("delete");
-
-            await redis.del(key);
-            await deleteUnitById(new Types.ObjectId(unitId));
-        } else {
-            let status = unit.getStatus();
-            if (status === "cooldown") {
-                status = "attack";
-                console.log("set to attack");
-            }
-            pipeline.hmset(key, {
-                position: JSON.stringify(unit.getPosition()),
-                health: unit.attackable.getHealth().toString(),
-                state: status,
-                target: JSON.stringify(target),
-                updatedAt: new Date().toISOString(),
-            });
-        }
+        pipeline.hmset(key, {
+            position: JSON.stringify(unit.getPosition()),
+            health: unit.attackable.getHealth().toString(),
+            state: unit.getStatus(),
+            target: JSON.stringify(target),
+            updatedAt: new Date().toISOString(),
+        });
     }
 
     await pipeline.exec();
@@ -256,14 +244,14 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
                 ["position", "target", "size"].includes(key)
                     ? JSON.parse(value)
                     : // Convert numeric fields (handle empty strings as 0)
-                      [
-                            "health",
-                            "speed",
-                            "damage",
-                            "availableResource",
-                        ].includes(key)
-                      ? Number(value || 0)
-                      : // Preserve other values
+                    [
+                        "health",
+                        "speed",
+                        "damage",
+                        "availableResource",
+                    ].includes(key)
+                        ? Number(value || 0)
+                        : // Preserve other values
                         value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);

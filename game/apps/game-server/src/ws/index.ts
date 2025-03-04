@@ -66,7 +66,7 @@ const websocketUpdater = (io: Server, gameId: string) => {
             await saveEntitiesToMongo(new Types.ObjectId(gameId), gameData);
             //clearInterval(socketUpdateInterval);
         }
-    }, 500);
+    }, 400);
 };
 
 export const websocketController = (io: Server) => {

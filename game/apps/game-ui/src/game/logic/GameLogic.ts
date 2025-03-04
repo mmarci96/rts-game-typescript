@@ -77,15 +77,16 @@ class GameLogic {
             const now = Date.now();
             const deltaTime = (now - lastTime) / 1000;
             lastTime = now;
-            this.#entityManager.refreshEntities(deltaTime);
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
+            this.#entityManager.refreshEntities(deltaTime);
 
             [...this.#entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {
                     drawable.draw(ctx, this.#camera);
                 },
             );
+
             requestAnimationFrame(animate);
         };
 

@@ -13,14 +13,12 @@ class EntityController {
     #unitController: UnitController;
     #buildingController: BuildingController;
     #resourceController: ResourceController;
-    #entities: Map<string, GameEntity>;
 
     constructor(
         unitController: UnitController,
         buildingController: BuildingController,
         resourceController: ResourceController,
     ) {
-        this.#entities = new Map<string, GameEntity>();
         this.#unitController = unitController;
         this.#buildingController = buildingController;
         this.#resourceController = resourceController;
@@ -30,36 +28,23 @@ class EntityController {
         this.#buildingController.loadBuildings(data.buildings);
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);
+    }
+
+    getUnits(): Unit[] {
+        return this.#unitController.getUnits();
+    }
+
+    getEntities() {
         const entities: GameEntity[] = [
             ...this.#unitController.getUnits(),
             ...this.#buildingController.getBuildings(),
             ...this.#resourceController.getResources(),
         ];
-        entities.forEach((entity: GameEntity) => {
-            this.#entities.set(entity.getId(), entity);
-        });
-    }
-
-    getUnits(): Unit[] {
-        const units: Unit[] = [];
-        [...this.#entities.values()].forEach((entity: GameEntity) => {
-            if (entity instanceof Unit) {
-                units.push(entity);
-            }
-        });
-        return units;
-    }
-
-    getEntityById(id: string) {
-        return this.#entities.get(id);
-    }
-
-    getEntities() {
-        this.#entities.values();
+        return entities;
     }
 
     handlePlayerCommand(command: PlayerCommand) {
-        const entity = this.getEntityById(command.entityId);
+        const entity = this.#unitController.getUnitById(command.entityId);
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
@@ -95,6 +80,7 @@ class EntityController {
 
     handleAttackEntity(unit: Unit, targetId: string) {
         unit.attacker.setTargetId(targetId);
+        this.#unitController.getUnitById(unit.getId())?.attacker.setTargetId(targetId);
     }
 
     refreshEntities(deltaTime: number) {

@@ -47,7 +47,6 @@ class EntityManager {
     }
 
     refreshEntities(deltaTime: number) {
-        this.#unitController.refreshUnits(deltaTime);
         this.#unitController.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
             if (
@@ -55,15 +54,15 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                drawable.entity = unit;
-                if (
-                    unit.getStatus() === "attack" ||
-                    unit.getStatus() === "cooldown"
-                ) {
-                    drawable.setAnimationType("attackLeft1");
-                } else {
-                    drawable.setAnimationType(unit.getStatus());
+                const tx = unit.movable.getTarget().targetX
+                const ty = unit.movable.getTarget().targetY
+                if (tx && ty) {
+                    const { x, y } = drawable.move(tx, ty, deltaTime);
+                    unit.setX(x);
+                    unit.setY(y);
+                    drawable.entity = unit;
                 }
+                drawable.updateAnimation();
             }
         });
     }
@@ -74,22 +73,19 @@ class EntityManager {
                 return;
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
-                unit.entity.setStatus(unitData.state);
-                if (
-                    unitData.state !== "attack" &&
-                    unitData.state !== "cooldown"
-                ) {
-                    unit.setAnimationType(unitData.state);
-                }
+                //unit.entity.setStatus(unitData.state);
+                //console.log(unitData.state);
 
-                unit.entity.movable.setTarget(
-                    unitData.target.x,
-                    unitData.target.y,
-                );
-                const targetId = unitData.target.id?.toString();
-                if (targetId) {
-                    unit.entity.attacker.setTargetId(targetId);
-                }
+                unit.setAnimationType(unitData.state);
+
+                //unit.entity.movable.setTarget(
+                //    unitData.target.x,
+                //    unitData.target.y,
+                //);
+                //const targetId = unitData.target.id?.toString();
+                //if (targetId) {
+                //    unit.entity.attacker.setTargetId(targetId);
+                //}
             }
         });
     }

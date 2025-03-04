@@ -45,6 +45,9 @@ class Movable {
 
         return { newX, newY, progress: "progressing" };
     }
+    getSpeed() {
+        return this.#speed;
+    }
 }
 
 export default Movable;
