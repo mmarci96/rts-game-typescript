@@ -60,8 +60,6 @@ export const saveEntitiesToMongo = async (
             }),
         );
     }
-
-    console.log(`Game entities for game ${gameId} saved to MongoDB.`);
 };
 
 export const getGameById = async (
