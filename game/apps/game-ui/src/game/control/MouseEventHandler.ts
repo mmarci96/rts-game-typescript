@@ -1,21 +1,36 @@
-import { GameEntity } from "@packages/game-data";
+import {
+    Building,
+    ControlledEntity,
+    GameEntity,
+    Player,
+    Unit,
+} from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
+import { Command } from "../../main";
+import VectorTransformer from "../utils/VectorTransformer";
 
 class MouseEventHandler {
+    #player: Player;
     #canvas: HTMLCanvasElement;
     #camera: Camera;
     #selectionBox: SelectionBox;
     selectionActive: boolean = false;
     #assets: AssetManager;
     #entities: Array<Drawable>;
+    hoveredEntity: GameEntity | null;
+    #selectedUnits: Array<Drawable>;
+
     constructor(
+        player: Player,
         camera: Camera,
         selectionBox: SelectionBox,
         assets: AssetManager,
     ) {
+        this.#player = player;
+        this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw new Error("Must be html canvas element ");
@@ -29,9 +44,13 @@ class MouseEventHandler {
         this.#selectionBox = selectionBox;
         this.#assets = assets;
         this.#entities = [];
+        this.#selectedUnits = [];
     }
 
-    addCanvasEventListeners(drawables: Iterable<Drawable>) {
+    addCanvasEventListeners(
+        drawables: Iterable<Drawable>,
+        createCommand: (commands: Command[]) => void,
+    ) {
         this.#entities = Array.from(drawables);
         const ctx = this.#canvas.getContext("2d");
         if (!ctx) {
@@ -60,31 +79,37 @@ class MouseEventHandler {
 
         this.#canvas.addEventListener("mouseup", (e) => {
             if (e.button === 2) return;
-            //this.#units.forEach((u) => u.setSelected(false));
+            this.#entities.forEach(
+                (entity: Drawable) => (entity.entity.isSelected = false),
+            );
             console.log(e.clientX, e.clientY);
             const rect = this.#canvas.getBoundingClientRect();
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
 
-            //[...this.#entities.values()].forEach((gameEntity: GameEntity) => {
-            //    gameEntity.isSelected = false;
-            //});
-
-            console.log(this.#entities);
-
             this.#selectionBox.drawBox(startX, startY, finalX, finalY);
             ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
             isSelecting = false;
-            //this.#selectables.push(...this.#units, ...this.#playerBuildings);
+            const selectableEntities: Drawable[] = [];
+            this.#entities.forEach((drawable: Drawable) => {
+                if (drawable.entity instanceof ControlledEntity) {
+                    if (
+                        drawable.entity.getColor() === this.#player.getColor()
+                    ) {
+                        selectableEntities.push(drawable);
+                    }
+                } else {
+                    selectableEntities.push(drawable);
+                }
+            });
 
-            const selectedUnits = this.#selectionBox.handleSelecting(
-                this.#entities,
+            this.#selectedUnits = this.#selectionBox.handleSelecting(
+                selectableEntities,
                 this.#camera,
             );
-            console.log(selectedUnits);
+            console.log(this.#selectedUnits);
 
-            //this.#entities = [];
-            if (selectedUnits.length > 0) {
+            if (this.#selectedUnits.length > 0) {
                 this.selectionActive = true;
                 //this.#uiOverlay.setVisible();
             } else {
@@ -95,14 +120,77 @@ class MouseEventHandler {
         });
         this.#canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
-                //const target = this.getTargetPosition(
-                //    this.#units,
-                //    e.clientX,
-                //    e.clientY,
-                //);
-                //mouseControl(target);
+                const commands = this.createCommandsOnRightClick(
+                    e.clientX,
+                    e.clientY,
+                );
+                createCommand(commands);
             }
         });
+    }
+
+    createMoveUnitCommand(
+        targetX: number,
+        targetY: number,
+        unitId: string,
+    ): Command {
+        const action = "moving";
+        return {
+            entityId: unitId,
+            action: action,
+            targetX: targetX,
+            targetY: targetY,
+        };
+    }
+
+    createAttackCommand(targetUnit: Unit | Building, unitId: string): Command {
+        const action = "attack";
+        return {
+            entityId: unitId,
+            action: action,
+            targetX: targetUnit.getX(),
+            targetY: targetUnit.getY(),
+            targetId: targetUnit.getId(),
+        };
+    }
+
+    createCommandsOnRightClick(clientX: number, clientY: number) {
+        const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
+        const commands: Command[] = [];
+        const entityArrSize = Math.round(Math.sqrt(this.#selectedUnits.length));
+        this.#selectedUnits.forEach((unit, index) => {
+            if (unit.entity.isSelected) {
+                if (this.hoveredEntity) {
+                    const targetEnemy = this.hoveredEntity;
+                    if (
+                        targetEnemy instanceof Unit ||
+                        targetEnemy instanceof Building
+                    ) {
+                        const attackCommand = this.createAttackCommand(
+                            targetEnemy,
+                            unit.entity.getId(),
+                        );
+                        commands.push(attackCommand);
+                    }
+                } else {
+                    const { targetX, targetY } = this.createCheapGrid(
+                        unit.entity.getX(),
+                        unit.entity.getY(),
+                        worldX,
+                        worldY,
+                        entityArrSize,
+                        index,
+                    );
+                    const moveCommand = this.createMoveUnitCommand(
+                        targetX,
+                        targetY,
+                        unit.entity.getId(),
+                    );
+                    commands.push(moveCommand);
+                }
+            }
+        });
+        return commands;
     }
 
     onSelecting(
@@ -124,6 +212,35 @@ class MouseEventHandler {
         ctx.strokeStyle = "green";
         ctx.lineWidth = 1;
         ctx.strokeRect(startX, startY, width, height);
+    }
+
+    convertCursorPosition(clientX: number, clientY: number) {
+        const rect = this.#canvas.getBoundingClientRect();
+        return VectorTransformer.getPositionFromCanvas(
+            clientX - rect.left,
+            clientY - rect.top,
+            this.#camera.getX(),
+            this.#camera.getY(),
+        );
+    }
+    createCheapGrid(
+        unitX: number,
+        unitY: number,
+        tx: number,
+        ty: number,
+        maxGrid: number,
+        i: number,
+    ) {
+        let accX = 1.2;
+        let accY = -1.2;
+        if (unitX > tx) accX = -1.2;
+        if (unitY > ty) accY = 1.2;
+
+        const row = Math.floor(i / maxGrid) * accX;
+        const col = (i % maxGrid) * accY;
+        const targetX = tx + col;
+        const targetY = ty + row;
+        return { targetX, targetY };
     }
 }
 

@@ -76,6 +76,7 @@ class AnimatedSprite extends Drawable {
             ctx.closePath();
             ctx.restore();
         }
+
         ctx.drawImage(
             this.spriteSheet,
             this.frameX * this.frameWidth,

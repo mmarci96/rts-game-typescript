@@ -1,34 +1,53 @@
 import ControlledEntity from "../ControlledEntity";
-import { UnitParams, Target } from "../../types";
+import { UnitParams } from "../../types";
 import Attackable from "../Attackable";
+import Movable from "../Movable";
+import Attacker from "../Attacker";
 
 class Unit extends ControlledEntity {
     attackable;
-    #damage;
     #speed;
-    #target;
+    idleTime: number = 0;
+    movable: Movable;
+    attacker: Attacker;
 
     constructor(parameters: UnitParams) {
         super(parameters.controlledParams);
         this.attackable = new Attackable(parameters.health);
-        this.#damage = parameters.damage;
         this.#speed = parameters.speed;
-        this.#target = parameters.target;
+        this.movable = new Movable(this.#speed);
+        this.movable.setTarget(parameters.target.x, parameters.target.y);
+        this.attacker = new Attacker(parameters.damage, parameters.attackSpeed);
+        if (parameters.target.id) {
+            this.attacker.setTargetId(parameters.target.id);
+        }
     }
 
-    getDamage() {
-        return this.#damage;
+    updatePosition(deltaTime: number) {
+        const { newX, newY, progress } = this.movable.move(
+            this.getX(),
+            this.getY(),
+            deltaTime,
+        );
+
+        if (progress !== "completed") {
+            this.setX(newX);
+            this.setY(newY);
+            this.setStatus("moving");
+            return;
+        }
+
+        if (this.attacker.getTargetId() !== null) {
+            this.setStatus("attack");
+            return;
+        }
+
+        this.setStatus("idle");
+        return;
     }
 
     getSpeed() {
         return this.#speed;
-    }
-
-    getTarget(): Target {
-        return this.#target;
-    }
-    setTarget(target: Target) {
-        this.#target = target;
     }
 
     getType() {

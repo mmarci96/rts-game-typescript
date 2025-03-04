@@ -1,4 +1,4 @@
-import { Tile, GameState } from "@packages/game-data";
+import { Tile, GameState, Player, Unit } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -9,9 +9,11 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
+import { Command } from "../../main";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
+    #player: Player;
     #camera: Camera;
     #gameMapDrawer: GameMapDrawer;
     #assets: AssetManager;
@@ -20,7 +22,8 @@ class GameLogic {
     #gameCanvas: GameCanvas;
     #entityManager: EntityManager;
 
-    constructor(assets: AssetManager, tiles: Tile[][]) {
+    constructor(assets: AssetManager, tiles: Tile[][], currentPlayer: Player) {
+        this.#player = currentPlayer;
         this.#camera = new Camera(
             16,
             16,
@@ -40,6 +43,7 @@ class GameLogic {
         this.#keyEventHandler.setupCameraControl(this.#gameMapDrawer);
 
         this.#mouseEventHandler = new MouseEventHandler(
+            this.#player,
             this.#camera,
             new SelectionBox(),
             this.#assets,
@@ -49,9 +53,11 @@ class GameLogic {
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
+        this.#entityManager.updateGameState(data);
+        //console.log(data.units);
     }
 
-    gameLoop() {
+    gameLoop(createCommand: (commands: Command[]) => void) {
         const ctx: CanvasRenderingContext2D | null =
             this.#gameCanvas.getContext();
         if (!ctx) {
@@ -61,12 +67,22 @@ class GameLogic {
 
         this.#mouseEventHandler.addCanvasEventListeners(
             this.#entityManager.getDrawables().values(),
+            createCommand,
         );
 
+        let lastTime = Date.now();
         const animate = () => {
+            const now = Date.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
+
             [...this.#entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {
+                    if (drawable.entity instanceof Unit) {
+                        drawable.entity.updatePosition(deltaTime);
+                    }
                     drawable.draw(ctx, this.#camera);
                 },
             );

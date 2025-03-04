@@ -8,8 +8,15 @@ import {
 } from "@packages/game-db";
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
-import { cacheGameEntities, getGameState } from "../redis";
+import {
+    cacheGameEntities,
+    getGameState,
+    updateBuildingsCache,
+    updateResourceFieldsCache,
+    updateUnitsCache,
+} from "../redis";
 import { GameState } from "@packages/game-data";
+import { SaveGameStateParams } from "../types";
 
 interface GameData {
     gameData: IGame;
@@ -26,12 +33,33 @@ const games: Record<string, GameData> = {};
 const connectedPlayers: Record<string, ConnectionData> = {};
 const pendingGameCreations: Record<string, Promise<void>> = {};
 
+const redisCacheSaver = (): SaveGameStateParams => {
+    return {
+        cacheUnits: updateUnitsCache,
+        cacheBuildings: updateBuildingsCache,
+        cacheResources: updateResourceFieldsCache,
+    };
+};
+
 const websocketUpdater = (io: Server, gameId: string) => {
     let count = 0;
+    let lastTime = Date.now();
+
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
+        const cachedGameState = await getGameState(gameId);
+
+        const now = Date.now();
+        const deltaTime = (now - lastTime) / 1000;
+        lastTime = now;
+
+        const logic = games[gameId].game.getLogic();
+        logic.updateGameState(deltaTime);
+        await logic.saveGameState(redisCacheSaver());
+
         const gameData = await getGameState(gameId);
         count++;
+
         if (count >= saveRate) {
             io.to(gameId).emit("game_state", gameData);
             count = 0;
@@ -88,6 +116,11 @@ export const websocketController = (io: Server) => {
                 console.error("Error loading game:", error);
                 socket.emit("error", { message: "error occured" });
             }
+        });
+
+        socket.on("pendingCommands", (commands) => {
+            const gameId = connectedPlayers[socket.id].gameId;
+            games[gameId].game.getLogic().handlePlayerCommands(commands);
         });
 
         socket.on("disconnect", () => {

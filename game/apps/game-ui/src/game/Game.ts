@@ -1,14 +1,16 @@
-import { Tile } from "@packages/game-data";
+import { Player, Tile } from "@packages/game-data";
 import AssetManager from "./data/AssetManager";
 import GameLogic from "./logic/GameLogic";
+import { IPlayer } from "@packages/game-db";
 
 class Game {
     static WIDTH = window.innerWidth;
     static HEIGHT = window.innerHeight;
     #gameLogic;
 
-    constructor(assets: AssetManager, tiles: Tile[][]) {
-        this.#gameLogic = new GameLogic(assets, tiles);
+    constructor(assets: AssetManager, tiles: Tile[][], player: IPlayer) {
+        const currentPlayer = new Player(player._id.toString(), player.color);
+        this.#gameLogic = new GameLogic(assets, tiles, currentPlayer);
     }
     getLogic() {
         return this.#gameLogic;

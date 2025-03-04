@@ -1,7 +1,23 @@
 import express, { Request, Response, NextFunction } from "express";
-import { deletePlayerByUserId } from "../../service/player.service";
+import {
+    deletePlayerByUserId,
+    getPlayerById,
+} from "../../service/player.service";
 import { Types } from "mongoose";
 const router = express.Router();
+
+router.get(
+    "/:playerId",
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { playerId } = req.params;
+            const data = await getPlayerById(new Types.ObjectId(playerId));
+            res.status(200).send(data);
+        } catch (err) {
+            next(err);
+        }
+    },
+);
 
 router.delete(
     "/:userId",

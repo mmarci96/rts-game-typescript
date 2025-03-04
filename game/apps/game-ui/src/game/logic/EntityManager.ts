@@ -3,11 +3,11 @@ import {
     BuildingController,
     ResourceController,
     GameState,
-    GameEntity,
     Unit,
     Building,
     Resource,
     ResourceType,
+    UnitData,
 } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
@@ -44,6 +44,31 @@ class EntityManager {
     }
     getDrawables() {
         return this.#drawables;
+    }
+    refreshEntities(deltaTime: number) {
+        //this.#unitController.refreshUnits(deltaTime);
+    }
+    updateGameState(gameState: GameState) {
+        //this.#unitController.updateUnits(gameState.units);
+        gameState.units.forEach((unitData: UnitData) => {
+            const unit = this.#drawables.get(unitData.id);
+            if (!unit) {
+                return;
+            }
+            if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
+                unit.entity.setStatus(unitData.state);
+                unit.setAnimationType(unitData.state);
+
+                unit.entity.movable.setTarget(
+                    unitData.target.x,
+                    unitData.target.y,
+                );
+                const targetId = unitData.target.id?.toString();
+                if (targetId) {
+                    unit.entity.attacker.setTargetId(targetId);
+                }
+            }
+        });
     }
 
     loadDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
