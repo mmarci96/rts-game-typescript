@@ -43,11 +43,20 @@ class GameLogic {
             this.#entityController.handlePlayerCommand(command);
         });
     }
+
     async saveGameState(redisCache: SaveGameStateParams) {
         await redisCache.cacheUnits(
             this.#gameId,
             this.#entityController.getUnits(),
         );
+        //await redisCache.cacheBuildings(
+        //    this.#gameId,
+        //    this.#entityController.getBuildings(),
+        //);
+        //await redisCache.cacheResources(
+        //    this.#gameId,
+        //    this.#entityController.getResources(),
+        //);
     }
 }
 

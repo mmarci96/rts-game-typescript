@@ -34,7 +34,6 @@ const socketHandler = (
         }, 1000);
     });
     socket.on("game_state", (data: GameState) => {
-        //console.log(data);
         game.getLogic().updateGameState(data);
     });
 

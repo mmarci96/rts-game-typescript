@@ -47,6 +47,8 @@ const websocketUpdater = (io: Server, gameId: string) => {
 
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
+        const cachedGameState = await getGameState(gameId);
+
         const now = Date.now();
         const deltaTime = (now - lastTime) / 1000;
         lastTime = now;
@@ -54,8 +56,10 @@ const websocketUpdater = (io: Server, gameId: string) => {
         const logic = games[gameId].game.getLogic();
         logic.updateGameState(deltaTime);
         await logic.saveGameState(redisCacheSaver());
+
         const gameData = await getGameState(gameId);
         count++;
+
         if (count >= saveRate) {
             io.to(gameId).emit("game_state", gameData);
             count = 0;
@@ -115,7 +119,6 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("pendingCommands", (commands) => {
-            //console.log(commands);
             const gameId = connectedPlayers[socket.id].gameId;
             games[gameId].game.getLogic().handlePlayerCommands(commands);
         });

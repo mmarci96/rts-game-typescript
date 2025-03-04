@@ -40,8 +40,14 @@ class EntityController {
         });
     }
 
-    getUnits() {
-        return this.#unitController.getUnits();
+    getUnits(): Unit[] {
+        const units: Unit[] = [];
+        [...this.#entities.values()].forEach((entity: GameEntity) => {
+            if (entity instanceof Unit) {
+                units.push(entity);
+            }
+        });
+        return units;
     }
 
     getEntityById(id: string) {
@@ -54,7 +60,6 @@ class EntityController {
 
     handlePlayerCommand(command: PlayerCommand) {
         const entity = this.getEntityById(command.entityId);
-        console.log(command);
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
