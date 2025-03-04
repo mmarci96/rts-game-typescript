@@ -21,12 +21,17 @@ const redis = new Redis();
 export const updateUnitCache = async (gameId: string, unit: Unit) => {
     const unitId = unit.getId();
     const key = gameKey(gameId, "unit", unitId);
+    const target = {
+        id: unit.attacker.getTargetId(),
+        x: unit.movable.getTarget().targetX,
+        y: unit.movable.getTarget().targetY,
+    };
 
     const updatedFields: Record<string, string> = {
         position: JSON.stringify(unit.getPosition()),
         health: unit.attackable.getHealth().toString(),
         state: unit.getStatus(),
-        target: JSON.stringify(unit.getTarget()),
+        target: JSON.stringify(target),
         updatedAt: new Date().toISOString(),
     };
 
@@ -62,12 +67,17 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
+        const target = {
+            id: unit.attacker.getTargetId(),
+            x: unit.movable.getTarget().targetX,
+            y: unit.movable.getTarget().targetY,
+        };
 
         pipeline.hmset(key, {
             position: JSON.stringify(unit.getPosition()),
             health: unit.attackable.getHealth().toString(),
             state: unit.getStatus(),
-            target: JSON.stringify(unit.getTarget()),
+            target: JSON.stringify(target),
             updatedAt: new Date().toISOString(),
         });
     }
