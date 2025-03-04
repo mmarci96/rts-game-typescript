@@ -67,7 +67,7 @@ class AnimatedSprite extends Drawable {
             camera.getY(),
         );
 
-        if (this.entity.isSelected) {
+        if (this.isSelected) {
             ctx.save();
             ctx.beginPath();
             ctx.arc(px, py, 32, 0, Math.PI * 2);

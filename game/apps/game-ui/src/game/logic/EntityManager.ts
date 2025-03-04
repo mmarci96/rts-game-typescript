@@ -48,22 +48,14 @@ class EntityManager {
 
     refreshEntities(deltaTime: number) {
         this.#unitController.refreshUnits(deltaTime);
-
         this.#unitController.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
-            if (!drawable) {
-                return;
-            }
-
             if (
+                drawable &&
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                // Sync unit state with drawable
-                const isSelected = drawable.entity.isSelected;
-                drawable.entity = unit; // Ensure drawable uses the updated unit reference
-                drawable.entity.isSelected = isSelected;
-                drawable.setAnimationType(unit.getStatus());
+                drawable.entity = unit;
             }
         });
     }
@@ -75,8 +67,11 @@ class EntityManager {
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
-                unit.setAnimationType(unitData.state);
-
+                if (unitData.state === "attack") {
+                    unit.setAnimationType("attackLeft1");
+                } else {
+                    unit.setAnimationType(unitData.state);
+                }
                 unit.entity.movable.setTarget(
                     unitData.target.x,
                     unitData.target.y,

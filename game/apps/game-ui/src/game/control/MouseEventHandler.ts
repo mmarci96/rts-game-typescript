@@ -1,10 +1,4 @@
-import {
-    Building,
-    ControlledEntity,
-    Player,
-    PlayerColor,
-    Unit,
-} from "@packages/game-data";
+import { ControlledEntity, Player, PlayerColor } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -80,9 +74,8 @@ class MouseEventHandler {
         this.#canvas.addEventListener("mouseup", (e) => {
             if (e.button === 2) return;
             this.#entities.forEach(
-                (entity: Drawable) => (entity.entity.isSelected = false),
+                (entity: Drawable) => (entity.isSelected = false),
             );
-            console.log(e.clientX, e.clientY);
             const rect = this.#canvas.getBoundingClientRect();
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
@@ -143,6 +136,7 @@ class MouseEventHandler {
                 }
             },
         );
+
         if (this.hoveredEntity && !hovering) {
             this.hoveredEntity = null;
             this.setCursor("default");
@@ -159,7 +153,7 @@ class MouseEventHandler {
         const playerColor: PlayerColor = this.#player.getColor();
         if (
             hoveredEntity.entity instanceof ControlledEntity &&
-            hoveredEntity.entity.getColor() === playerColor
+            hoveredEntity.entity.getColor() !== playerColor
         ) {
             this.setCursor("attack");
         }
@@ -176,16 +170,15 @@ class MouseEventHandler {
             action: action,
             targetX: targetX,
             targetY: targetY,
+            targetId: undefined,
         };
     }
 
-    createAttackCommand(targetUnit: Unit | Building, unitId: string): Command {
+    createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
         const action = "attack";
         return {
             entityId: unitId,
             action: action,
-            targetX: targetUnit.getX(),
-            targetY: targetUnit.getY(),
             targetId: targetUnit.getId(),
         };
     }
@@ -195,12 +188,12 @@ class MouseEventHandler {
         const commands: Command[] = [];
         const entityArrSize = Math.round(Math.sqrt(this.#selectedUnits.length));
         this.#selectedUnits.forEach((unit, index) => {
-            if (unit.entity.isSelected) {
+            if (unit.isSelected) {
                 if (this.hoveredEntity) {
-                    const targetEnemy = this.hoveredEntity;
+                    const targetEnemy = this.hoveredEntity.entity;
                     if (
-                        targetEnemy instanceof Unit ||
-                        targetEnemy instanceof Building
+                        targetEnemy instanceof ControlledEntity &&
+                        targetEnemy.getColor() !== this.#player.getColor()
                     ) {
                         const attackCommand = this.createAttackCommand(
                             targetEnemy,

@@ -57,9 +57,9 @@ class SelectionBox {
                 selectionRect.bottom >= unitRect.top &&
                 selectionRect.top <= unitRect.bottom;
 
-            drawable.entity.isSelected = isPartiallyInside;
+            drawable.isSelected = isPartiallyInside;
 
-            return drawable.entity.isSelected;
+            return drawable.isSelected;
         });
     }
 }
