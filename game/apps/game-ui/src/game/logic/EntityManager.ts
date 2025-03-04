@@ -54,22 +54,13 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                const currentX = drawable.entity.getX()
-                const currentY = drawable.entity.getY()
                 const tx = unit.movable.getTarget().targetX
                 const ty = unit.movable.getTarget().targetY
                 if (tx && ty) {
-                    const dx = tx - currentX
-                    const dy = ty - currentY
-                    const distance = Math.sqrt(dx ** 2 + dy ** 2);
-                    if (distance < 0.2) {
-                        console.log(distance);
-                    } else {
-                        const { x, y } = drawable.move(tx, ty, deltaTime);
-                        unit.setX(x);
-                        unit.setY(y);
-                        drawable.entity = unit;
-                    }
+                    const { x, y } = drawable.move(tx, ty, deltaTime);
+                    unit.setX(x);
+                    unit.setY(y);
+                    drawable.entity = unit;
                 }
                 drawable.updateAnimation();
             }

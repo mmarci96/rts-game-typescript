@@ -82,7 +82,7 @@ class UnitController {
         const dx = tx - unit.getX();
         const dy = tx - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = 1;
+        const attackRange = 1.2;
         if (distance <= attackRange) {
             const status = unit.attacker.attackUnit(targetUnit.attackable);
             unit.movable.setTarget(null, null)
@@ -90,10 +90,10 @@ class UnitController {
         } else {
             const directionX = dx / distance;
             const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange);
-            const targetY = ty - directionY * (attackRange);
-            //unit.setStatus("moving");
+            const targetX = tx - directionX * (attackRange - 0.1);
+            const targetY = ty - directionY * (attackRange - 0.1);
             unit.movable.setTarget(targetX, targetY);
+            unit.setStatus("moving");
         }
     }
 

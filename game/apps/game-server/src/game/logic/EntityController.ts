@@ -13,14 +13,12 @@ class EntityController {
     #unitController: UnitController;
     #buildingController: BuildingController;
     #resourceController: ResourceController;
-    #entities: Map<string, GameEntity>;
 
     constructor(
         unitController: UnitController,
         buildingController: BuildingController,
         resourceController: ResourceController,
     ) {
-        this.#entities = new Map<string, GameEntity>();
         this.#unitController = unitController;
         this.#buildingController = buildingController;
         this.#resourceController = resourceController;
@@ -30,22 +28,10 @@ class EntityController {
         this.#buildingController.loadBuildings(data.buildings);
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);
-        const entities: GameEntity[] = [
-            ...this.#unitController.getUnits(),
-            ...this.#buildingController.getBuildings(),
-            ...this.#resourceController.getResources(),
-        ];
-        entities.forEach((entity: GameEntity) => {
-            this.#entities.set(entity.getId(), entity);
-        });
     }
 
     getUnits(): Unit[] {
         return this.#unitController.getUnits();
-    }
-
-    getEntityById(id: string) {
-        return this.#entities.get(id);
     }
 
     getEntities() {
@@ -55,11 +41,10 @@ class EntityController {
             ...this.#resourceController.getResources(),
         ];
         return entities;
-
     }
 
     handlePlayerCommand(command: PlayerCommand) {
-        const entity = this.getEntityById(command.entityId);
+        const entity = this.#unitController.getUnitById(command.entityId);
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
