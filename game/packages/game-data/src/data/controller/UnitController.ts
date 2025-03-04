@@ -138,12 +138,15 @@ class UnitController {
         if (!unit) {
             return;
         }
-        unit.setPosition(unitUpdateData.position);
         unit.setStatus(unitUpdateData.state);
         unit.movable.setTarget(
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
+        const targetId = unitUpdateData.target.id?.toString();
+        if (targetId) {
+            unit.attacker.setTargetId(targetId);
+        }
     }
 
     checkForOverlaps() {
