@@ -46,8 +46,8 @@ class EntityManager {
         return this.#drawables;
     }
 
-    refreshEntities(deltaTime: number) {
-        this.#unitController.refreshUnits(deltaTime);
+    refreshEntities() {
+        //this.#unitController.refreshUnits(deltaTime);
         this.#unitController.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
             if (
@@ -56,14 +56,6 @@ class EntityManager {
                 drawable instanceof AnimatedSprite
             ) {
                 drawable.entity = unit;
-                if (
-                    unit.getStatus() === "attack" ||
-                    unit.getStatus() === "cooldown"
-                ) {
-                    drawable.setAnimationType("attackLeft1");
-                } else {
-                    drawable.setAnimationType(unit.getStatus());
-                }
             }
         });
     }
