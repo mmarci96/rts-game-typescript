@@ -1,5 +1,6 @@
 import {
     getEntitiesByGameId,
+    saveEntitiesToMongo,
     getGameById,
     getMapById,
     getPlayerById,
@@ -17,6 +18,7 @@ import {
 } from "../redis";
 import { GameState } from "@packages/game-data";
 import { SaveGameStateParams } from "../types";
+import { Types } from "mongoose";
 
 interface GameData {
     gameData: IGame;
@@ -45,7 +47,7 @@ const websocketUpdater = (io: Server, gameId: string) => {
     let count = 0;
     let lastTime = Date.now();
 
-    const saveRate = 5;
+    const saveRate = 10;
     const socketUpdateInterval = setInterval(async () => {
         const now = Date.now();
         const deltaTime = (now - lastTime) / 1000;
@@ -61,9 +63,10 @@ const websocketUpdater = (io: Server, gameId: string) => {
         io.to(gameId).emit("game_state", gameData);
         if (count >= saveRate) {
             count = 0;
+            await saveEntitiesToMongo(new Types.ObjectId(gameId), gameData);
             //clearInterval(socketUpdateInterval);
         }
-    }, 100);
+    }, 500);
 };
 
 export const websocketController = (io: Server) => {

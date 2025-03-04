@@ -56,6 +56,14 @@ class EntityManager {
                 drawable instanceof AnimatedSprite
             ) {
                 drawable.entity = unit;
+                if (
+                    unit.getStatus() === "attack" ||
+                    unit.getStatus() === "cooldown"
+                ) {
+                    drawable.setAnimationType("attackLeft1");
+                } else {
+                    drawable.setAnimationType(unit.getStatus());
+                }
             }
         });
     }
@@ -67,11 +75,13 @@ class EntityManager {
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
-                if (unitData.state === "attack") {
-                    unit.setAnimationType("attackLeft1");
-                } else {
+                if (
+                    unitData.state !== "attack" &&
+                    unitData.state !== "cooldown"
+                ) {
                     unit.setAnimationType(unitData.state);
                 }
+
                 unit.entity.movable.setTarget(
                     unitData.target.x,
                     unitData.target.y,

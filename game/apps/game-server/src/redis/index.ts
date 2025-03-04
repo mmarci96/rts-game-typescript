@@ -1,5 +1,5 @@
 import Redis, { ChainableCommander } from "ioredis";
-import { IBuilding, IResource, IUnit } from "@packages/game-db";
+import { deleteUnitById, IBuilding, IResource, IUnit } from "@packages/game-db";
 import {
     BuildingData,
     ResourceData,
@@ -9,6 +9,7 @@ import {
     Building,
     Resource,
 } from "@packages/game-data";
+import { Types } from "mongoose";
 
 const redis = new Redis();
 
@@ -27,6 +28,10 @@ export const updateUnitCache = async (gameId: string, unit: Unit) => {
         y: unit.movable.getTarget().targetY,
     };
 
+    if (unit.getStatus() === "delete") {
+        await redis.del(key);
+        await deleteUnitById(new Types.ObjectId(unitId));
+    }
     const updatedFields: Record<string, string> = {
         position: JSON.stringify(unit.getPosition()),
         health: unit.attackable.getHealth().toString(),
@@ -72,14 +77,25 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             x: unit.movable.getTarget().targetX,
             y: unit.movable.getTarget().targetY,
         };
+        if (unit.getStatus() === "delete") {
+            console.log("delete");
 
-        pipeline.hmset(key, {
-            position: JSON.stringify(unit.getPosition()),
-            health: unit.attackable.getHealth().toString(),
-            state: unit.getStatus(),
-            target: JSON.stringify(target),
-            updatedAt: new Date().toISOString(),
-        });
+            await redis.del(key);
+            await deleteUnitById(new Types.ObjectId(unitId));
+        } else {
+            let status = unit.getStatus();
+            if (status === "cooldown") {
+                status = "attack";
+                console.log("set to attack");
+            }
+            pipeline.hmset(key, {
+                position: JSON.stringify(unit.getPosition()),
+                health: unit.attackable.getHealth().toString(),
+                state: status,
+                target: JSON.stringify(target),
+                updatedAt: new Date().toISOString(),
+            });
+        }
     }
 
     await pipeline.exec();
