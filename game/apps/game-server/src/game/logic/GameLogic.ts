@@ -6,31 +6,33 @@ import {
     BuildingController,
 } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
+import EntityController from "./EntityController";
 
 class GameLogic {
-    #unitController;
-    #buildingController;
-    #resourceController;
+    #entityController: EntityController;
     #gameMap;
 
     constructor(gameData: GameState, gameMap: IMap) {
-        this.#unitController = new UnitController();
-        this.#resourceController = new ResourceController();
-        this.#buildingController = new BuildingController();
+        const unitController = new UnitController();
+        const resourceController = new ResourceController();
+        const buildingController = new BuildingController();
+        this.#entityController = new EntityController(
+            unitController,
+            buildingController,
+            resourceController,
+        );
 
         this.loadData(gameData);
-
         this.#gameMap = new GameMap(gameMap.tiles);
     }
 
     loadData(data: GameState) {
-        this.#buildingController.loadBuildings(data.buildings);
-        this.#resourceController.loadResources(data.resources);
-        this.#unitController.loadUnits(data.units);
+        this.#entityController.loadEntities(data);
     }
 
-    updateGameState() {
+    updateGameState(deltaTime: number) {
         //TODO refresh states and pass the updater forward
+        this.#entityController.refreshEntities(deltaTime);
     }
 }
 
