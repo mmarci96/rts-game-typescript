@@ -40,10 +40,8 @@ const socketHandler = (
     const commandInterval = setInterval(() => {
         if (pendingCommands.length >= 1) {
             socket.emit("pendingCommands", pendingCommands);
-            console.log(pendingCommands);
-
+            console.log("Commands added to stack:", pendingCommands);
             pendingCommands = [];
-            console.log("Commands added to stack");
         }
     }, 60);
 };

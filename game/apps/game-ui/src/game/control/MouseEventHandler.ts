@@ -1,8 +1,8 @@
 import {
     Building,
     ControlledEntity,
-    GameEntity,
     Player,
+    PlayerColor,
     Unit,
 } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
@@ -20,7 +20,7 @@ class MouseEventHandler {
     selectionActive: boolean = false;
     #assets: AssetManager;
     #entities: Array<Drawable>;
-    hoveredEntity: GameEntity | null;
+    hoveredEntity: Drawable | null;
     #selectedUnits: Array<Drawable>;
 
     constructor(
@@ -73,7 +73,7 @@ class MouseEventHandler {
                 this.onSelecting(e.clientX, e.clientY, startX, startY, ctx);
             }
             if (this.selectionActive) {
-                //this.handleHover(e.clientX, e.clientY);
+                this.handleHover(e.clientX, e.clientY);
             }
         });
 
@@ -127,6 +127,42 @@ class MouseEventHandler {
                 createCommand(commands);
             }
         });
+    }
+    handleHover(clientX: number, clientY: number) {
+        const hovering: Drawable | undefined = this.#entities.find(
+            (drawable: Drawable) => {
+                const { worldX, worldY } = this.convertCursorPosition(
+                    clientX,
+                    clientY,
+                );
+                const diffX = Math.abs(worldX - drawable.entity.getX());
+                const diffY = Math.abs(worldY - drawable.entity.getY());
+                const max = 1.1;
+                if (diffX < max && diffY < max) {
+                    return drawable;
+                }
+            },
+        );
+        if (this.hoveredEntity && !hovering) {
+            this.hoveredEntity = null;
+            this.setCursor("default");
+        }
+        if (hovering) {
+            this.hoveredEntity = hovering;
+            this.onHover(this.hoveredEntity);
+        } else {
+            this.hoveredEntity = null;
+            this.setCursor("default");
+        }
+    }
+    onHover(hoveredEntity: Drawable) {
+        const playerColor: PlayerColor = this.#player.getColor();
+        if (
+            hoveredEntity.entity instanceof ControlledEntity &&
+            hoveredEntity.entity.getColor() === playerColor
+        ) {
+            this.setCursor("attack");
+        }
     }
 
     createMoveUnitCommand(
@@ -212,6 +248,17 @@ class MouseEventHandler {
         ctx.strokeStyle = "green";
         ctx.lineWidth = 1;
         ctx.strokeRect(startX, startY, width, height);
+    }
+
+    setCursor(name: string) {
+        const defaultCursor = this.#assets.getImage(`${name}_cursor`);
+        if (defaultCursor instanceof HTMLImageElement) {
+            this.#canvas.style.cursor = `url(${defaultCursor.src}), auto`;
+        } else if (typeof defaultCursor === "string") {
+            this.#canvas.style.cursor = `url(${defaultCursor}), auto`;
+        } else {
+            console.warn("Default cursor is not a valid image or URL.");
+        }
     }
 
     convertCursorPosition(clientX: number, clientY: number) {
