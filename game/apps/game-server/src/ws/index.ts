@@ -43,9 +43,17 @@ const redisCacheSaver = (): SaveGameStateParams => {
 
 const websocketUpdater = (io: Server, gameId: string) => {
     let count = 0;
+    let lastTime = Date.now();
+
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
-        await games[gameId].game.getLogic().saveGameState(redisCacheSaver());
+        const now = Date.now();
+        const deltaTime = (now - lastTime) / 1000;
+        lastTime = now;
+
+        const logic = games[gameId].game.getLogic();
+        logic.updateGameState(deltaTime);
+        await logic.saveGameState(redisCacheSaver());
         const gameData = await getGameState(gameId);
         count++;
         if (count >= saveRate) {
