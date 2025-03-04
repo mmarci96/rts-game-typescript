@@ -9,9 +9,16 @@ class Movable {
         this.#targetY = null;
     }
 
-    setTarget(targetX: number, targetY: number) {
+    setTarget(targetX: number | null, targetY: number | null) {
         this.#targetY = targetY;
         this.#targetX = targetX;
+    }
+
+    getTarget() {
+        return {
+            targetX: this.#targetX,
+            targetY: this.#targetY,
+        };
     }
 
     move(startX: number, startY: number, deltaTime: number) {

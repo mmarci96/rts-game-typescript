@@ -1,5 +1,5 @@
 import ControlledEntity from "../ControlledEntity";
-import { UnitParams, Target } from "../../types";
+import { UnitParams } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
@@ -7,7 +7,6 @@ import Attacker from "../Attacker";
 class Unit extends ControlledEntity {
     attackable;
     #speed;
-    #target;
     idleTime: number = 0;
     movable: Movable;
     attacker: Attacker;
@@ -16,9 +15,12 @@ class Unit extends ControlledEntity {
         super(parameters.controlledParams);
         this.attackable = new Attackable(parameters.health);
         this.#speed = parameters.speed;
-        this.#target = parameters.target;
         this.movable = new Movable(this.#speed);
+        this.movable.setTarget(parameters.target.x, parameters.target.y);
         this.attacker = new Attacker(parameters.damage, parameters.attackSpeed);
+        if (parameters.target.id) {
+            this.attacker.setTargetId(parameters.target.id);
+        }
     }
 
     updatePosition(deltaTime: number) {
@@ -35,7 +37,7 @@ class Unit extends ControlledEntity {
             return;
         }
 
-        if (this.#target.id !== null) {
+        if (this.attacker.getTargetId() !== null) {
             this.setStatus("attack");
             return;
         }
@@ -46,13 +48,6 @@ class Unit extends ControlledEntity {
 
     getSpeed() {
         return this.#speed;
-    }
-
-    getTarget(): Target {
-        return this.#target;
-    }
-    setTarget(target: Target) {
-        this.#target = target;
     }
 
     getType() {
