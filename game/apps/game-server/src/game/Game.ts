@@ -11,7 +11,7 @@ class Game {
     constructor(gameId: string, map: IMap, gameData: GameState) {
         this.#id = gameId;
         this.#players = new Map();
-        this.#gameLogic = new GameLogic(gameData, map);
+        this.#gameLogic = new GameLogic(gameId, gameData, map);
     }
 
     addPlayer(playerId: string, color: PlayerColor) {

@@ -7,13 +7,15 @@ import {
 } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
 import EntityController from "./EntityController";
-import { PlayerCommand } from "../../types";
+import { PlayerCommand, SaveGameStateParams } from "../../types";
 
 class GameLogic {
     #entityController: EntityController;
+    #gameId: string;
     #gameMap;
 
-    constructor(gameData: GameState, gameMap: IMap) {
+    constructor(id: string, gameData: GameState, gameMap: IMap) {
+        this.#gameId = id;
         const unitController = new UnitController();
         const resourceController = new ResourceController();
         const buildingController = new BuildingController();
@@ -40,6 +42,12 @@ class GameLogic {
         commands.forEach((command: PlayerCommand) => {
             this.#entityController.handlePlayerCommand(command);
         });
+    }
+    async saveGameState(redisCache: SaveGameStateParams) {
+        await redisCache.cacheUnits(
+            this.#gameId,
+            this.#entityController.getUnits(),
+        );
     }
 }
 

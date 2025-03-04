@@ -8,8 +8,15 @@ import {
 } from "@packages/game-db";
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
-import { cacheGameEntities, getGameState } from "../redis";
+import {
+    cacheGameEntities,
+    getGameState,
+    updateBuildingsCache,
+    updateResourceFieldsCache,
+    updateUnitsCache,
+} from "../redis";
 import { GameState } from "@packages/game-data";
+import { SaveGameStateParams } from "../types";
 
 interface GameData {
     gameData: IGame;
@@ -26,10 +33,19 @@ const games: Record<string, GameData> = {};
 const connectedPlayers: Record<string, ConnectionData> = {};
 const pendingGameCreations: Record<string, Promise<void>> = {};
 
+const redisCacheSaver = (): SaveGameStateParams => {
+    return {
+        cacheUnits: updateUnitsCache,
+        cacheBuildings: updateBuildingsCache,
+        cacheResources: updateResourceFieldsCache,
+    };
+};
+
 const websocketUpdater = (io: Server, gameId: string) => {
     let count = 0;
     const saveRate = 5;
     const socketUpdateInterval = setInterval(async () => {
+        await games[gameId].game.getLogic().saveGameState(redisCacheSaver());
         const gameData = await getGameState(gameId);
         count++;
         if (count >= saveRate) {

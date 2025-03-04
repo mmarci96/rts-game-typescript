@@ -1,5 +1,6 @@
 import {
     BuildingController,
+    ControlledEntity,
     GameEntity,
     GameState,
     ResourceController,
@@ -38,6 +39,11 @@ class EntityController {
             this.#entities.set(entity.getId(), entity);
         });
     }
+
+    getUnits() {
+        return this.#unitController.getUnits();
+    }
+
     getEntityById(id: string) {
         return this.#entities.get(id);
     }
@@ -69,6 +75,9 @@ class EntityController {
                 }
                 break;
             default:
+                if (entity instanceof ControlledEntity) {
+                    entity.setStatus(command.action);
+                }
                 console.log("Invalid command", command);
                 break;
         }

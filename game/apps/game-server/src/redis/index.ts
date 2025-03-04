@@ -54,6 +54,71 @@ export const updateBuildingCache = async (
 };
 
 /**
+ * Batch update unit cache using Redis pipeline
+ */
+export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
+    const pipeline = redis.pipeline();
+
+    for (const unit of units) {
+        const unitId = unit.getId();
+        const key = gameKey(gameId, "unit", unitId);
+
+        pipeline.hmset(key, {
+            position: JSON.stringify(unit.getPosition()),
+            health: unit.attackable.getHealth().toString(),
+            state: unit.getStatus(),
+            target: JSON.stringify(unit.getTarget()),
+            updatedAt: new Date().toISOString(),
+        });
+    }
+
+    await pipeline.exec();
+};
+
+/**
+ * Batch update building cache using Redis pipeline
+ */
+export const updateBuildingsCache = async (
+    gameId: string,
+    buildings: Building[],
+) => {
+    const pipeline = redis.pipeline();
+
+    for (const building of buildings) {
+        const buildingId = building.getId();
+        const key = gameKey(gameId, "building", buildingId);
+
+        pipeline.hmset(key, {
+            health: building.attackable.getHealth().toString(),
+            state: building.getStatus(),
+            updatedAt: new Date().toISOString(),
+        });
+    }
+
+    await pipeline.exec();
+};
+
+/**
+ * Batch update resource cache using Redis pipeline
+ */
+export const updateResourceFieldsCache = async (
+    gameId: string,
+    resources: Resource[],
+) => {
+    const pipeline = redis.pipeline();
+
+    for (const resource of resources) {
+        const resourceId = resource.getId();
+        const key = gameKey(gameId, "resource", resourceId);
+
+        pipeline.hmset(key, {
+            availableResource: resource.getAvailableResource().toString(),
+        });
+    }
+
+    await pipeline.exec();
+};
+/**
  * Generate consistent Redis key for game entities
  * @param gameId - Parent game identifier
  * @param resource - Resource class from game logic
