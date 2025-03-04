@@ -72,8 +72,12 @@ class GameLogic {
             createCommand,
         );
 
+        let lastTime = Date.now();
         const animate = () => {
-            this.#entityManager.refreshEntities();
+            const now = Date.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+            this.#entityManager.refreshEntities(deltaTime);
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 

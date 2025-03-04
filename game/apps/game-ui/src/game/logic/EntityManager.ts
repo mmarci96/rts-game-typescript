@@ -46,8 +46,7 @@ class EntityManager {
         return this.#drawables;
     }
 
-    refreshEntities() {
-        //this.#unitController.refreshUnits(deltaTime);
+    refreshEntities(deltaTime: number) {
         this.#unitController.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
             if (
@@ -55,7 +54,16 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                drawable.entity = unit;
+                const tx = unit.movable.getTarget().targetX
+                const ty = unit.movable.getTarget().targetY
+
+                if (tx && ty) {
+                    const { x, y } = drawable.move(tx, ty, deltaTime);
+                    //console.log(x, y);
+                    unit.setX(x);
+                    unit.setY(y);
+                    drawable.entity = unit;
+                }
             }
         });
     }
@@ -67,12 +75,7 @@ class EntityManager {
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
-                if (
-                    unitData.state !== "attack" &&
-                    unitData.state !== "cooldown"
-                ) {
-                    unit.setAnimationType(unitData.state);
-                }
+                unit.setAnimationType(unitData.state);
 
                 unit.entity.movable.setTarget(
                     unitData.target.x,
