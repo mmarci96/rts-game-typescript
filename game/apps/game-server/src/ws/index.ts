@@ -60,12 +60,12 @@ const websocketUpdater = (io: Server, gameId: string) => {
         const gameData = await getGameState(gameId);
         count++;
 
+        io.to(gameId).emit("game_state", gameData);
         if (count >= saveRate) {
-            io.to(gameId).emit("game_state", gameData);
             count = 0;
             //clearInterval(socketUpdateInterval);
         }
-    }, 200);
+    }, 100);
 };
 
 export const websocketController = (io: Server) => {

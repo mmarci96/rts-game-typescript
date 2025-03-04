@@ -45,11 +45,29 @@ class EntityManager {
     getDrawables() {
         return this.#drawables;
     }
+
     refreshEntities(deltaTime: number) {
-        //this.#unitController.refreshUnits(deltaTime);
+        this.#unitController.refreshUnits(deltaTime);
+
+        this.#unitController.getUnits().forEach((unit: Unit) => {
+            const drawable = this.#drawables.get(unit.getId());
+            if (!drawable) {
+                return;
+            }
+
+            if (
+                drawable.entity instanceof Unit &&
+                drawable instanceof AnimatedSprite
+            ) {
+                // Sync unit state with drawable
+                const isSelected = drawable.entity.isSelected;
+                drawable.entity = unit; // Ensure drawable uses the updated unit reference
+                drawable.entity.isSelected = isSelected;
+                drawable.setAnimationType(unit.getStatus());
+            }
+        });
     }
     updateGameState(gameState: GameState) {
-        //this.#unitController.updateUnits(gameState.units);
         gameState.units.forEach((unitData: UnitData) => {
             const unit = this.#drawables.get(unitData.id);
             if (!unit) {
