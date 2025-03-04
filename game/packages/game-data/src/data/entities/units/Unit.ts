@@ -29,6 +29,9 @@ class Unit extends ControlledEntity {
             this.getY(),
             deltaTime,
         );
+        if (progress === "completed") {
+            this.movable.setTarget(null, null)
+        }
 
         if (progress !== "completed") {
             this.setX(newX);

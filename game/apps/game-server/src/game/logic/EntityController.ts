@@ -41,13 +41,7 @@ class EntityController {
     }
 
     getUnits(): Unit[] {
-        const units: Unit[] = [];
-        [...this.#entities.values()].forEach((entity: GameEntity) => {
-            if (entity instanceof Unit) {
-                units.push(entity);
-            }
-        });
-        return units;
+        return this.#unitController.getUnits();
     }
 
     getEntityById(id: string) {
@@ -55,7 +49,13 @@ class EntityController {
     }
 
     getEntities() {
-        this.#entities.values();
+        const entities: GameEntity[] = [
+            ...this.#unitController.getUnits(),
+            ...this.#buildingController.getBuildings(),
+            ...this.#resourceController.getResources(),
+        ];
+        return entities;
+
     }
 
     handlePlayerCommand(command: PlayerCommand) {
@@ -95,6 +95,7 @@ class EntityController {
 
     handleAttackEntity(unit: Unit, targetId: string) {
         unit.attacker.setTargetId(targetId);
+        this.#unitController.getUnitById(unit.getId())?.attacker.setTargetId(targetId);
     }
 
     refreshEntities(deltaTime: number) {

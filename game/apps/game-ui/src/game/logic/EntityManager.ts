@@ -54,16 +54,24 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
+                const currentX = drawable.entity.getX()
+                const currentY = drawable.entity.getY()
                 const tx = unit.movable.getTarget().targetX
                 const ty = unit.movable.getTarget().targetY
-
                 if (tx && ty) {
-                    const { x, y } = drawable.move(tx, ty, deltaTime);
-                    //console.log(x, y);
-                    unit.setX(x);
-                    unit.setY(y);
-                    drawable.entity = unit;
+                    const dx = tx - currentX
+                    const dy = ty - currentY
+                    const distance = Math.sqrt(dx ** 2 + dy ** 2);
+                    if (distance < 0.2) {
+                        console.log(distance);
+                    } else {
+                        const { x, y } = drawable.move(tx, ty, deltaTime);
+                        unit.setX(x);
+                        unit.setY(y);
+                        drawable.entity = unit;
+                    }
                 }
+                drawable.updateAnimation();
             }
         });
     }
@@ -74,17 +82,19 @@ class EntityManager {
                 return;
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
-                unit.entity.setStatus(unitData.state);
+                //unit.entity.setStatus(unitData.state);
+                //console.log(unitData.state);
+
                 unit.setAnimationType(unitData.state);
 
-                unit.entity.movable.setTarget(
-                    unitData.target.x,
-                    unitData.target.y,
-                );
-                const targetId = unitData.target.id?.toString();
-                if (targetId) {
-                    unit.entity.attacker.setTargetId(targetId);
-                }
+                //unit.entity.movable.setTarget(
+                //    unitData.target.x,
+                //    unitData.target.y,
+                //);
+                //const targetId = unitData.target.id?.toString();
+                //if (targetId) {
+                //    unit.entity.attacker.setTargetId(targetId);
+                //}
             }
         });
     }

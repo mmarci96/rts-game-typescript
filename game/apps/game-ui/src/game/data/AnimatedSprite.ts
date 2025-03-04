@@ -45,7 +45,7 @@ class AnimatedSprite extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
-        this.updateAnimation();
+        //this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
             return;
@@ -124,6 +124,9 @@ class AnimatedSprite extends Drawable {
                 break;
             case "cooldown":
                 this.frameY = 2;
+                break;
+            case "attack":
+                this.frameY = 3;
                 break;
             case "attackLeft1":
                 this.frameY = 2;

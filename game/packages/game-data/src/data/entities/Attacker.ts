@@ -44,9 +44,9 @@ class Attacker {
     }
 
     attackUnit(targetUnit: Attackable) {
-        if (!this.canAttack()) {
-            console.error("Unit should not attack on cooldown");
-            return "cooldown";
+        if (this.canAttack()) {
+            this.startCoolDown();
+            return "attack";
         }
 
         const damage = this.getAttackDamage();
@@ -56,7 +56,6 @@ class Attacker {
             return "idle";
         }
 
-        this.startCoolDown();
         return "cooldown";
     }
     canAttack() {
