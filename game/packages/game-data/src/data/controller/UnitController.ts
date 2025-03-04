@@ -33,7 +33,9 @@ class UnitController {
                     this.#units.delete(unit.getId().toString());
                     break;
                 case "dead":
-                    unit.setStatus("delete");
+                    setTimeout(() => {
+                        unit.setStatus("delete");
+                    }, 1000);
                 default:
                     break;
             }
