@@ -8,7 +8,6 @@ import {
     ResourceController,
     Unit,
     UnitController,
-    UnitData,
 } from "@packages/game-data";
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db";
@@ -84,8 +83,7 @@ class EntityController {
                         //    return;
                         //}
                         //console.log("unit from cache", unitData);
-                        const unitData: UnitData =
-                            mapMongoUnitToData(savedUnit);
+                        const unitData = mapMongoUnitToData(savedUnit);
                         this.#unitController.loadUnit(unitData);
                         console.log("actual unit", savedUnit);
                     }

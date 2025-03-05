@@ -30,11 +30,18 @@ interface IUnit extends Document {
     updatedAt?: Date;
 }
 
-const targetSchema = new Schema({
-    x: { type: Number, default: null },
-    y: { type: Number, default: null },
-    id: { type: mongoose.Schema.Types.ObjectId, default: null, ref: "Unit" },
-});
+const TargetSchema = new Schema<Target>(
+    {
+        x: { type: Number, default: null },
+        y: { type: Number, default: null },
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+            ref: "Unit",
+        },
+    },
+    { _id: false },
+);
 
 const unitSchema = new Schema<IUnit>({
     position: {
@@ -48,8 +55,11 @@ const unitSchema = new Schema<IUnit>({
     attackSpeed: { type: Number, required: true },
     type: { type: String, enum: UnitType, required: true },
     state: { type: String, default: "idle" },
-    target: { type: targetSchema, default: {} },
-    size: { type: { width: Number, height: Number }, required: true },
+    target: { type: TargetSchema, default: {} },
+    size: {
+        type: new Schema({ width: Number, height: Number }, { _id: false }),
+        required: true,
+    },
     gameId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -58,7 +68,6 @@ const unitSchema = new Schema<IUnit>({
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
 });
-
 const UnitModel = mongoose.model<IUnit>("Unit", unitSchema);
 
 export { UnitModel, IUnit, UnitType, Target };
