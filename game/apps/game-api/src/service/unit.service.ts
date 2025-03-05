@@ -6,7 +6,7 @@ import {
 } from "@packages/game-db/dist/mongo-db/unit.model";
 import { Types } from "mongoose";
 
-const UNIT_SIZE = { height: 64, width: 24 };
+const UNIT_SIZE = { height: 32, width: 32 };
 
 const BASE_STATS = {
     warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 2 },

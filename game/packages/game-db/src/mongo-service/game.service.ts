@@ -8,11 +8,46 @@ import {
     ResourceModel,
     UnitModel,
 } from "../mongo-db";
-import { GameState } from "@packages/game-data";
+import { GameState, PlayerColor, Position } from "@packages/game-data";
+import { UnitType } from "../mongo-db/unit.model";
+
+const UNIT_SIZE = { height: 32, width: 32 };
+
+const BASE_STATS = {
+    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 2 },
+    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 1 },
+    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 2 },
+};
 
 export const deleteUnitById = async (unitId: Types.ObjectId) => {
     await UnitModel.findByIdAndDelete(unitId);
 };
+const createUnitModel = (
+    unitType: UnitType,
+    position: Position,
+    color: PlayerColor,
+    gameId: Types.ObjectId,
+) => {
+    const stats = BASE_STATS[unitType];
+    const unitData = {
+        position,
+        color,
+        gameId,
+        type: unitType,
+        size: UNIT_SIZE,
+        ...stats,
+    };
+    return new UnitModel(unitData);
+};
+
+export const createUnit = async (
+    gameId: string, spawnX: number, spawnY: number, color: PlayerColor, type: UnitType
+) => {
+    const position: Position = { x: spawnX, y: spawnY }
+    const unit = createUnitModel(type, position, color, new Types.ObjectId(gameId));
+    const saved = await unit.save();
+    return saved;
+}
 
 export const deleteBuildingById = async (buildingId: Types.ObjectId) => {
     await BuildingModel.findByIdAndDelete(buildingId);
