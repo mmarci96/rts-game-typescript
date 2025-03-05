@@ -41,13 +41,22 @@ const createUnitModel = (
 };
 
 export const createUnit = async (
-    gameId: string, spawnX: number, spawnY: number, color: PlayerColor, type: UnitType
+    gameId: string,
+    spawnX: number,
+    spawnY: number,
+    color: PlayerColor,
+    type: UnitType,
 ) => {
-    const position: Position = { x: spawnX, y: spawnY }
-    const unit = createUnitModel(type, position, color, new Types.ObjectId(gameId));
+    const position: Position = { x: spawnX, y: spawnY };
+    const unit = createUnitModel(
+        type,
+        position,
+        color,
+        new Types.ObjectId(gameId),
+    );
     const saved = await unit.save();
     return saved;
-}
+};
 
 export const deleteBuildingById = async (buildingId: Types.ObjectId) => {
     await BuildingModel.findByIdAndDelete(buildingId);

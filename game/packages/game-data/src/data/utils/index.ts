@@ -10,7 +10,7 @@ import {
 
 export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
     const controlledParams: ControlledEntityParams = {
-        id: unit.id.toString(),
+        id: unit.id,
         position: unit.position,
         description: `A ${unit.type} unit`,
         color: unit.color,
@@ -32,7 +32,7 @@ export const mapBuildingToBuildingParams = (
     building: BuildingData,
 ): BuildingParams => {
     const controlledParams = {
-        id: building.id.toString(),
+        id: building.id,
         position: building.position,
         description: `A ${building.type} building`,
         color: building.color,
@@ -50,7 +50,7 @@ export const mapResourceToResourceParams = (
     resource: ResourceData,
 ): ResourceParams => {
     return {
-        id: resource.id.toString(),
+        id: resource.id,
         position: resource.position,
         description: `A ${resource.type} field`,
         availableResource: resource.availableResource,

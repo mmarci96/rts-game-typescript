@@ -28,9 +28,12 @@ class BuildingController {
     refreshBuilding(deltaTime: number) {
         [...this.#buildings.values()].forEach((building: Building) => {
             if (building instanceof MainBuilding) {
-                building.updateTraining(deltaTime)
+                building.updateTraining(deltaTime);
             }
-        })
+        });
+    }
+    getBuildingById(buildingId: string) {
+        return this.#buildings.get(buildingId);
     }
 }
 

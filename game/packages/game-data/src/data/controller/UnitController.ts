@@ -36,7 +36,7 @@ class UnitController {
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];
-        const bufferDistance = 1;
+        const bufferDistance = 1.6;
 
         unitsArray.forEach((otherUnit) => {
             if (idleUnit === otherUnit || otherUnit.getStatus() !== "idle")
