@@ -1,4 +1,4 @@
-import { Tile, GameState, Player, Unit } from "@packages/game-data";
+import { Tile, GameState, Player } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";

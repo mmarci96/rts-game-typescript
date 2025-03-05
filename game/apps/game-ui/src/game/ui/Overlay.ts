@@ -1,7 +1,6 @@
 import { Building, MainBuilding, Player, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import { Command } from "../../main";
-import { UnitType } from "@packages/game-db/dist/mongo-db/unit.model";
 class Overlay {
     #overlayDiv;
     #currentPlayer;

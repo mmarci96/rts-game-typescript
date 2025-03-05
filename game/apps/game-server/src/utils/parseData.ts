@@ -18,7 +18,7 @@ export const mapMongoUnitToData = (mongoUnit: IUnit): UnitData => {
         damage: mongoUnit.damage,
         target: target,
         speed: mongoUnit.speed,
-        type: mongoUnit.type,
+        unitType: mongoUnit.unitType,
         attackSpeed: mongoUnit.attackSpeed,
         gameId: mongoUnit.gameId.toString(),
     };

@@ -7,7 +7,6 @@ import {
     Building,
     Resource,
     ResourceType,
-    UnitData,
 } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
@@ -54,6 +53,7 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
+                drawable.setAnimationType(drawable.entity.getStatus());
                 const tx = unit.movable.getTarget().targetX;
                 const ty = unit.movable.getTarget().targetY;
                 if (tx && ty) {
@@ -62,29 +62,7 @@ class EntityManager {
                     unit.setY(y);
                 }
                 drawable.entity = unit;
-                drawable.setAnimationType(drawable.entity.getStatus());
             }
-        });
-    }
-    updateGameState(gameState: GameState) {
-        const existingUnitIds = new Set(this.#drawables.keys());
-
-        gameState.units.forEach((unitData: UnitData) => {
-            const unit = this.#drawables.get(unitData.id);
-            if (!unit) {
-                return;
-            }
-            if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
-                unit.entity.setStatus(unitData.state);
-                //unit.entity.attackable.setHealth(unitData.health);
-                //unit.entity.attacker.setTargetId(unitData.target.id);
-            }
-            existingUnitIds.delete(unitData.id);
-        });
-
-        [...existingUnitIds.keys()].forEach((unitId) => {
-            //this.#drawables.delete(unitId);
-            this.#unitController.removeUnit(unitId);
         });
     }
 
