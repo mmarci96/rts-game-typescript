@@ -4,6 +4,7 @@ import {
     ResourceController,
     GameState,
     BuildingController,
+    PlayerColor,
 } from "@packages/game-data";
 import { IMap } from "@packages/game-db";
 import EntityController from "./EntityController";
@@ -57,6 +58,12 @@ class GameLogic {
         //    this.#gameId,
         //    this.#entityController.getResources(),
         //);
+    }
+    isGameOver(playerColor: PlayerColor) {
+        if (this.#entityController.getEnemyUnits(playerColor).length === 0) {
+            return true;
+        }
+        return false;
     }
 }
 

@@ -50,7 +50,7 @@ class GameLogic {
             this.#assets,
         );
 
-        this.#entityManager = new EntityManager();
+        this.#entityManager = new EntityManager(this.#assets);
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);

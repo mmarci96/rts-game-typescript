@@ -5,6 +5,7 @@ import {
     GameEntity,
     GameState,
     MainBuilding,
+    PlayerColor,
     ResourceController,
     Unit,
     UnitController,
@@ -75,18 +76,7 @@ class EntityController {
                         command.unitType,
                     );
                     if (savedUnit) {
-                        //const unitData: UnitData | null = await getUnitCache(
-                        //    this.#gameId,
-                        //    savedUnit._id.toString(),
-                        //);
-                        //if (!unitData) {
-                        //    return;
-                        //}
-                        //console.log("unit from cache", unitData);
                         const unitData = mapMongoUnitToData(savedUnit);
-                        const unitType = unitData.unitType;
-                        console.log(unitType);
-
                         this.#unitController.loadUnit(unitData);
                         await cacheUnit(savedUnit);
                     }
@@ -114,6 +104,10 @@ class EntityController {
                 console.log("Invalid command", command);
                 break;
         }
+    }
+
+    getEnemyUnits(playerColor: PlayerColor) {
+        return this.#unitController.getEnemyUnits(playerColor);
     }
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {

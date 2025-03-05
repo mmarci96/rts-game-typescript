@@ -47,15 +47,23 @@ const websocketUpdater = (io: Server, gameId: string) => {
     let lastTime = Date.now();
 
     const socketUpdateInterval = setInterval(async () => {
-        const now = Date.now();
-        const deltaTime = (now - lastTime) / 1000;
-        lastTime = now;
+        try {
+            const now = Date.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
 
-        const logic = games[gameId].game.getLogic();
-        logic.updateGameState(deltaTime);
-        await logic.saveGameState(redisCacheSaver());
-        const gameData = await getGameState(gameId);
-        io.to(gameId).emit("game_state", gameData);
+            const logic = games[gameId].game.getLogic();
+            logic.updateGameState(deltaTime);
+            await logic.saveGameState(redisCacheSaver());
+            const gameData = await getGameState(gameId);
+
+            if (games[gameId].game.isGameOver()) {
+                clearInterval(socketUpdateInterval);
+            }
+            io.to(gameId).emit("game_state", gameData);
+        } catch (error) {
+            console.error("Error in websocketUpdater:", error);
+        }
     }, 50);
 };
 
@@ -69,33 +77,43 @@ export const websocketController = (io: Server) => {
                 if (!games[gameId]) {
                     if (!pendingGameCreations[gameId]) {
                         pendingGameCreations[gameId] = (async () => {
-                            const [gameData, gameEntities] = await Promise.all([
-                                getGameById(gameId),
-                                getEntitiesByGameId(gameId),
-                            ]);
+                            try {
+                                const [gameData, gameEntities] =
+                                    await Promise.all([
+                                        getGameById(gameId),
+                                        getEntitiesByGameId(gameId),
+                                    ]);
 
-                            if (!gameData) throw new Error("Game not found");
-                            const map = await getMapById(gameData.mapId);
-                            if (!map) throw new Error("Map not found");
-                            await cacheGameEntities(gameEntities);
+                                if (!gameData)
+                                    throw new Error("Game not found");
+                                const map = await getMapById(gameData.mapId);
+                                if (!map) throw new Error("Map not found");
+                                await cacheGameEntities(gameEntities);
 
-                            const gameState = await getGameState(gameId);
-                            games[gameId] = {
-                                gameData,
-                                gameState,
-                                game: new Game(gameId, map, gameState),
-                            };
-                            websocketUpdater(io, gameId);
-                            delete pendingGameCreations[gameId];
+                                const gameState = await getGameState(gameId);
+                                games[gameId] = {
+                                    gameData,
+                                    gameState,
+                                    game: new Game(gameId, map, gameState),
+                                };
+                                websocketUpdater(io, gameId);
+                                delete pendingGameCreations[gameId];
+                            } catch (error) {
+                                console.error(
+                                    "Error during game creation:",
+                                    error,
+                                );
+                                delete pendingGameCreations[gameId];
+                                throw error;
+                            }
                         })();
                     }
                     await pendingGameCreations[gameId];
                 }
 
                 const playerData = await getPlayerById(playerId);
-                socket.join(gameId);
-
                 if (!playerData) throw new Error("Player not found");
+                socket.join(gameId);
 
                 connectedPlayers[socket.id] = {
                     playerData,
@@ -105,31 +123,42 @@ export const websocketController = (io: Server) => {
                 games[gameId].game.addPlayer(playerId, playerData.color);
             } catch (error) {
                 console.error("Error loading game:", error);
-                socket.emit("error", { message: "error occured" });
+                socket.emit("error", {
+                    message: "An error occurred while loading the game.",
+                });
             }
         });
 
         socket.on("pendingCommands", (commands) => {
-            console.log(commands);
-
-            const gameId = connectedPlayers[socket.id].gameId;
-            games[gameId].game.getLogic().handlePlayerCommands(commands);
+            try {
+                console.log(commands);
+                const gameId = connectedPlayers[socket.id].gameId;
+                games[gameId].game.getLogic().handlePlayerCommands(commands);
+            } catch (error) {
+                console.error("Error processing pending commands:", error);
+            }
         });
 
         socket.on("disconnect", async () => {
-            console.log("Connection ended: ", socket.id);
-            const connectionData = connectedPlayers[socket.id];
+            try {
+                console.log("Connection ended: ", socket.id);
+                const connectionData = connectedPlayers[socket.id];
 
-            if (connectionData) {
-                games[connectionData.gameId]?.game.removePlayer(
-                    connectionData.playerData.id,
-                );
-                const gameData = await getGameState(connectionData.gameId);
-                await saveEntitiesToMongo(
-                    new Types.ObjectId(connectionData.gameId),
-                    gameData,
-                );
-                delete connectedPlayers[socket.id];
+                if (connectionData) {
+                    games[connectionData.gameId]?.game.removePlayer(
+                        connectionData.playerData.id,
+                    );
+                    const gameData = await getGameState(connectionData.gameId);
+                    await saveEntitiesToMongo(
+                        new Types.ObjectId(connectionData.gameId),
+                        gameData,
+                    );
+                    console.log("state saved to mongo");
+
+                    delete connectedPlayers[socket.id];
+                }
+            } catch (error) {
+                console.error("Error during disconnect handling:", error);
             }
         });
     });

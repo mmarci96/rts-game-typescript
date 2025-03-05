@@ -106,6 +106,10 @@ class UnitController {
         );
     }
 
+    getUnitIds() {
+        return [...this.#units.keys()];
+    }
+
     getEnemyUnits(allyColor: PlayerColor) {
         return this.getUnits().filter(
             (unit: Unit) => unit.getColor() !== allyColor,

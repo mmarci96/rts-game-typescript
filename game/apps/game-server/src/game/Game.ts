@@ -17,7 +17,6 @@ class Game {
     addPlayer(playerId: string, color: PlayerColor) {
         const player = new Player(playerId, color);
         this.#players.set(player.getId(), player);
-        console.log(this.#gameLogic);
     }
     removePlayer(playerId: string) {
         this.#players.delete(playerId);
@@ -31,6 +30,16 @@ class Game {
     }
     getLogic() {
         return this.#gameLogic;
+    }
+    isGameOver() {
+        let over = false;
+        const colors = [...this.#players.values()].flatMap((player: Player) =>
+            player.getColor(),
+        );
+        colors.forEach(
+            (color: PlayerColor) => (over = this.#gameLogic.isGameOver(color)),
+        );
+        return over;
     }
 }
 
