@@ -14,6 +14,7 @@ class AnimatedSprite extends Drawable {
     maxFrame: number;
     skullFrames: number;
     isAnimationComplete: boolean;
+    isDying: boolean;
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         super(spriteSheet, entity);
@@ -23,21 +24,22 @@ class AnimatedSprite extends Drawable {
         this.frameX = 0;
         this.frameY = 0;
         this.gameFrame = 0;
-        this.staggerFrames = 7; // requestAnimationFrame(60FPS)/ 6 = 10 FPS
+        this.staggerFrames = 7;
         this.maxFrame = 5;
         this.skullFrames = 0;
         this.isAnimationComplete = false;
+        this.isDying = false;
     }
 
     updateAnimation() {
-        //if (this.isDying && this.maxFrame === 6) {
-        //    if (this.skullFrames >= 7) {
-        //        this.frameY = 1;
-        //        this.isAnimationComplete = true; // Mark animation as complete
-        //    } else {
-        //        this.skullFrames++;
-        //    }
-        //}
+        if (this.isDying && this.maxFrame === 6) {
+            if (this.skullFrames >= 7) {
+                this.frameY = 1;
+                this.isAnimationComplete = true;
+            } else {
+                this.skullFrames++;
+            }
+        }
         if (this.gameFrame % this.staggerFrames === 0) {
             this.frameX < this.maxFrame ? this.frameX++ : (this.frameX = 0);
         }
@@ -155,6 +157,21 @@ class AnimatedSprite extends Drawable {
                 this.frameY = 0;
                 break;
         }
+    }
+    setDeathAnimation(deathSprite: CanvasImageSource) {
+        this.staggerFrames = 12;
+        this.skullFrames = 0;
+        this.maxFrame = 6;
+        this.frameWidth = 896 / 7;
+        this.frameHeight = 256 / 2;
+        this.spriteSheet = deathSprite;
+    }
+
+    /**
+     * @returns number
+     */
+    getSkullFrames() {
+        return this.skullFrames;
     }
 }
 export default AnimatedSprite;

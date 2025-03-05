@@ -47,8 +47,18 @@ class EntityManager {
             existingIds.delete(resourceData.id),
         );
         [...existingIds.keys()].forEach((entityId: string) => {
-            this.#drawables.delete(entityId);
-            this.#unitController.removeUnit(entityId);
+            const animatedSprite = this.#drawables.get(entityId);
+            if (animatedSprite instanceof AnimatedSprite) {
+                const img = this.#assets.getImage("dead");
+                if (!img) {
+                    throw new Error("No image");
+                }
+                animatedSprite.setDeathAnimation(img);
+            }
+            if (!(animatedSprite instanceof AnimatedSprite)) {
+                this.#drawables.delete(entityId);
+                this.#unitController.removeUnit(entityId);
+            }
         });
     }
     getUnitsController() {
