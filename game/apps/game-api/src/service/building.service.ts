@@ -10,19 +10,19 @@ export const createMainBuilding = async (
     try {
         const mainBuildingHealth = 200;
         const buildingSize = { width: 96, height: 64 };
-        const position = { x: 4, y: 4 };
+        const position = { x: 8, y: 8 };
         switch (color) {
             case PlayerColor.RED:
                 break;
             case PlayerColor.BLUE:
-                position.x = mapSize - 4;
-                position.y = mapSize - 4;
+                position.x = mapSize - 8;
+                position.y = mapSize - 8;
                 break;
             case PlayerColor.YELLOW:
-                position.x = mapSize - 4;
+                position.x = mapSize - 8;
                 break;
             case PlayerColor.PURPLE:
-                position.y = mapSize - 4;
+                position.y = mapSize - 8;
                 break;
             default:
                 break;

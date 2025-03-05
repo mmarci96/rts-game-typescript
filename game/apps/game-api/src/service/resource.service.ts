@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 
 export const generateResources = async (mapSize: number, gameId: Types.ObjectId) => {
     const resources: IResource[] = [];
-    const resourceSize = { width: 24, height: 48 };
+    const resourceSize = { width: 32, height: 32 };
     const availableResource = 200;
 
     const treeClusterChance = 0.7;

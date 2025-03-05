@@ -84,7 +84,7 @@ form {
 }
 
 .unit-card {
-    width: 40px;
+    width: 48px;
     padding: 2px;
     margin: 2px;
     border: 1px solid black;
@@ -94,7 +94,7 @@ form {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    height: 60px;
+    height: 80px;
 }
 
 
@@ -134,12 +134,12 @@ form {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 92%;
+    width: 100vw;
+    z-index: 20;
     background: rgba(0, 0, 0, 0.5);
     /* Adjust transparency as needed */
     color: white;
     /* Ensures text inside is visible */
     border: solid 2px black;
-    margin: 16px;
     display: none;
 }

@@ -4,6 +4,7 @@ import { mapBuildingToBuildingParams } from "../utils";
 
 class BuildingController {
     #buildings;
+
     constructor() {
         this.#buildings = new Map<string, Building>();
     }
@@ -23,6 +24,13 @@ class BuildingController {
     }
     getBuildings() {
         return [...this.#buildings.values()];
+    }
+    refreshBuilding(deltaTime: number) {
+        [...this.#buildings.values()].forEach((building: Building) => {
+            if (building instanceof MainBuilding) {
+                building.updateTraining(deltaTime)
+            }
+        })
     }
 }
 
