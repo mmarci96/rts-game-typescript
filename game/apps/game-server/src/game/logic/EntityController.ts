@@ -12,7 +12,7 @@ import {
 } from "@packages/game-data";
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db";
-import { cacheUnit, getUnitCache } from "../../redis";
+import { mapMongoUnitToData } from "../../utils/parseData";
 
 class EntityController {
     #unitController: UnitController;
@@ -75,7 +75,7 @@ class EntityController {
                         command.unitType,
                     );
                     if (savedUnit) {
-                        await cacheUnit(savedUnit);
+                        //await cacheUnit(savedUnit);
                         //const unitData: UnitData | null = await getUnitCache(
                         //    this.#gameId,
                         //    savedUnit._id.toString(),
@@ -84,7 +84,9 @@ class EntityController {
                         //    return;
                         //}
                         //console.log("unit from cache", unitData);
-                        //this.#unitController.loadUnit(unitData);
+                        const unitData: UnitData =
+                            mapMongoUnitToData(savedUnit);
+                        this.#unitController.loadUnit(unitData);
                         console.log("actual unit", savedUnit);
                     }
                 }
