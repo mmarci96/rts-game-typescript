@@ -59,7 +59,7 @@ export interface UnitData {
     speed: number;
     damage: number;
     attackSpeed: number;
-    type: string;
+    unitType: string;
     state: string;
     target: Target;
     size: Size;
@@ -71,7 +71,7 @@ export interface BuildingData {
     position: Position;
     color: PlayerColor;
     health: number;
-    type: string;
+    buildingType: string;
     state: string;
     size: Size;
     gameId: string;
@@ -81,7 +81,7 @@ export interface ResourceData {
     id: string;
     position: Position;
     availableResource: number;
-    type: string;
+    resourceType: string;
     size: Size;
     gameId: string;
 }

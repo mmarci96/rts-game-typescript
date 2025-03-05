@@ -54,8 +54,6 @@ class GameLogic {
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
-        this.#entityManager.updateGameState(data);
-        //console.log(data.units);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {

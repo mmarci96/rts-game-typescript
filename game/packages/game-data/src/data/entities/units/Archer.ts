@@ -7,7 +7,7 @@ class Archer extends Unit {
     }
 
     getType(): string {
-        return 'Archer';
+        return "archer";
     }
 }
 

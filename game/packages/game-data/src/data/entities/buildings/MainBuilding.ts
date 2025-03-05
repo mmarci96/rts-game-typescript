@@ -33,6 +33,9 @@ class MainBuilding extends Building {
             this.#currentTimer = 0;
         }
     }
+    getType(): string {
+        return "main";
+    }
 }
 
 export default MainBuilding;

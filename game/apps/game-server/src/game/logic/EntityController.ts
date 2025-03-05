@@ -84,8 +84,10 @@ class EntityController {
                         //}
                         //console.log("unit from cache", unitData);
                         const unitData = mapMongoUnitToData(savedUnit);
-                        this.#unitController.loadUnit(unitData);
-                        console.log("actual unit", savedUnit);
+                        const type = unitData.type;
+                        console.log(type);
+
+                        this.#unitController.loadUnit(unitData, type);
                     }
                 }
             case "moving":

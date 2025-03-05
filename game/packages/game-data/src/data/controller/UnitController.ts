@@ -1,4 +1,4 @@
-import { UnitData, UnitType, UnitUpdateData, PlayerColor } from "../types";
+import { UnitData, UnitUpdateData, PlayerColor } from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 
@@ -91,7 +91,9 @@ class UnitController {
     }
 
     loadUnits(unitsData: UnitData[]) {
-        unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
+        unitsData.forEach((unitData: UnitData) =>
+            this.loadUnit(unitData, unitData.unitType),
+        );
     }
 
     updateUnits(unitUpdatesData: UnitUpdateData[]) {
@@ -178,10 +180,9 @@ class UnitController {
         }
     }
 
-    loadUnit(unitData: UnitData) {
+    loadUnit(unitData: UnitData, unitType: string) {
         const unitParam = mapUnitToUnitParams(unitData);
-        console.log(unitData.type);
-        switch (unitData.type) {
+        switch (unitType) {
             case "archer":
                 const archer = new Archer(unitParam);
                 this.#units.set(archer.getId(), archer);
@@ -195,7 +196,7 @@ class UnitController {
                 this.#units.set(warrior.getId(), warrior);
                 break;
             default:
-                console.log("unkown unit", unitData);
+                console.log("unkown unit", unitData, unitType);
                 break;
         }
     }

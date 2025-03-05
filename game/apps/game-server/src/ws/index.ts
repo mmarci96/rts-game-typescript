@@ -44,10 +44,8 @@ const redisCacheSaver = (): SaveGameStateParams => {
 };
 
 const websocketUpdater = (io: Server, gameId: string) => {
-    let count = 0;
     let lastTime = Date.now();
 
-    const saveRate = 10;
     const socketUpdateInterval = setInterval(async () => {
         const now = Date.now();
         const deltaTime = (now - lastTime) / 1000;
@@ -55,17 +53,9 @@ const websocketUpdater = (io: Server, gameId: string) => {
 
         const logic = games[gameId].game.getLogic();
         logic.updateGameState(deltaTime);
-        await logic.saveGameState(redisCacheSaver());
-
         const gameData = await getGameState(gameId);
-        count++;
-
         io.to(gameId).emit("game_state", gameData);
-        if (count >= saveRate) {
-            count = 0;
-            await saveEntitiesToMongo(new Types.ObjectId(gameId), gameData);
-            //clearInterval(socketUpdateInterval);
-        }
+        await logic.saveGameState(redisCacheSaver());
     }, 50);
 };
 
@@ -124,13 +114,18 @@ export const websocketController = (io: Server) => {
             games[gameId].game.getLogic().handlePlayerCommands(commands);
         });
 
-        socket.on("disconnect", () => {
+        socket.on("disconnect", async () => {
             console.log("Connection ended: ", socket.id);
             const connectionData = connectedPlayers[socket.id];
 
             if (connectionData) {
                 games[connectionData.gameId]?.game.removePlayer(
                     connectionData.playerData.id,
+                );
+                const gameData = await getGameState(connectionData.gameId);
+                await saveEntitiesToMongo(
+                    new Types.ObjectId(connectionData.gameId),
+                    gameData,
                 );
                 delete connectedPlayers[socket.id];
             }

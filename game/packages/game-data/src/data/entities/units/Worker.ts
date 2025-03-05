@@ -7,7 +7,7 @@ class Worker extends Unit {
     }
 
     getType(): string {
-        return 'Worker';
+        return "worker";
     }
 }
 

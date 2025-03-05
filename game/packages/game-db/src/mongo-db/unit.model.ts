@@ -1,12 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { PlayerColor, Position } from "@packages/game-data/dist/data/types";
 
-enum UnitType {
-    ARCHER = "archer",
-    WARRIOR = "warrior",
-    WORKER = "worker",
-}
-
 interface Target {
     x: number | null;
     y: number | null;
@@ -21,7 +15,7 @@ interface IUnit extends Document {
     speed: number;
     damage: number;
     attackSpeed: number;
-    type: UnitType;
+    unitType: string;
     state: string;
     target: Target;
     size: { width: number; height: number };
@@ -53,7 +47,7 @@ const unitSchema = new Schema<IUnit>({
     speed: { type: Number, required: true },
     damage: { type: Number, required: true },
     attackSpeed: { type: Number, required: true },
-    type: { type: String, enum: UnitType, required: true },
+    unitType: { type: String, required: true },
     state: { type: String, default: "idle" },
     target: { type: TargetSchema, default: {} },
     size: {
@@ -70,4 +64,4 @@ const unitSchema = new Schema<IUnit>({
 });
 const UnitModel = mongoose.model<IUnit>("Unit", unitSchema);
 
-export { UnitModel, IUnit, UnitType, Target };
+export { UnitModel, IUnit, Target };

@@ -11,7 +11,7 @@ class ResourceController {
     loadResources(resourcesData: ResourceData[]) {
         resourcesData.forEach((resourceData: ResourceData) => {
             const resourceParams = mapResourceToResourceParams(resourceData);
-            switch (resourceData.type) {
+            switch (resourceData.resourceType) {
                 case "wheatfield":
                     const wheatfield = new WheatField(resourceParams);
                     this.#resources.set(wheatfield.getId(), wheatfield);
