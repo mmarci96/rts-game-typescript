@@ -32,7 +32,7 @@ export const createMainBuilding = async (
             color,
             gameId,
             health: mainBuildingHealth,
-            type: "main",
+            buildingType: "main",
             size: buildingSize,
         });
         const savedMain = await mainBuilding.save();

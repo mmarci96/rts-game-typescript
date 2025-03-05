@@ -27,7 +27,7 @@ class EntityManager {
     }
 
     loadGameState(gameState: GameState) {
-        console.log(gameState);
+        //console.log(gameState);
         this.#unitController.loadUnits(gameState.units);
         this.#buildingController.loadBuildings(gameState.buildings);
         this.#resourceController.loadResources(gameState.resources);

@@ -16,10 +16,10 @@ export const generateResources = async (
 
     for (let i = 0; i < mapSize / 4; i++) {
         let x, y;
-        let type = Math.random() < 0.6 ? "tree" : "wheatfield";
+        let currentType = Math.random() < 0.6 ? "tree" : "wheatfield";
 
         if (
-            type === "tree" &&
+            currentType === "tree" &&
             Math.random() < treeClusterChance &&
             resources.length > 0
         ) {
@@ -52,7 +52,7 @@ export const generateResources = async (
                 _id: new Types.ObjectId(),
                 position: { x, y },
                 availableResource,
-                type,
+                resourceType: currentType,
                 gameId,
                 size: resourceSize,
                 createdAt: new Date(),

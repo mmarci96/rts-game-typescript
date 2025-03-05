@@ -52,8 +52,8 @@ const websocketUpdater = (io: Server, gameId: string) => {
         lastTime = now;
 
         const logic = games[gameId].game.getLogic();
-        await logic.saveGameState(redisCacheSaver());
         logic.updateGameState(deltaTime);
+        await logic.saveGameState(redisCacheSaver());
         const gameData = await getGameState(gameId);
         io.to(gameId).emit("game_state", gameData);
     }, 50);
@@ -110,6 +110,8 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("pendingCommands", (commands) => {
+            console.log(commands);
+
             const gameId = connectedPlayers[socket.id].gameId;
             games[gameId].game.getLogic().handlePlayerCommands(commands);
         });

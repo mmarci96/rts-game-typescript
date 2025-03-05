@@ -125,7 +125,7 @@ class Overlay {
         id: string | null,
         createTrainUnitCommand: (commands: Command[]) => void,
     ) {
-        const unitType = actionText.split("_")[1];
+        const unitType = actionText.split("_")[1].toLowerCase();
         const unitCard = document.createElement("li");
         unitCard.classList.add("unit-card");
         const content = actionText

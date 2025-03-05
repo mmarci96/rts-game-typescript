@@ -45,7 +45,7 @@ const createUnitModel = (
         position,
         color,
         gameId,
-        type: unitType,
+        unitType: unitType,
         size: UNIT_SIZE,
         ...stats,
     };

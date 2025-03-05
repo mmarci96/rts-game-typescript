@@ -36,6 +36,7 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
         pipeline.hmset(key, {
             position: JSON.stringify(unit.getPosition()),
             health: unit.attackable.getHealth().toString(),
+            unitType: unit.getType(),
             state: unit.getStatus(),
             target: JSON.stringify(target),
             updatedAt: new Date().toISOString(),

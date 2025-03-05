@@ -76,7 +76,7 @@ const createUnit = (
         position,
         color,
         gameId,
-        type: unitType,
+        unitType: unitType,
         size: UNIT_SIZE,
         ...stats,
     };
