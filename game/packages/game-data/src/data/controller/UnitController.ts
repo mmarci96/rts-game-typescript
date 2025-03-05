@@ -11,7 +11,8 @@ class UnitController {
     refreshUnits(deltaTime: number) {
         [...this.#units.values()].forEach((unit: Unit) => {
             if (unit.attackable.getHealth() <= 0) {
-                unit.setStatus("dead");
+                this.#units.delete(unit.getId());
+                return;
             }
             let state = unit.getStatus();
             switch (state) {
@@ -25,17 +26,7 @@ class UnitController {
                     unit.attacker.updateCooldown(deltaTime);
                     break;
                 case "idle":
-                    //unit.idleTime += deltaTime;
-                    //if (unit.idleTime > 1) {
-                    //    break;
-                    //}
                     this.adjustIdleUnitPosition(unit);
-                    break;
-                case "delete":
-                    this.#units.delete(unit.getId().toString());
-                    break;
-                case "dead":
-                    unit.setStatus("delete");
                     break;
                 default:
                     break;

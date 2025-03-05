@@ -60,9 +60,9 @@ class EntityManager {
                     const { x, y } = drawable.move(tx, ty, deltaTime);
                     unit.setX(x);
                     unit.setY(y);
-                    drawable.entity = unit;
                 }
-                drawable.setAnimationType(unit.getStatus());
+                drawable.entity = unit;
+                drawable.setAnimationType(drawable.entity.getStatus());
             }
         });
     }
@@ -76,14 +76,14 @@ class EntityManager {
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
                 unit.entity.setStatus(unitData.state);
-                unit.entity.attackable.setHealth(unitData.health);
-                unit.entity.attacker.setTargetId(unitData.target.id);
+                //unit.entity.attackable.setHealth(unitData.health);
+                //unit.entity.attacker.setTargetId(unitData.target.id);
             }
             existingUnitIds.delete(unitData.id);
         });
 
         [...existingUnitIds.keys()].forEach((unitId) => {
-            this.#drawables.delete(unitId);
+            //this.#drawables.delete(unitId);
             this.#unitController.removeUnit(unitId);
         });
     }
