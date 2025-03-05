@@ -15,7 +15,6 @@ import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
 import AnimatedSprite from "../data/AnimatedSprite";
 import AnimatedTree from "../data/AnimatedTree";
-import { GameEntityData } from "@packages/game-db";
 
 class EntityManager {
     #unitController: UnitController;

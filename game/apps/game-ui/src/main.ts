@@ -45,6 +45,7 @@ const socketHandler = (
             console.log("Commands added to stack:", pendingCommands);
             pendingCommands = [];
         }
+        //clearInterval(commandInterval);
     }, 60);
 };
 
