@@ -1,5 +1,5 @@
 import Redis, { ChainableCommander } from "ioredis";
-import { deleteUnitById, IBuilding, IResource, IUnit } from "@packages/game-db";
+import { IBuilding, IResource, IUnit } from "@packages/game-db";
 import {
     BuildingData,
     ResourceData,
@@ -14,17 +14,10 @@ const redis = new Redis();
 
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const pipeline = redis.pipeline();
-
-    // Create a set of active unit IDs from the provided units array.
     const activeUnitIds = new Set(units.map((unit) => unit.getId()));
-
-    // Scan Redis for all keys matching the units pattern.
     const pattern = gameKey(gameId, "unit", "*");
     const existingKeys = await scanKeys(pattern);
-
-    // Delete keys for units that are no longer active.
     for (const key of existingKeys) {
-        // Assuming key format is "game:{gameId}:unit:{unitId}"
         const parts = key.split(":");
         const unitIdFromKey = parts[parts.length - 1];
         if (!activeUnitIds.has(unitIdFromKey)) {
@@ -32,8 +25,6 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             console.log("Deleting stale unit key:", key);
         }
     }
-
-    // Update or add active unit cache data.
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
@@ -45,6 +36,7 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
         pipeline.hmset(key, {
             position: JSON.stringify(unit.getPosition()),
             health: unit.attackable.getHealth().toString(),
+            unitType: unit.getType(),
             state: unit.getStatus(),
             target: JSON.stringify(target),
             updatedAt: new Date().toISOString(),
@@ -104,8 +96,6 @@ export const cacheGameEntities = async (
     ttl: number = 3600,
 ) => {
     const pipeline = redis.pipeline();
-
-    // Queue all entities in the pipeline
     entities.units?.forEach((unit) => cacheUnit(unit, pipeline, ttl));
     entities.buildings?.forEach((building) =>
         cacheBuilding(building, pipeline, ttl),
@@ -117,11 +107,6 @@ export const cacheGameEntities = async (
     await pipeline.exec();
 };
 
-/**
- * Retrieve complete game state from Redis
- * @param gameId - Target game identifier
- * @returns Object containing all game entities
- */
 export const getGameState = async (gameId: string): Promise<GameState> => {
     const [units, buildings, resources] = await Promise.all([
         getGameEntities<UnitData>(gameId, "unit"),
@@ -132,12 +117,6 @@ export const getGameState = async (gameId: string): Promise<GameState> => {
     return { units, buildings, resources };
 };
 
-/**
- * Generic entity loader for a specific game
- * @param gameId - Target game identifier
- * @param entityType - Type of entities to load
- * @returns Array of parsed entities
- */
 const getGameEntities = async <T>(
     gameId: string,
     entityType: string,
@@ -156,33 +135,22 @@ const getGameEntities = async <T>(
     return results
         .filter(([err]) => !err)
         .map(([_, data]) => parseEntity<T>(data as Record<string, string>))
-        .filter((entity): entity is T => entity !== null); // Type guard
+        .filter((entity): entity is T => entity !== null);
 };
 
-/**
- * Parse Redis hash data into typed entity
- * Handles JSON parsing and type conversions
- */
 const parseEntity = <T>(data: Record<string, string>): T | null => {
     if (!data || Object.keys(data).length === 0) return null;
 
     const parsed: any = {};
     for (const [key, value] of Object.entries(data)) {
         try {
-            parsed[key] =
-                // Parse JSON fields
-                ["position", "target", "size"].includes(key)
-                    ? JSON.parse(value)
-                    : // Convert numeric fields (handle empty strings as 0)
-                      [
-                            "health",
-                            "speed",
-                            "damage",
-                            "availableResource",
-                        ].includes(key)
-                      ? Number(value || 0)
-                      : // Preserve other values
-                        value;
+            parsed[key] = ["position", "target", "size"].includes(key)
+                ? JSON.parse(value)
+                : ["health", "speed", "damage", "availableResource"].includes(
+                        key,
+                    )
+                  ? Number(value || 0)
+                  : value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);
             parsed[key] = value;
@@ -191,11 +159,6 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
     return parsed as T;
 };
 
-/**
- * Safe Redis key scanner using SCAN
- * @param pattern - Key pattern to match
- * @returns Array of matching keys
- */
 const scanKeys = async (pattern: string): Promise<string[]> => {
     let cursor = "0";
     let keys: string[] = [];
@@ -218,12 +181,14 @@ const scanKeys = async (pattern: string): Promise<string[]> => {
     return keys;
 };
 
-// Individual entity caching functions -------------------------------------------------
 export const cacheUnit = async (
     unit: IUnit,
     pipeline?: ChainableCommander,
     ttl: number = 3600,
 ) => {
+    if (!unit._id) {
+        return;
+    }
     const key = gameKey(unit.gameId.toString(), "unit", unit._id.toString());
     const executor = pipeline || redis;
 
@@ -235,7 +200,7 @@ export const cacheUnit = async (
         speed: unit.speed,
         damage: unit.damage,
         attackSpeed: unit.attackSpeed,
-        type: unit.type,
+        unitType: unit.unitType,
         state: unit.state,
         target: JSON.stringify(unit.target),
         size: JSON.stringify(unit.size),
@@ -246,6 +211,7 @@ export const cacheUnit = async (
 
     if (ttl > 0) await executor.expire(key, ttl);
 };
+
 export const cacheBuilding = async (
     building: IBuilding,
     pipeline?: ChainableCommander,
@@ -263,7 +229,7 @@ export const cacheBuilding = async (
         position: JSON.stringify(building.position),
         color: building.color,
         health: building.health,
-        type: building.type,
+        buildingType: building.buildingType,
         state: building.state,
         size: JSON.stringify(building.size),
         gameId: building.gameId.toString(),
@@ -273,6 +239,17 @@ export const cacheBuilding = async (
 
     if (ttl > 0) await executor.expire(key, ttl);
 };
+
+export const getUnitCache = async <T>(
+    gameId: string,
+    unitId: string,
+): Promise<T | null> => {
+    const key = gameKey(gameId, "unit", unitId);
+    const unit = await redis.hgetall(key);
+
+    return parseEntity<T>(unit);
+};
+
 export const cacheResource = async (
     resource: IResource,
     pipeline?: ChainableCommander,
@@ -288,7 +265,7 @@ export const cacheResource = async (
     await executor.hmset(key, {
         id: resource._id.toString(),
         position: JSON.stringify(resource.position),
-        type: resource.type,
+        resourceType: resource.resourceType,
         availableResource: resource.availableResource,
         size: JSON.stringify(resource.size),
         gameId: resource.gameId.toString(),
@@ -298,8 +275,6 @@ export const cacheResource = async (
 
     if (ttl > 0) await executor.expire(key, ttl);
 };
-
-// Cache management ---------------------------------------------------------------------
 
 export const deleteCachedEntity = async (
     gameId: string,

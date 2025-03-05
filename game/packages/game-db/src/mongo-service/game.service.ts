@@ -9,7 +9,6 @@ import {
     UnitModel,
 } from "../mongo-db";
 import { GameState, PlayerColor, Position } from "@packages/game-data";
-import { UnitType } from "../mongo-db/unit.model";
 
 const UNIT_SIZE = { height: 32, width: 32 };
 
@@ -23,17 +22,30 @@ export const deleteUnitById = async (unitId: Types.ObjectId) => {
     await UnitModel.findByIdAndDelete(unitId);
 };
 const createUnitModel = (
-    unitType: UnitType,
+    unitType: string,
     position: Position,
     color: PlayerColor,
     gameId: Types.ObjectId,
 ) => {
-    const stats = BASE_STATS[unitType];
+    let stats;
+    switch (unitType) {
+        case "warrior":
+            stats = BASE_STATS[unitType];
+            break;
+        case "worker":
+            stats = BASE_STATS[unitType];
+            break;
+        case "archer":
+            stats = BASE_STATS[unitType];
+            break;
+        default:
+            return;
+    }
     const unitData = {
         position,
         color,
         gameId,
-        type: unitType,
+        unitType: unitType,
         size: UNIT_SIZE,
         ...stats,
     };
@@ -41,13 +53,25 @@ const createUnitModel = (
 };
 
 export const createUnit = async (
-    gameId: string, spawnX: number, spawnY: number, color: PlayerColor, type: UnitType
+    gameId: string,
+    spawnX: number,
+    spawnY: number,
+    color: PlayerColor,
+    unitType: string,
 ) => {
-    const position: Position = { x: spawnX, y: spawnY }
-    const unit = createUnitModel(type, position, color, new Types.ObjectId(gameId));
+    const position: Position = { x: spawnX, y: spawnY };
+    const unit = createUnitModel(
+        unitType,
+        position,
+        color,
+        new Types.ObjectId(gameId),
+    );
+    if (!unit) {
+        return;
+    }
     const saved = await unit.save();
     return saved;
-}
+};
 
 export const deleteBuildingById = async (buildingId: Types.ObjectId) => {
     await BuildingModel.findByIdAndDelete(buildingId);

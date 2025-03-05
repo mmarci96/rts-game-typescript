@@ -1,9 +1,5 @@
 import { PlayerColor, Position } from "@packages/game-data/dist/data/types";
-import {
-    IUnit,
-    UnitModel,
-    UnitType,
-} from "@packages/game-db/dist/mongo-db/unit.model";
+import { IUnit, UnitModel } from "@packages/game-db/dist/mongo-db/unit.model";
 import { Types } from "mongoose";
 
 const UNIT_SIZE = { height: 32, width: 32 };
@@ -57,17 +53,30 @@ const getSpawnDirection = (color: PlayerColor) => {
 };
 
 const createUnit = (
-    unitType: UnitType,
+    unitType: string,
     position: Position,
     color: PlayerColor,
     gameId: Types.ObjectId,
 ) => {
-    const stats = BASE_STATS[unitType];
+    let stats;
+    switch (unitType) {
+        case "warrior":
+            stats = BASE_STATS[unitType];
+            break;
+        case "worker":
+            stats = BASE_STATS[unitType];
+            break;
+        case "archer":
+            stats = BASE_STATS[unitType];
+            break;
+        default:
+            return;
+    }
     const unitData = {
         position,
         color,
         gameId,
-        type: unitType,
+        unitType: unitType,
         size: UNIT_SIZE,
         ...stats,
     };
@@ -75,7 +84,7 @@ const createUnit = (
 };
 
 const createUnits = (
-    unitType: UnitType,
+    unitType: string,
     amount: number,
     color: PlayerColor,
     mapSize: number,
@@ -105,7 +114,7 @@ export const generateStarterUnits = async (
 
     try {
         const warriors = createUnits(
-            UnitType.WARRIOR,
+            "warrior",
             warriorCount,
             color,
             mapSize,
@@ -114,7 +123,7 @@ export const generateStarterUnits = async (
         const savedWarriors = await UnitModel.insertMany(warriors);
 
         const workers = createUnits(
-            UnitType.WORKER,
+            "worker",
             workerCount,
             color,
             mapSize,
@@ -123,7 +132,7 @@ export const generateStarterUnits = async (
         const savedWorkers = await UnitModel.insertMany(workers);
 
         const archers = createUnits(
-            UnitType.ARCHER,
+            "archer",
             archerCount,
             color,
             mapSize,

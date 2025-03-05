@@ -1,4 +1,4 @@
-import { ControlledEntity, Player, PlayerColor, UnitType } from "@packages/game-data";
+import { ControlledEntity, Player, PlayerColor } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -26,13 +26,7 @@ class MouseEventHandler {
         assets: AssetManager,
     ) {
         this.#player = player;
-        const createTrainUnitCommand = (buildingId: string, unitType: string): Command => {
-            return {
-                action: "train",
-                entityId: buildingId,
-                unitType: unitType
-            }
-        }
+
         this.#overlay = new Overlay(this.#player);
         this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
@@ -118,7 +112,10 @@ class MouseEventHandler {
                 this.selectionActive = false;
                 this.#overlay.setInvisible();
             }
-            this.#overlay.displayUnitSelection(this.#selectedUnits, createCommand);
+            this.#overlay.displayUnitSelection(
+                this.#selectedUnits,
+                createCommand,
+            );
         });
         this.#canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
@@ -239,7 +236,13 @@ class MouseEventHandler {
         }
     }
 
-
+    createTrainUnitCommand(buildingId: string, unitType: string): Command {
+        return {
+            action: "train",
+            entityId: buildingId,
+            unitType: unitType,
+        };
+    }
     createMoveUnitCommand(
         targetX: number,
         targetY: number,

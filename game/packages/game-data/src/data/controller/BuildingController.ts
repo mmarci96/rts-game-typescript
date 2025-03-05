@@ -12,7 +12,7 @@ class BuildingController {
     loadBuildings(buildingsData: BuildingData[]) {
         buildingsData.forEach((buildingData: BuildingData) => {
             const buildingParams = mapBuildingToBuildingParams(buildingData);
-            switch (buildingData.type) {
+            switch (buildingData.buildingType) {
                 case "main":
                     const mainBuilding = new MainBuilding(buildingParams);
                     this.#buildings.set(mainBuilding.getId(), mainBuilding);
@@ -28,9 +28,12 @@ class BuildingController {
     refreshBuilding(deltaTime: number) {
         [...this.#buildings.values()].forEach((building: Building) => {
             if (building instanceof MainBuilding) {
-                building.updateTraining(deltaTime)
+                building.updateTraining(deltaTime);
             }
-        })
+        });
+    }
+    getBuildingById(buildingId: string) {
+        return this.#buildings.get(buildingId);
     }
 }
 

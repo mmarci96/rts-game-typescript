@@ -1,12 +1,6 @@
 import mongoose, { Document, Schema, Types } from "mongoose";
 import { PlayerColor, Position } from "@packages/game-data/dist/data/types";
 
-enum UnitType {
-    ARCHER = "archer",
-    WARRIOR = "warrior",
-    WORKER = "worker",
-}
-
 interface Target {
     x: number | null;
     y: number | null;
@@ -21,7 +15,7 @@ interface IUnit extends Document {
     speed: number;
     damage: number;
     attackSpeed: number;
-    type: UnitType;
+    unitType: string;
     state: string;
     target: Target;
     size: { width: number; height: number };
@@ -30,11 +24,18 @@ interface IUnit extends Document {
     updatedAt?: Date;
 }
 
-const targetSchema = new Schema({
-    x: { type: Number, default: null },
-    y: { type: Number, default: null },
-    id: { type: mongoose.Schema.Types.ObjectId, default: null, ref: "Unit" },
-});
+const TargetSchema = new Schema<Target>(
+    {
+        x: { type: Number, default: null },
+        y: { type: Number, default: null },
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+            ref: "Unit",
+        },
+    },
+    { _id: false },
+);
 
 const unitSchema = new Schema<IUnit>({
     position: {
@@ -46,10 +47,13 @@ const unitSchema = new Schema<IUnit>({
     speed: { type: Number, required: true },
     damage: { type: Number, required: true },
     attackSpeed: { type: Number, required: true },
-    type: { type: String, enum: UnitType, required: true },
+    unitType: { type: String, required: true },
     state: { type: String, default: "idle" },
-    target: { type: targetSchema, default: {} },
-    size: { type: { width: Number, height: Number }, required: true },
+    target: { type: TargetSchema, default: {} },
+    size: {
+        type: new Schema({ width: Number, height: Number }, { _id: false }),
+        required: true,
+    },
     gameId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
@@ -58,7 +62,6 @@ const unitSchema = new Schema<IUnit>({
     updatedAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
 });
-
 const UnitModel = mongoose.model<IUnit>("Unit", unitSchema);
 
-export { UnitModel, IUnit, UnitType, Target };
+export { UnitModel, IUnit, Target };

@@ -2,12 +2,10 @@ import { useEffect, useState } from "react";
 import { AnimatedComponent } from "../components/common/animated-component";
 import DefaultLayout from "../layouts/default";
 import { MapList } from "../components/game/map-list";
-import {
-    CreateGameForm,
-    PlayerColor,
-} from "../components/forms/create-game-form";
+import { CreateGameForm } from "../components/forms/create-game-form";
+
 import { useNavigate } from "react-router-dom";
-import { GameMap } from "../types";
+import { GameMap, PlayerColor } from "../types";
 
 const CreateGame = () => {
     const [error, setError] = useState("");

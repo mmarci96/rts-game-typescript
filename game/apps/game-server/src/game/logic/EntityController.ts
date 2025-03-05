@@ -5,25 +5,32 @@ import {
     GameEntity,
     GameState,
     MainBuilding,
+    PlayerColor,
     ResourceController,
     Unit,
     UnitController,
 } from "@packages/game-data";
 import { PlayerCommand } from "../../types";
+import { createUnit } from "@packages/game-db";
+import { mapMongoUnitToData } from "../../utils/parseData";
+import { cacheUnit } from "../../redis";
 
 class EntityController {
     #unitController: UnitController;
     #buildingController: BuildingController;
     #resourceController: ResourceController;
+    #gameId: string;
 
     constructor(
         unitController: UnitController,
         buildingController: BuildingController,
         resourceController: ResourceController,
+        gameId: string,
     ) {
         this.#unitController = unitController;
         this.#buildingController = buildingController;
         this.#resourceController = resourceController;
+        this.#gameId = gameId;
     }
 
     loadEntities(data: GameState) {
@@ -36,7 +43,7 @@ class EntityController {
         return this.#unitController.getUnits();
     }
     getBuildings(): Building[] {
-        return this.#buildingController.getBuildings()
+        return this.#buildingController.getBuildings();
     }
 
     getEntities() {
@@ -48,16 +55,31 @@ class EntityController {
         return entities;
     }
 
-    handlePlayerCommand(command: PlayerCommand) {
+    async handlePlayerCommand(command: PlayerCommand) {
         const entity = this.#unitController.getUnitById(command.entityId);
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
+
         switch (command.action) {
             case "train":
-                if (entity instanceof MainBuilding && command.unitType) {
-                    const addUnit = (unit: Unit) => this.#unitController.addUnit(unit)
-                    entity.createUnit(command.unitType, addUnit);
+                const mainBuilding = this.#buildingController.getBuildingById(
+                    command.entityId,
+                );
+                if (mainBuilding instanceof MainBuilding && command.unitType) {
+                    const data = mainBuilding.createUnit(command.unitType);
+                    const savedUnit = await createUnit(
+                        this.#gameId,
+                        data.spawnX,
+                        data.spawnY,
+                        data.color,
+                        command.unitType,
+                    );
+                    if (savedUnit) {
+                        const unitData = mapMongoUnitToData(savedUnit);
+                        this.#unitController.loadUnit(unitData);
+                        await cacheUnit(savedUnit);
+                    }
                 }
             case "moving":
                 if (
@@ -82,6 +104,10 @@ class EntityController {
                 console.log("Invalid command", command);
                 break;
         }
+    }
+
+    getEnemyUnits(playerColor: PlayerColor) {
+        return this.#unitController.getEnemyUnits(playerColor);
     }
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {

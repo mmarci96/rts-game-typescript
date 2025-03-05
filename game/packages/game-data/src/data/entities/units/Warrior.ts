@@ -7,7 +7,7 @@ class Warrior extends Unit {
     }
 
     getType(): string {
-        return 'Warrior';
+        return "warrior";
     }
 }
 

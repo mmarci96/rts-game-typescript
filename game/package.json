@@ -8,7 +8,7 @@
     "start:server": "pnpm --filter game-server dev",
     "start:api": "pnpm --filter game-api dev",
     "start:client": "pnpm --filter game-client dev",
-    "start": "pnpm run start:ui & pnpm run start:server & pnpm run start:client & pnpm run start:api",
+    "start": "pnpm run start:ui  & pnpm run start:client & pnpm run start:api",
     "build": "pnpm recursive run build",
     "update-packages": "pnpm --filter game-data build && pnpm --filter game-db build && pnpm add ./packages/game-data --workspace-root && pnpm add ./packages/game-db --workspace-root",
     "test": "pnpm recursive run test"

@@ -7,12 +7,14 @@ class Building extends ControlledEntity {
 
     constructor(parameters: BuildingParams) {
         super(parameters.controlledParams);
-        this.attackable = new Attackable(parameters.health)
+        this.attackable = new Attackable(parameters.health);
     }
     getActions(): string[] {
         return [];
     }
-
+    getType(): string {
+        return "building";
+    }
 }
 
 export default Building;

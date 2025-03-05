@@ -1,4 +1,4 @@
-import { Tile, GameState, Player, Unit } from "@packages/game-data";
+import { Tile, GameState, Player } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -50,12 +50,10 @@ class GameLogic {
             this.#assets,
         );
 
-        this.#entityManager = new EntityManager();
+        this.#entityManager = new EntityManager(this.#assets);
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
-        this.#entityManager.updateGameState(data);
-        //console.log(data.units);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {

@@ -1,4 +1,4 @@
-import { UnitData, UnitType, UnitUpdateData, PlayerColor } from "../types";
+import { UnitData, UnitUpdateData, PlayerColor } from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 
@@ -36,7 +36,7 @@ class UnitController {
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];
-        const bufferDistance = 1;
+        const bufferDistance = 1.6;
 
         unitsArray.forEach((otherUnit) => {
             if (idleUnit === otherUnit || otherUnit.getStatus() !== "idle")
@@ -104,6 +104,10 @@ class UnitController {
         return this.getUnits().filter(
             (unit: Unit) => unit.getColor() === color,
         );
+    }
+
+    getUnitIds() {
+        return [...this.#units.keys()];
     }
 
     getEnemyUnits(allyColor: PlayerColor) {
@@ -180,21 +184,21 @@ class UnitController {
 
     loadUnit(unitData: UnitData) {
         const unitParam = mapUnitToUnitParams(unitData);
-        switch (unitData.type) {
-            case UnitType.ARCHER:
+        switch (unitData.unitType) {
+            case "archer":
                 const archer = new Archer(unitParam);
                 this.#units.set(archer.getId(), archer);
                 break;
-            case UnitType.WORKER:
+            case "worker":
                 const worker = new Worker(unitParam);
                 this.#units.set(worker.getId(), worker);
                 break;
-            case UnitType.WARRIOR:
+            case "warrior":
                 const warrior = new Warrior(unitParam);
                 this.#units.set(warrior.getId(), warrior);
                 break;
             default:
-                console.log("unkown units");
+                console.log("unkown unit", unitData, unitData.unitType);
                 break;
         }
     }
