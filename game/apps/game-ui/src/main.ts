@@ -11,6 +11,7 @@ export interface Command {
     targetX?: number;
     targetY?: number;
     targetId?: string;
+    unitType?: string;
 }
 
 const createCommand = (commands: Command[]) => {

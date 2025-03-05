@@ -1,10 +1,11 @@
-import { ControlledEntity, Player, PlayerColor } from "@packages/game-data";
+import { ControlledEntity, Player, PlayerColor, UnitType } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
 import { Command } from "../../main";
 import VectorTransformer from "../utils/VectorTransformer";
+import Overlay from "../ui/Overlay";
 
 class MouseEventHandler {
     #player: Player;
@@ -14,6 +15,7 @@ class MouseEventHandler {
     selectionActive: boolean = false;
     #assets: AssetManager;
     #entities: Array<Drawable>;
+    #overlay: Overlay;
     hoveredEntity: Drawable | null;
     #selectedUnits: Array<Drawable>;
 
@@ -24,13 +26,20 @@ class MouseEventHandler {
         assets: AssetManager,
     ) {
         this.#player = player;
+        const createTrainUnitCommand = (buildingId: string, unitType: string): Command => {
+            return {
+                action: "train",
+                entityId: buildingId,
+                unitType: unitType
+            }
+        }
+        this.#overlay = new Overlay(this.#player);
         this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw new Error("Must be html canvas element ");
         }
         this.#canvas = canvas;
-
         this.#canvas.width = window.innerWidth;
         this.#canvas.height = window.innerHeight;
         this.#canvas.style.zIndex = "10";
@@ -104,12 +113,12 @@ class MouseEventHandler {
 
             if (this.#selectedUnits.length > 0) {
                 this.selectionActive = true;
-                //this.#uiOverlay.setVisible();
+                this.#overlay.setVisible();
             } else {
                 this.selectionActive = false;
-                //this.#uiOverlay.setInvisible();
+                this.#overlay.setInvisible();
             }
-            //this.#uiOverlay.displayUnitSelection(selectedUnits);
+            this.#overlay.displayUnitSelection(this.#selectedUnits, createCommand);
         });
         this.#canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
@@ -157,30 +166,6 @@ class MouseEventHandler {
         ) {
             this.setCursor("attack");
         }
-    }
-
-    createMoveUnitCommand(
-        targetX: number,
-        targetY: number,
-        unitId: string,
-    ): Command {
-        const action = "moving";
-        return {
-            entityId: unitId,
-            action: action,
-            targetX: targetX,
-            targetY: targetY,
-            targetId: undefined,
-        };
-    }
-
-    createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
-        const action = "attack";
-        return {
-            entityId: unitId,
-            action: action,
-            targetId: targetUnit.getId(),
-        };
     }
 
     createCommandsOnRightClick(clientX: number, clientY: number) {
@@ -252,6 +237,31 @@ class MouseEventHandler {
         } else {
             console.warn("Default cursor is not a valid image or URL.");
         }
+    }
+
+
+    createMoveUnitCommand(
+        targetX: number,
+        targetY: number,
+        unitId: string,
+    ): Command {
+        const action = "moving";
+        return {
+            entityId: unitId,
+            action: action,
+            targetX: targetX,
+            targetY: targetY,
+            targetId: undefined,
+        };
+    }
+
+    createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
+        const action = "attack";
+        return {
+            entityId: unitId,
+            action: action,
+            targetId: targetUnit.getId(),
+        };
     }
 
     convertCursorPosition(clientX: number, clientY: number) {
