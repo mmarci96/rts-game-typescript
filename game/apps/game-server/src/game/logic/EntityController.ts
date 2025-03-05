@@ -87,7 +87,7 @@ class EntityController {
                         const unitType = unitData.unitType;
                         console.log(unitType);
 
-                        this.#unitController.loadUnit(unitData, unitType);
+                        this.#unitController.loadUnit(unitData);
                     }
                 }
             case "moving":

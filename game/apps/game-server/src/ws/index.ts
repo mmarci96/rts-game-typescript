@@ -52,10 +52,10 @@ const websocketUpdater = (io: Server, gameId: string) => {
         lastTime = now;
 
         const logic = games[gameId].game.getLogic();
+        await logic.saveGameState(redisCacheSaver());
         logic.updateGameState(deltaTime);
         const gameData = await getGameState(gameId);
         io.to(gameId).emit("game_state", gameData);
-        await logic.saveGameState(redisCacheSaver());
     }, 50);
 };
 

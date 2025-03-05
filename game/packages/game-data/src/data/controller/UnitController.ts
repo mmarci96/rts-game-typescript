@@ -91,9 +91,7 @@ class UnitController {
     }
 
     loadUnits(unitsData: UnitData[]) {
-        unitsData.forEach((unitData: UnitData) =>
-            this.loadUnit(unitData, unitData.unitType),
-        );
+        unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
     }
 
     updateUnits(unitUpdatesData: UnitUpdateData[]) {
@@ -180,9 +178,9 @@ class UnitController {
         }
     }
 
-    loadUnit(unitData: UnitData, unitType: string) {
+    loadUnit(unitData: UnitData) {
         const unitParam = mapUnitToUnitParams(unitData);
-        switch (unitType) {
+        switch (unitData.unitType) {
             case "archer":
                 const archer = new Archer(unitParam);
                 this.#units.set(archer.getId(), archer);
@@ -196,7 +194,7 @@ class UnitController {
                 this.#units.set(warrior.getId(), warrior);
                 break;
             default:
-                console.log("unkown unit", unitData, unitType);
+                console.log("unkown unit", unitData, unitData.unitType);
                 break;
         }
     }

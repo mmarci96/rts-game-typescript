@@ -1,4 +1,4 @@
-import { Building, Resource, Unit, UnitType } from "@packages/game-data";
+import { Building, Resource, Unit } from "@packages/game-data";
 
 export interface PlayerCommand {
     action: string;
@@ -6,7 +6,7 @@ export interface PlayerCommand {
     targetX?: number;
     targetY?: number;
     targetId?: string;
-    unitType?: UnitType;
+    unitType?: string;
 }
 
 export interface SaveGameStateParams {
