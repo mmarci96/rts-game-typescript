@@ -23,6 +23,7 @@ class GameLogic {
             unitController,
             buildingController,
             resourceController,
+            this.#gameId,
         );
 
         this.loadData(gameData);
@@ -48,10 +49,10 @@ class GameLogic {
             this.#gameId,
             this.#entityController.getUnits(),
         );
-        await redisCache.cacheBuildings(
-            this.#gameId,
-            this.#entityController.getBuildings(),
-        );
+        //await redisCache.cacheBuildings(
+        //    this.#gameId,
+        //    this.#entityController.getBuildings(),
+        //);
         //await redisCache.cacheResources(
         //    this.#gameId,
         //    this.#entityController.getResources(),

@@ -1,5 +1,5 @@
 import Redis, { ChainableCommander } from "ioredis";
-import { deleteUnitById, IBuilding, IResource, IUnit } from "@packages/game-db";
+import { IBuilding, IResource, IUnit } from "@packages/game-db";
 import {
     BuildingData,
     ResourceData,
@@ -14,17 +14,10 @@ const redis = new Redis();
 
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const pipeline = redis.pipeline();
-
-    // Create a set of active unit IDs from the provided units array.
     const activeUnitIds = new Set(units.map((unit) => unit.getId()));
-
-    // Scan Redis for all keys matching the units pattern.
     const pattern = gameKey(gameId, "unit", "*");
     const existingKeys = await scanKeys(pattern);
-
-    // Delete keys for units that are no longer active.
     for (const key of existingKeys) {
-        // Assuming key format is "game:{gameId}:unit:{unitId}"
         const parts = key.split(":");
         const unitIdFromKey = parts[parts.length - 1];
         if (!activeUnitIds.has(unitIdFromKey)) {
@@ -32,8 +25,6 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             console.log("Deleting stale unit key:", key);
         }
     }
-
-    // Update or add active unit cache data.
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
@@ -224,6 +215,9 @@ export const cacheUnit = async (
     pipeline?: ChainableCommander,
     ttl: number = 3600,
 ) => {
+    if (!unit._id) {
+        return;
+    }
     const key = gameKey(unit.gameId.toString(), "unit", unit._id.toString());
     const executor = pipeline || redis;
 
@@ -235,7 +229,7 @@ export const cacheUnit = async (
         speed: unit.speed,
         damage: unit.damage,
         attackSpeed: unit.attackSpeed,
-        type: unit.type,
+        type: unit.type.toString(),
         state: unit.state,
         target: JSON.stringify(unit.target),
         size: JSON.stringify(unit.size),
@@ -272,6 +266,16 @@ export const cacheBuilding = async (
     });
 
     if (ttl > 0) await executor.expire(key, ttl);
+};
+
+export const getUnitCache = async <T>(
+    gameId: string,
+    unitId: string,
+): Promise<T | null> => {
+    const key = gameKey(gameId, "unit", unitId);
+    const unit = await redis.hgetall(key);
+
+    return parseEntity<T>(unit);
 };
 export const cacheResource = async (
     resource: IResource,
