@@ -2,26 +2,29 @@ class Attackable {
     #health;
 
     /**
-    * @param health number
-    */
+     * @param health number
+     */
     constructor(health: number) {
         this.#health = health;
     }
 
     /**
-    * @param damage number
-    */
+     * @param damage number
+     */
     getAttacked(damage: number) {
         this.#health = this.#health - damage;
     }
 
     /**
-    * @returns number
-    */
+     * @returns number
+     */
     getHealth() {
         return this.#health;
     }
 
+    setHealth(health: number) {
+        this.#health = health;
+    }
 }
 
 export default Attackable;

@@ -4,6 +4,7 @@ import {
     BuildingModel,
     GameModel,
     IGame,
+    IUnit,
     ResourceModel,
     UnitModel,
 } from "../mongo-db";
@@ -82,7 +83,8 @@ export const getEntitiesByGameId = async (
     };
     const units = await UnitModel.find({ gameId });
     if (units) {
-        gameEntityData.units.push(...units);
+        const alive = units.filter((unit: IUnit) => unit.health > 0);
+        gameEntityData.units.push(...alive);
     }
     const buildings = await BuildingModel.find({ gameId });
     if (buildings) {

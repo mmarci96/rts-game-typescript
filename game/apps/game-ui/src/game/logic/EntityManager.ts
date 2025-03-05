@@ -54,39 +54,37 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                const tx = unit.movable.getTarget().targetX
-                const ty = unit.movable.getTarget().targetY
+                const tx = unit.movable.getTarget().targetX;
+                const ty = unit.movable.getTarget().targetY;
                 if (tx && ty) {
                     const { x, y } = drawable.move(tx, ty, deltaTime);
                     unit.setX(x);
                     unit.setY(y);
                     drawable.entity = unit;
                 }
-                drawable.updateAnimation();
+                drawable.setAnimationType(unit.getStatus());
             }
         });
     }
     updateGameState(gameState: GameState) {
+        const existingUnitIds = new Set(this.#drawables.keys());
+
         gameState.units.forEach((unitData: UnitData) => {
             const unit = this.#drawables.get(unitData.id);
             if (!unit) {
                 return;
             }
             if (unit.entity instanceof Unit && unit instanceof AnimatedSprite) {
-                //unit.entity.setStatus(unitData.state);
-                //console.log(unitData.state);
-
-                unit.setAnimationType(unitData.state);
-
-                //unit.entity.movable.setTarget(
-                //    unitData.target.x,
-                //    unitData.target.y,
-                //);
-                //const targetId = unitData.target.id?.toString();
-                //if (targetId) {
-                //    unit.entity.attacker.setTargetId(targetId);
-                //}
+                unit.entity.setStatus(unitData.state);
+                unit.entity.attackable.setHealth(unitData.health);
+                unit.entity.attacker.setTargetId(unitData.target.id);
             }
+            existingUnitIds.delete(unitData.id);
+        });
+
+        [...existingUnitIds.keys()].forEach((unitId) => {
+            this.#drawables.delete(unitId);
+            this.#unitController.removeUnit(unitId);
         });
     }
 

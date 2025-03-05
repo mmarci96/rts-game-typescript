@@ -9,86 +9,37 @@ import {
     Building,
     Resource,
 } from "@packages/game-data";
-import { Types } from "mongoose";
 
 const redis = new Redis();
 
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param unit - Unit class from game logic
- * @returns Redis key string
- */
-export const updateUnitCache = async (gameId: string, unit: Unit) => {
-    const unitId = unit.getId();
-    const key = gameKey(gameId, "unit", unitId);
-    const target = {
-        id: unit.attacker.getTargetId(),
-        x: unit.movable.getTarget().targetX,
-        y: unit.movable.getTarget().targetY,
-    };
-
-    if (unit.getStatus() === "delete") {
-        await redis.del(key);
-        await deleteUnitById(new Types.ObjectId(unitId));
-    }
-    const updatedFields: Record<string, string> = {
-        position: JSON.stringify(unit.getPosition()),
-        health: unit.attackable.getHealth().toString(),
-        state: unit.getStatus(),
-        target: JSON.stringify(target),
-        updatedAt: new Date().toISOString(),
-    };
-
-    await redis.hmset(key, updatedFields);
-};
-
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param building - Building class from game logic
- * @returns Redis key string
- */
-export const updateBuildingCache = async (
-    gameId: string,
-    building: Building,
-) => {
-    const buildingId = building.getId();
-    const key = gameKey(gameId, "building", buildingId);
-    const updatedFields: Record<string, string> = {
-        health: building.attackable.getHealth().toString(),
-        state: building.getStatus(),
-        updatedAt: new Date().toISOString(),
-    };
-    await redis.hmset(key, updatedFields);
-};
-
-/**
- * Batch update unit cache using Redis pipeline
- */
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const pipeline = redis.pipeline();
 
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
-        const target = {
-            id: unit.attacker.getTargetId(),
-            x: unit.movable.getTarget().targetX,
-            y: unit.movable.getTarget().targetY,
-        };
-        pipeline.hmset(key, {
-            position: JSON.stringify(unit.getPosition()),
-            health: unit.attackable.getHealth().toString(),
-            state: unit.getStatus(),
-            target: JSON.stringify(target),
-            updatedAt: new Date().toISOString(),
-        });
+        if (unit.attackable.getHealth() <= 0) {
+            pipeline.del(key);
+            console.log("Deleting:", key);
+            //await deleteUnitById()
+        } else {
+            const target = {
+                id: unit.attacker.getTargetId(),
+                x: unit.movable.getTarget().targetX,
+                y: unit.movable.getTarget().targetY,
+            };
+            pipeline.hmset(key, {
+                position: JSON.stringify(unit.getPosition()),
+                health: unit.attackable.getHealth().toString(),
+                state: unit.getStatus(),
+                target: JSON.stringify(target),
+                updatedAt: new Date().toISOString(),
+            });
+        }
     }
 
     await pipeline.exec();
 };
-
 /**
  * Batch update building cache using Redis pipeline
  */
@@ -244,14 +195,14 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
                 ["position", "target", "size"].includes(key)
                     ? JSON.parse(value)
                     : // Convert numeric fields (handle empty strings as 0)
-                    [
-                        "health",
-                        "speed",
-                        "damage",
-                        "availableResource",
-                    ].includes(key)
-                        ? Number(value || 0)
-                        : // Preserve other values
+                      [
+                            "health",
+                            "speed",
+                            "damage",
+                            "availableResource",
+                        ].includes(key)
+                      ? Number(value || 0)
+                      : // Preserve other values
                         value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);

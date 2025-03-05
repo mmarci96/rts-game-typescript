@@ -80,7 +80,9 @@ class EntityController {
 
     handleAttackEntity(unit: Unit, targetId: string) {
         unit.attacker.setTargetId(targetId);
-        this.#unitController.getUnitById(unit.getId())?.attacker.setTargetId(targetId);
+        this.#unitController
+            .getUnitById(unit.getId())
+            ?.attacker.setTargetId(targetId);
     }
 
     refreshEntities(deltaTime: number) {

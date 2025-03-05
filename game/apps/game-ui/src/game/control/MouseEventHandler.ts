@@ -100,7 +100,7 @@ class MouseEventHandler {
                 selectableEntities,
                 this.#camera,
             );
-            //console.log(this.#selectedUnits);
+            console.log(this.#selectedUnits);
 
             if (this.#selectedUnits.length > 0) {
                 this.selectionActive = true;

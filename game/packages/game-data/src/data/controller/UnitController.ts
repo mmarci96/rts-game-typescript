@@ -25,17 +25,18 @@ class UnitController {
                     unit.attacker.updateCooldown(deltaTime);
                     break;
                 case "idle":
-                    unit.idleTime += deltaTime;
-                    if (unit.idleTime > 1) break;
+                    //unit.idleTime += deltaTime;
+                    //if (unit.idleTime > 1) {
+                    //    break;
+                    //}
                     this.adjustIdleUnitPosition(unit);
                     break;
                 case "delete":
                     this.#units.delete(unit.getId().toString());
                     break;
                 case "dead":
-                    setTimeout(() => {
-                        unit.setStatus("delete");
-                    }, 1000);
+                    unit.setStatus("delete");
+                    break;
                 default:
                     break;
             }
@@ -69,23 +70,24 @@ class UnitController {
     handleAttack(unit: Unit) {
         const targetId = unit.attacker.getTargetId();
         if (!targetId) {
-            unit.setStatus("idle")
+            unit.setStatus("idle");
             return;
         }
         const targetUnit = this.getUnitById(targetId);
         if (!targetUnit) {
             unit.setStatus("idle");
+            unit.attacker.resetTarget();
             return;
         }
         const tx = targetUnit.getX();
-        const ty = targetUnit.getY()
+        const ty = targetUnit.getY();
         const dx = tx - unit.getX();
-        const dy = tx - unit.getY();
+        const dy = ty - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
         const attackRange = 1.2;
         if (distance <= attackRange) {
-            const status = unit.attacker.attackUnit(targetUnit.attackable);
-            unit.movable.setTarget(null, null)
+            const status = unit.attacker.attackUnit(targetUnit);
+            unit.movable.setTarget(unit.getX(), unit.getY());
             unit.setStatus(status);
         } else {
             const directionX = dx / distance;
@@ -147,6 +149,7 @@ class UnitController {
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
+        //unit.attackable.setHealth(unitUpdateData.health);
         const targetId = unitUpdateData.target.id?.toString();
         if (targetId) {
             unit.attacker.setTargetId(targetId);
