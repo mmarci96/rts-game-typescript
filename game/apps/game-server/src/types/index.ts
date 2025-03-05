@@ -6,6 +6,7 @@ export interface PlayerCommand {
     targetX?: number;
     targetY?: number;
     targetId?: string;
+    unitType?: string;
 }
 
 export interface SaveGameStateParams {

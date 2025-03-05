@@ -1,8 +1,10 @@
 import {
+    Building,
     BuildingController,
     ControlledEntity,
     GameEntity,
     GameState,
+    MainBuilding,
     ResourceController,
     Unit,
     UnitController,
@@ -33,6 +35,9 @@ class EntityController {
     getUnits(): Unit[] {
         return this.#unitController.getUnits();
     }
+    getBuildings(): Building[] {
+        return this.#buildingController.getBuildings()
+    }
 
     getEntities() {
         const entities: GameEntity[] = [
@@ -49,6 +54,11 @@ class EntityController {
             entity.setStatus(command.action);
         }
         switch (command.action) {
+            case "train":
+                if (entity instanceof MainBuilding && command.unitType) {
+                    const addUnit = (unit: Unit) => this.#unitController.addUnit(unit)
+                    entity.createUnit(command.unitType, addUnit);
+                }
             case "moving":
                 if (
                     entity instanceof Unit &&
@@ -87,6 +97,7 @@ class EntityController {
 
     refreshEntities(deltaTime: number) {
         this.#unitController.refreshUnits(deltaTime);
+        this.#buildingController.refreshBuilding(deltaTime);
     }
 }
 
