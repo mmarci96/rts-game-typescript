@@ -138,6 +138,7 @@ export interface UnitUpdateData {
     id: string;
     position: Position;
     target: Target;
+    health: number;
     state: string;
 }
 

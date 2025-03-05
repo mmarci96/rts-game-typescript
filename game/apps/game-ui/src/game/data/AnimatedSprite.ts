@@ -23,7 +23,7 @@ class AnimatedSprite extends Drawable {
         this.frameX = 0;
         this.frameY = 0;
         this.gameFrame = 0;
-        this.staggerFrames = 8; // requestAnimationFrame(60FPS)/ 6 = 10 FPS
+        this.staggerFrames = 7; // requestAnimationFrame(60FPS)/ 6 = 10 FPS
         this.maxFrame = 5;
         this.skullFrames = 0;
         this.isAnimationComplete = false;
@@ -45,7 +45,7 @@ class AnimatedSprite extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
-        //this.updateAnimation();
+        this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
             return;
@@ -90,9 +90,8 @@ class AnimatedSprite extends Drawable {
         );
     }
 
-
     move(targetX: number, targetY: number, deltaTime: number) {
-        const x = this.entity.getX()
+        const x = this.entity.getX();
         const y = this.entity.getY();
         if (!(this.entity instanceof Unit)) {
             return { x, y };
@@ -100,7 +99,7 @@ class AnimatedSprite extends Drawable {
         const dx = targetX - x;
         const dy = targetY - y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = this.entity.movable.getSpeed() / 4
+        const speed = this.entity.movable.getSpeed() / 4;
         const stepDistance = speed * deltaTime;
         if (distance <= stepDistance) {
             return { x, y };

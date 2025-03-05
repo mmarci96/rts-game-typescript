@@ -1,4 +1,4 @@
-import Attackable from "./Attackable";
+import { Unit } from "./units";
 
 class Attacker {
     #attackDamage: number;
@@ -20,7 +20,7 @@ class Attacker {
         return this.#attackDamage;
     }
 
-    setTargetId(targetId: string) {
+    setTargetId(targetId: string | null) {
         this.#targetId = targetId;
     }
 
@@ -43,15 +43,15 @@ class Attacker {
         }
     }
 
-    attackUnit(targetUnit: Attackable) {
+    attackUnit(targetUnit: Unit) {
         if (this.canAttack()) {
             this.startCoolDown();
             return "attack";
         }
 
         const damage = this.getAttackDamage();
-        targetUnit.getAttacked(damage);
-        if (targetUnit.getHealth() <= 0) {
+        targetUnit.attackable.getAttacked(damage);
+        if (targetUnit.attackable.getHealth() <= 0 || !targetUnit) {
             this.#targetId = null;
             return "idle";
         }

@@ -14,6 +14,7 @@ export interface Command {
 }
 
 const createCommand = (commands: Command[]) => {
+    console.log(commands);
     commands.forEach((command: Command) => {
         pendingCommands.push(command);
     });

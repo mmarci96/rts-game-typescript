@@ -30,10 +30,11 @@ class Unit extends ControlledEntity {
             deltaTime,
         );
         if (progress === "completed") {
-            this.movable.setTarget(null, null)
+            this.movable.setTarget(null, null);
         }
 
         if (progress !== "completed") {
+            this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
             this.setStatus("moving");
@@ -41,6 +42,7 @@ class Unit extends ControlledEntity {
         }
 
         if (this.attacker.getTargetId() !== null) {
+            this.idleTime = 0;
             this.setStatus("attack");
             return;
         }

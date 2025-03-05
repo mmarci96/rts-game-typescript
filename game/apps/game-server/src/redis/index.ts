@@ -9,66 +9,31 @@ import {
     Building,
     Resource,
 } from "@packages/game-data";
-import { Types } from "mongoose";
 
 const redis = new Redis();
 
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param unit - Unit class from game logic
- * @returns Redis key string
- */
-export const updateUnitCache = async (gameId: string, unit: Unit) => {
-    const unitId = unit.getId();
-    const key = gameKey(gameId, "unit", unitId);
-    const target = {
-        id: unit.attacker.getTargetId(),
-        x: unit.movable.getTarget().targetX,
-        y: unit.movable.getTarget().targetY,
-    };
-
-    if (unit.getStatus() === "delete") {
-        await redis.del(key);
-        await deleteUnitById(new Types.ObjectId(unitId));
-    }
-    const updatedFields: Record<string, string> = {
-        position: JSON.stringify(unit.getPosition()),
-        health: unit.attackable.getHealth().toString(),
-        state: unit.getStatus(),
-        target: JSON.stringify(target),
-        updatedAt: new Date().toISOString(),
-    };
-
-    await redis.hmset(key, updatedFields);
-};
-
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param building - Building class from game logic
- * @returns Redis key string
- */
-export const updateBuildingCache = async (
-    gameId: string,
-    building: Building,
-) => {
-    const buildingId = building.getId();
-    const key = gameKey(gameId, "building", buildingId);
-    const updatedFields: Record<string, string> = {
-        health: building.attackable.getHealth().toString(),
-        state: building.getStatus(),
-        updatedAt: new Date().toISOString(),
-    };
-    await redis.hmset(key, updatedFields);
-};
-
-/**
- * Batch update unit cache using Redis pipeline
- */
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const pipeline = redis.pipeline();
 
+    // Create a set of active unit IDs from the provided units array.
+    const activeUnitIds = new Set(units.map((unit) => unit.getId()));
+
+    // Scan Redis for all keys matching the units pattern.
+    const pattern = gameKey(gameId, "unit", "*");
+    const existingKeys = await scanKeys(pattern);
+
+    // Delete keys for units that are no longer active.
+    for (const key of existingKeys) {
+        // Assuming key format is "game:{gameId}:unit:{unitId}"
+        const parts = key.split(":");
+        const unitIdFromKey = parts[parts.length - 1];
+        if (!activeUnitIds.has(unitIdFromKey)) {
+            pipeline.del(key);
+            console.log("Deleting stale unit key:", key);
+        }
+    }
+
+    // Update or add active unit cache data.
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
@@ -89,9 +54,6 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     await pipeline.exec();
 };
 
-/**
- * Batch update building cache using Redis pipeline
- */
 export const updateBuildingsCache = async (
     gameId: string,
     buildings: Building[],
@@ -112,9 +74,6 @@ export const updateBuildingsCache = async (
     await pipeline.exec();
 };
 
-/**
- * Batch update resource cache using Redis pipeline
- */
 export const updateResourceFieldsCache = async (
     gameId: string,
     resources: Resource[],
@@ -132,39 +91,10 @@ export const updateResourceFieldsCache = async (
 
     await pipeline.exec();
 };
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param resource - Resource class from game logic
- * @returns Redis key string
- */
-export const updateResourceField = async (
-    gameId: string,
-    resource: Resource,
-) => {
-    const resourceId = resource.getId();
-    const key = gameKey(gameId, "resource", resourceId);
-    const updatedFields: Record<string, string> = {
-        availableResource: resource.getAvailableResource().toString(),
-    };
-    await redis.hmset(key, updatedFields);
-};
 
-/**
- * Generate consistent Redis key for game entities
- * @param gameId - Parent game identifier
- * @param type - Entity type (unit/building/resource)
- * @param id - Optional specific entity ID
- * @returns Redis key string
- */
 const gameKey = (gameId: string, type: string, id?: string) =>
     `game:${gameId}:${type}${id ? `:${id}` : ""}`;
 
-/**
- * Cache multiple game entities in a single Redis pipeline
- * @param entities - Object containing arrays of entities to cache
- * @param ttl - Time-to-live in seconds (default 1 hour)
- */
 export const cacheGameEntities = async (
     entities: {
         units?: IUnit[];
@@ -244,14 +174,14 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
                 ["position", "target", "size"].includes(key)
                     ? JSON.parse(value)
                     : // Convert numeric fields (handle empty strings as 0)
-                    [
-                        "health",
-                        "speed",
-                        "damage",
-                        "availableResource",
-                    ].includes(key)
-                        ? Number(value || 0)
-                        : // Preserve other values
+                      [
+                            "health",
+                            "speed",
+                            "damage",
+                            "availableResource",
+                        ].includes(key)
+                      ? Number(value || 0)
+                      : // Preserve other values
                         value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);
@@ -289,13 +219,6 @@ const scanKeys = async (pattern: string): Promise<string[]> => {
 };
 
 // Individual entity caching functions -------------------------------------------------
-
-/**
- * Cache a single game unit
- * @param unit - Unit to cache
- * @param pipeline - Optional pipeline for bulk operations
- * @param ttl - Time-to-live in seconds
- */
 export const cacheUnit = async (
     unit: IUnit,
     pipeline?: ChainableCommander,
@@ -323,13 +246,6 @@ export const cacheUnit = async (
 
     if (ttl > 0) await executor.expire(key, ttl);
 };
-
-/**
- * Cache a single building
- * @param building - Building to cache
- * @param pipeline - Optional pipeline for bulk operations
- * @param ttl - Time-to-live in seconds
- */
 export const cacheBuilding = async (
     building: IBuilding,
     pipeline?: ChainableCommander,
@@ -357,13 +273,6 @@ export const cacheBuilding = async (
 
     if (ttl > 0) await executor.expire(key, ttl);
 };
-
-/**
- * Cache a single resource node
- * @param resource - Resource to cache
- * @param pipeline - Optional pipeline for bulk operations
- * @param ttl - Time-to-live in seconds
- */
 export const cacheResource = async (
     resource: IResource,
     pipeline?: ChainableCommander,
@@ -390,43 +299,8 @@ export const cacheResource = async (
     if (ttl > 0) await executor.expire(key, ttl);
 };
 
-// Individual entity getters -----------------------------------------------------------
-
-export const getCachedBuilding = async (
-    gameId: string,
-    buildingId: string,
-): Promise<BuildingData | null> => {
-    const key = gameKey(gameId, "building", buildingId);
-    const data = await redis.hgetall(key);
-    return parseEntity<BuildingData>(data);
-};
-
-export const getCachedResource = async (
-    gameId: string,
-    resourceId: string,
-): Promise<ResourceData | null> => {
-    const key = gameKey(gameId, "resource", resourceId);
-    const data = await redis.hgetall(key);
-    return parseEntity<ResourceData>(data);
-};
-
-export const getCachedUnit = async (
-    gameId: string,
-    unitId: string,
-): Promise<UnitData | null> => {
-    const key = gameKey(gameId, "unit", unitId);
-    const data = await redis.hgetall(key);
-    return parseEntity<UnitData>(data);
-};
-
 // Cache management ---------------------------------------------------------------------
 
-/**
- * Delete specific game entity
- * @param gameId - Parent game ID
- * @param entityType - Type of entity to delete
- * @param entityId - Target entity ID
- */
 export const deleteCachedEntity = async (
     gameId: string,
     entityType: "unit" | "building" | "resource",
@@ -436,10 +310,6 @@ export const deleteCachedEntity = async (
     await redis.del(key);
 };
 
-/**
- * Flush all data for a specific game
- * @param gameId - Target game ID to clear
- */
 export const flushGameCache = async (gameId: string) => {
     const keys = await scanKeys(gameKey(gameId, "*"));
     if (keys.length > 0) {
@@ -447,9 +317,6 @@ export const flushGameCache = async (gameId: string) => {
     }
 };
 
-/**
- * Flush entire Redis database (debug only)
- */
 export const flushCache = async () => {
     await redis.flushall();
 };

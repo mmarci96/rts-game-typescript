@@ -34,7 +34,6 @@ class GameLogic {
     }
 
     updateGameState(deltaTime: number) {
-        //TODO refresh states and pass the updater forward
         this.#entityController.refreshEntities(deltaTime);
     }
 
