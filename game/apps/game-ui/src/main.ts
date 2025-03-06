@@ -20,6 +20,7 @@ const createCommand = (commands: Command[]) => {
         pendingCommands.push(command);
     });
 };
+let n = 0;
 
 const socketHandler = (
     socket: Socket,
@@ -38,6 +39,10 @@ const socketHandler = (
             if (!game.getLogic().running) {
                 game.getLogic().startGameLoop(createCommand);
             }
+        });
+
+        socket.on("player_state", (playerState) => {
+            game.getLogic().updatePlayerState(playerState.playerResources);
         });
 
         setInterval(() => {
