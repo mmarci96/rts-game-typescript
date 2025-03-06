@@ -24,10 +24,11 @@ class MouseEventHandler {
         camera: Camera,
         selectionBox: SelectionBox,
         assets: AssetManager,
+        overlay: Overlay,
     ) {
         this.#player = player;
 
-        this.#overlay = new Overlay(this.#player);
+        this.#overlay = overlay;
         this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {

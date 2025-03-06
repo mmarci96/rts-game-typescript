@@ -1,15 +1,18 @@
-import { Building, MainBuilding, Player, Unit } from "@packages/game-data";
+import { Building, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import { Command } from "../../main";
+import StatusBar from "./Statusbar";
+
 class Overlay {
     #overlayDiv;
-    #currentPlayer;
     #isVisible;
+    static statusBar: StatusBar;
 
-    constructor(currentPlayer: Player) {
-        this.#currentPlayer = currentPlayer;
+    constructor() {
         this.#overlayDiv = document.getElementById("overlay");
         this.#isVisible = false;
+        Overlay.statusBar = new StatusBar();
+        document.body.appendChild(Overlay.statusBar.element);
     }
 
     setVisible() {

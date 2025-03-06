@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 import GameLoader from "./game/GameLoader";
 import Game from "./game/Game";
 import { GameState } from "@packages/game-data";
+import Overlay from "./game/ui/Overlay";
 
 let pendingCommands: Command[] = [];
 
@@ -27,6 +28,7 @@ const socketHandler = (
     gameId: string,
     game: Game,
 ) => {
+    let lastTime = Date.now();
     try {
         socket.on("connect", () => {
             console.log("connected");
@@ -34,6 +36,11 @@ const socketHandler = (
             socket.emit("load_game", data);
         });
         socket.on("game_state", (data: GameState) => {
+            const now = Date.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
+
+            Overlay.statusBar.setPing(deltaTime);
             game.getLogic().updateGameState(data);
             if (!game.getLogic().running) {
                 game.getLogic().startGameLoop(createCommand);
