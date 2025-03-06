@@ -1,8 +1,4 @@
 import { Server, Socket } from "socket.io";
-//import { GameStateService } from "../game/services/GameStateService";
-//import { GameConnectionService } from "../game/services/GameConnectionService";
-//import { GameUpdateService } from "../services/game-update.service";
-//import { GameCommandService } from "../services/game-command.service";
 import { GameStateService } from "../game/service/GameStateService";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { GameUpdateService } from "../game/service/GameUpdateService";
@@ -23,13 +19,11 @@ export const websocketController = (io: Server) => {
                 try {
                     const { playerId, gameId } = data;
 
-                    // Initialize game state if needed
                     await gameStateService.initializeGame(gameId);
                     const game = gameStateService.getGame(gameId);
 
                     if (!game) throw new Error("Game initialization failed");
 
-                    // Handle player connection
                     await connectionService.handlePlayerJoin(
                         socket.id,
                         playerId,
@@ -37,13 +31,11 @@ export const websocketController = (io: Server) => {
                     );
                     socket.join(gameId);
 
-                    // Add player to game logic
                     const { playerData } = connectionService.getConnection(
                         socket.id,
                     )!;
                     game.addPlayer(playerData.id, playerData.color);
 
-                    // Start game updates if not already running
                     if (!updateService.isGameUpdating(gameId)) {
                         updateService.startGameUpdates(io, gameId, game);
                     }
@@ -57,6 +49,8 @@ export const websocketController = (io: Server) => {
         socket.on("pendingCommands", (commands) => {
             try {
                 const connection = connectionService.getConnection(socket.id);
+                console.log(connection);
+
                 if (!connection) return;
 
                 const game = gameStateService.getGame(connection.gameId);
@@ -78,7 +72,7 @@ export const websocketController = (io: Server) => {
                 const game = gameStateService.getGame(connection.gameId);
                 game?.removePlayer(connection.playerId);
 
-                if (game?.isGameOver()) {
+                if (!game?.isGameOver()) {
                     gameStateService.removeGame(connection.gameId);
                     updateService.stopGameUpdates(connection.gameId);
                 }

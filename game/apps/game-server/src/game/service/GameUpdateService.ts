@@ -30,7 +30,7 @@ export class GameUpdateService {
                 logic.updateGameState(deltaTime);
                 await logic.saveGameState(this.getRedisSavers());
 
-                if (game.isGameOver()) {
+                if (!game.isGameOver()) {
                     this.stopGameUpdates(gameId);
                 }
 
@@ -44,6 +44,8 @@ export class GameUpdateService {
 
     stopGameUpdates(gameId: string): void {
         if (this.updateIntervals[gameId]) {
+            console.log("stop game updates");
+
             clearInterval(this.updateIntervals[gameId]);
             delete this.updateIntervals[gameId];
         }

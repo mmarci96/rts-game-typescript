@@ -1,5 +1,11 @@
 import Game from "../Game";
-import { getGameState, cacheGameEntities } from "../../redis";
+import {
+    getGameState,
+    cacheGameEntities,
+    updateUnitsCache,
+    updateBuildingsCache,
+    updateResourceFieldsCache,
+} from "../../redis";
 import {
     getEntitiesByGameId,
     getGameById,
@@ -48,5 +54,16 @@ export class GameStateService {
 
     removeGame(gameId: string): void {
         delete this.games[gameId];
+    }
+    async saveGameState(gameId: string): Promise<void> {
+        const game = this.games[gameId];
+        if (!game) return;
+
+        const logic = game.getLogic();
+        await logic.saveGameState({
+            cacheUnits: updateUnitsCache,
+            cacheBuildings: updateBuildingsCache,
+            cacheResources: updateResourceFieldsCache,
+        });
     }
 }

@@ -63,7 +63,7 @@ class GameLogic {
         if (this.#entityController.getEnemyUnits(playerColor).length === 0) {
             return true;
         }
-        return false;
+        return true;
     }
 }
 
