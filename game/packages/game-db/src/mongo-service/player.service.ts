@@ -1,5 +1,6 @@
 import { Types } from "mongoose";
 import { IPlayer, PlayerModel } from "../mongo-db";
+import { PlayerResources } from "@packages/game-data";
 
 export const getPlayerById = async (
     playerId: Types.ObjectId,
@@ -21,5 +22,17 @@ export const setPlayerReadyStatus = async (
     if (!player) {
         return null;
     }
+    return player;
+};
+
+export const updatePlayerResources = async (
+    playerId: string,
+    playerResources: PlayerResources,
+) => {
+    const id = new Types.ObjectId(playerId);
+    const player = await PlayerModel.findByIdAndUpdate(id, playerResources, {
+        upsert: true,
+        new: true,
+    });
     return player;
 };

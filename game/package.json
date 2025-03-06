@@ -20,6 +20,7 @@
   "dependencies": {
     "@packages/game-data": "link:packages/game-data",
     "@packages/game-db": "link:packages/game-db",
+    "game-data": "link:game-data",
     "game-db": "link:game-db"
   },
   "pnpm": {

@@ -1,3 +1,4 @@
+import { PlayerResources } from "@packages/game-data";
 import mongoose, { Document, Schema, Types, Date } from "mongoose";
 
 enum PlayerColor {
@@ -14,9 +15,17 @@ interface IPlayer extends Document {
     name: string;
     color: PlayerColor;
     isReady: boolean;
+    playerResources: PlayerResources;
     createdAt: Date;
     updatedAt?: Date;
 }
+const PlayerResourcesSchema = new Schema<PlayerResources>(
+    {
+        wood: { type: Number, default: 200 },
+        food: { type: Number, default: 200 },
+    },
+    { _id: false },
+);
 
 const playerSchema = new Schema({
     userId: {
@@ -30,6 +39,7 @@ const playerSchema = new Schema({
         ref: "Game",
     },
     name: { type: String, required: true },
+    playerResources: { type: PlayerResourcesSchema, default: {} },
     isReady: { type: Boolean, default: false },
     color: { type: String, enum: PlayerColor, required: true },
     createdAt: { type: Date, default: Date.now },

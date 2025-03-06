@@ -1,8 +1,9 @@
-import { PlayerColor } from "./types";
+import { PlayerColor, PlayerResources } from "./types";
 
 class Player {
     #playerId;
     #color;
+    #resources: PlayerResources;
 
     /**
      * @param { string } playerId
@@ -11,6 +12,39 @@ class Player {
     constructor(playerId: string, color: PlayerColor) {
         this.#playerId = playerId;
         this.#color = color;
+        this.#resources = { wood: 0, food: 0 };
+    }
+
+    spendWood(amount: number) {
+        if (this.#resources.wood < amount) {
+            console.log("not enough wood!");
+            return;
+        }
+        this.#resources.wood = this.#resources.wood - amount;
+    }
+
+    spendFood(amount: number) {
+        if (this.#resources.food < amount) {
+            console.log("not enough food!");
+            return;
+        }
+        this.#resources.food = this.#resources.food - amount;
+    }
+
+    setFood(amount: number) {
+        this.#resources.food = amount;
+    }
+
+    setWood(amount: number) {
+        this.#resources.wood = amount;
+    }
+
+    setResources(resources: PlayerResources) {
+        this.#resources = resources;
+    }
+
+    getResources() {
+        return this.#resources;
     }
 
     /**

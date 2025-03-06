@@ -1,5 +1,5 @@
 import Redis, { ChainableCommander } from "ioredis";
-import { IBuilding, IResource, IUnit } from "@packages/game-db";
+import { IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db";
 import {
     BuildingData,
     ResourceData,
@@ -11,6 +11,35 @@ import {
 } from "@packages/game-data";
 
 const redis = new Redis();
+
+export const getPlayerCache = async (gameId: string, playerId: string) => {
+    const key = gameKey(gameId, "player", playerId);
+    const playerData = await redis.hgetall(key);
+    if (!playerData || Object.keys(playerData).length === 0) return null;
+
+    return {
+        ...playerData,
+        playerResources: playerData.playerResources
+            ? JSON.parse(playerData.playerResources)
+            : null,
+    };
+};
+
+export const cachePlayer = async (player: IPlayer, ttl: number = 3600) => {
+    const key = gameKey(
+        player.gameId.toString(),
+        "player",
+        player._id.toString(),
+    );
+    await redis.hmset(key, {
+        id: player._id.toString(),
+        color: player.color,
+        gameId: player.gameId.toString(),
+        playerResources: JSON.stringify(player.playerResources),
+        name: player.name,
+    });
+    if (ttl > 0) await redis.expire(key, ttl);
+};
 
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const pipeline = redis.pipeline();
