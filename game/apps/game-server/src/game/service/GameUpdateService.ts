@@ -33,7 +33,7 @@ export class GameUpdateService {
                 logic.updateGameState(deltaTime);
                 await logic.saveGameState(this.getRedisSavers());
 
-                if (!game.isGameOver()) {
+                if (game.isGameOver()) {
                     this.stopGameUpdates(gameId);
                 }
 

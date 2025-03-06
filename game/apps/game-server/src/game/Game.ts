@@ -1,5 +1,4 @@
-import { Player, GameState } from "@packages/game-data";
-import { PlayerColor } from "@packages/game-data/dist/data/types";
+import { GameState } from "@packages/game-data";
 import { IMap, IPlayer } from "@packages/game-db";
 import GameLogic from "./logic/GameLogic";
 
