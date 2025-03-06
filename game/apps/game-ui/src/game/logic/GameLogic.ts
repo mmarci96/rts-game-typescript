@@ -11,6 +11,9 @@ import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
 import { Command } from "../../main";
 
+let prevWoodAmount = 0;
+let prevFoodAmount = 0;
+
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
     running: boolean = false;

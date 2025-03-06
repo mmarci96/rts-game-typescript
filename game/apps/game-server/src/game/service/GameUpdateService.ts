@@ -9,7 +9,6 @@ import {
     getPlayerCache,
     cachePlayerResources,
 } from "../../redis";
-import { Player } from "@packages/game-data";
 
 export class GameUpdateService {
     private updateIntervals: Record<string, NodeJS.Timeout> = {};

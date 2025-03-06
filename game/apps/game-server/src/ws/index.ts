@@ -3,7 +3,6 @@ import { GameStateService } from "../game/service/GameStateService";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { GameUpdateService } from "../game/service/GameUpdateService";
 import { GameConnectionService } from "../game/service/GameConnectionService";
-import { cachePlayer } from "../redis";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
@@ -48,7 +47,7 @@ export const websocketController = (io: Server) => {
             },
         );
 
-        socket.on("pendingCommands", (commands) => {
+        socket.on("pendingCommands", (data) => {
             try {
                 const connection = connectionService.getConnection(socket.id);
                 console.log(connection);
@@ -58,7 +57,12 @@ export const websocketController = (io: Server) => {
                 const game = gameStateService.getGame(connection.gameId);
                 if (!game) return;
 
-                commandService.handlePlayerCommands(game, commands);
+                const { playerId, pendingCommands } = data;
+                commandService.handlePlayerCommands(
+                    game,
+                    pendingCommands,
+                    playerId,
+                );
             } catch (error) {
                 console.error("Command error:", error);
             }

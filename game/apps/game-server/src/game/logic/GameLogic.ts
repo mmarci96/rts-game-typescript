@@ -42,9 +42,11 @@ class GameLogic {
         this.#entityController.refreshEntities(deltaTime);
     }
 
-    handlePlayerCommands(commands: PlayerCommand[]) {
+    handlePlayerCommands(commands: PlayerCommand[], playerId: string) {
+        const player = this.#players.get(playerId);
+        if (!player) throw new Error("No player with id");
         commands.forEach((command: PlayerCommand) => {
-            this.#entityController.handlePlayerCommand(command);
+            this.#entityController.handlePlayerCommand(command, player);
         });
     }
 

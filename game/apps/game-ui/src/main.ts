@@ -20,7 +20,6 @@ const createCommand = (commands: Command[]) => {
         pendingCommands.push(command);
     });
 };
-let n = 0;
 
 const socketHandler = (
     socket: Socket,
@@ -47,7 +46,11 @@ const socketHandler = (
 
         setInterval(() => {
             if (pendingCommands.length >= 1) {
-                socket.emit("pendingCommands", pendingCommands);
+                const commands = {
+                    playerId,
+                    pendingCommands,
+                };
+                socket.emit("pendingCommands", commands);
                 console.log("Commands added to stack:", pendingCommands);
                 pendingCommands = [];
             }
