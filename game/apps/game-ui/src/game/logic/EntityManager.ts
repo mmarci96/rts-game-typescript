@@ -22,8 +22,6 @@ class EntityManager {
     #resourceController: ResourceController;
     #drawables: Map<string, Drawable>;
     #assets: AssetManager;
-    MAX: number = 3;
-    current: number = 0;
 
     constructor(assets: AssetManager) {
         this.#assets = assets;
@@ -50,20 +48,6 @@ class EntityManager {
             this.#drawables.delete(entityId);
             this.#unitController.removeUnit(entityId);
         });
-        //[...existingIds.keys()].forEach((entityId: string) => {
-        //    const animatedSprite = this.#drawables.get(entityId);
-        //    if (animatedSprite instanceof AnimatedSprite) {
-        //        const img = this.#assets.getImage("dead");
-        //        if (!img) {
-        //            throw new Error("No image");
-        //        }
-        //        animatedSprite.setDeathAnimation(img);
-        //    }
-        //    if (!(animatedSprite instanceof AnimatedSprite)) {
-        //        this.#drawables.delete(entityId);
-        //        this.#unitController.removeUnit(entityId);
-        //    }
-        //});
     }
     getUnitsController() {
         return this.#unitController;
@@ -99,22 +83,12 @@ class EntityManager {
                     unit.setY(y);
                 }
                 drawable.entity = unit;
-                if (unit.attackable.getHealth() <= 0) {
-                    console.log(
-                        "A unit should die:",
-                        unit.attackable.getHealth(),
-                        unit.getId(),
-                    );
-                }
                 existingKeys.delete(drawable.entity.getId());
             }
         });
         [...existingKeys].forEach((unitId: string) => {
             const unit = this.#unitController.getUnitById(unitId);
             if (unit) {
-                //if (unit.attackable.getHealth() < 4) {
-                //    //console.log(unit);
-                //}
                 const animatedSprite = this.loadAnimatedUnit(unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
             }

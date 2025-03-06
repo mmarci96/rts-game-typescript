@@ -1,12 +1,9 @@
-import Camera from "./Camera";
 import Game from "../Game";
 
 class GameCanvas {
-    #camera: Camera;
     #gameCanvas: HTMLCanvasElement;
 
-    constructor(camera: Camera) {
-        this.#camera = camera;
+    constructor() {
         const gameCanvas = document.getElementById("game-canvas");
         if (!(gameCanvas instanceof HTMLCanvasElement)) {
             throw new Error("Must be html canvas element ");

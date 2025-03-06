@@ -40,13 +40,12 @@ const socketHandler = (
             }
         });
 
-        const commandInterval = setInterval(() => {
+        setInterval(() => {
             if (pendingCommands.length >= 1) {
                 socket.emit("pendingCommands", pendingCommands);
                 console.log("Commands added to stack:", pendingCommands);
                 pendingCommands = [];
             }
-            //clearInterval(commandInterval);
         }, 60);
     } catch (err) {
         console.error(err);
