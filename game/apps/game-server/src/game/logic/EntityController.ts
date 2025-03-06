@@ -5,6 +5,7 @@ import {
     GameEntity,
     GameState,
     MainBuilding,
+    Player,
     PlayerColor,
     ResourceController,
     Unit,
@@ -13,6 +14,13 @@ import {
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db";
 import { mapMongoUnitToData } from "../../utils/parseData";
+
+const UNIT_CONSTRUCTION_COST = {
+    warrior: { food: 10, wood: 10 },
+    worker: { food: 10, wood: 0 },
+    archer: { food: 15, wood: 20 },
+} as const;
+type UnitType = keyof typeof UNIT_CONSTRUCTION_COST;
 
 class EntityController {
     #unitController: UnitController;
@@ -54,7 +62,7 @@ class EntityController {
         return entities;
     }
 
-    async handlePlayerCommand(command: PlayerCommand) {
+    async handlePlayerCommand(command: PlayerCommand, player: Player) {
         const entity = this.#unitController.getUnitById(command.entityId);
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
@@ -66,6 +74,16 @@ class EntityController {
                     command.entityId,
                 );
                 if (mainBuilding instanceof MainBuilding && command.unitType) {
+                    const { wood, food } = player.getResources();
+                    const unitType = command.unitType as UnitType;
+                    const cost = UNIT_CONSTRUCTION_COST[unitType];
+                    if (cost.food > food || cost.wood > wood) {
+                        return;
+                    } else {
+                        player.spendFood(cost.food);
+                        player.spendWood(cost.wood);
+                    }
+
                     const data = mainBuilding.createUnit(command.unitType);
                     const savedUnit = await createUnit(
                         this.#gameId,

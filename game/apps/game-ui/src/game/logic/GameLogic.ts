@@ -1,4 +1,4 @@
-import { Tile, GameState, Player } from "@packages/game-data";
+import { Tile, GameState, Player, PlayerResources } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -10,6 +10,9 @@ import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
 import { Command } from "../../main";
+
+let prevWoodAmount = 0;
+let prevFoodAmount = 0;
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -54,6 +57,9 @@ class GameLogic {
     }
     updateGameState(data: GameState) {
         this.#entityManager.loadGameState(data);
+    }
+    updatePlayerState(playerResources: PlayerResources) {
+        this.#player.setResources(playerResources);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {

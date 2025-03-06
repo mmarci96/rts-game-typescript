@@ -34,7 +34,8 @@ export const websocketController = (io: Server) => {
                     const { playerData } = connectionService.getConnection(
                         socket.id,
                     )!;
-                    game.addPlayer(playerData.id, playerData.color);
+                    game.addPlayer(playerData);
+                    socket.join(playerData.id);
 
                     if (!updateService.isGameUpdating(gameId)) {
                         updateService.startGameUpdates(io, gameId, game);
@@ -46,17 +47,20 @@ export const websocketController = (io: Server) => {
             },
         );
 
-        socket.on("pendingCommands", (commands) => {
+        socket.on("pendingCommands", (data) => {
             try {
                 const connection = connectionService.getConnection(socket.id);
-                console.log(connection);
-
                 if (!connection) return;
 
                 const game = gameStateService.getGame(connection.gameId);
                 if (!game) return;
 
-                commandService.handlePlayerCommands(game, commands);
+                const { playerId, pendingCommands } = data;
+                commandService.handlePlayerCommands(
+                    game,
+                    pendingCommands,
+                    playerId,
+                );
             } catch (error) {
                 console.error("Command error:", error);
             }

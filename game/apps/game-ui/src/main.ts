@@ -40,9 +40,17 @@ const socketHandler = (
             }
         });
 
+        socket.on("player_state", (playerState) => {
+            game.getLogic().updatePlayerState(playerState.playerResources);
+        });
+
         setInterval(() => {
             if (pendingCommands.length >= 1) {
-                socket.emit("pendingCommands", pendingCommands);
+                const commands = {
+                    playerId,
+                    pendingCommands,
+                };
+                socket.emit("pendingCommands", commands);
                 console.log("Commands added to stack:", pendingCommands);
                 pendingCommands = [];
             }

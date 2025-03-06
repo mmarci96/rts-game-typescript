@@ -8,9 +8,15 @@ import {
     Unit,
     Building,
     Resource,
+    Player,
 } from "@packages/game-data";
 
 const redis = new Redis();
+
+export const deletePlayerCache = async (playerId: string, gameId: string) => {
+    const key = gameKey(gameId, "player", playerId);
+    await redis.del(key);
+};
 
 export const getPlayerCache = async (gameId: string, playerId: string) => {
     const key = gameKey(gameId, "player", playerId);
@@ -39,6 +45,21 @@ export const cachePlayer = async (player: IPlayer, ttl: number = 3600) => {
         name: player.name,
     });
     if (ttl > 0) await redis.expire(key, ttl);
+};
+
+export const cachePlayerResources = async (
+    gameId: string,
+    player: Player,
+    ttl: number = 3600,
+) => {
+    const key = gameKey(gameId, "player", player.getId());
+    await redis.hmset(key, {
+        playerResources: JSON.stringify(player.getResources()),
+        updatedAt: new Date().toISOString(),
+    });
+    if (ttl > 0) {
+        await redis.expire(key, ttl);
+    }
 };
 
 export const updateUnitsCache = async (gameId: string, units: Unit[]) => {

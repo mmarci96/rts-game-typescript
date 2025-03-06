@@ -6,6 +6,8 @@ import {
     updateBuildingsCache,
     updateResourceFieldsCache,
     getGameState,
+    getPlayerCache,
+    cachePlayerResources,
 } from "../../redis";
 
 export class GameUpdateService {
@@ -30,12 +32,23 @@ export class GameUpdateService {
                 logic.updateGameState(deltaTime);
                 await logic.saveGameState(this.getRedisSavers());
 
-                if (!game.isGameOver()) {
+                if (game.isGameOver()) {
                     this.stopGameUpdates(gameId);
                 }
 
                 const gameData = await getGameState(gameId);
                 io.to(gameId).emit("game_state", gameData);
+
+                const players = logic.getPlayers();
+
+                for (const player of players) {
+                    await cachePlayerResources(gameId, player);
+                    const playerData = await getPlayerCache(
+                        gameId,
+                        player.getId(),
+                    );
+                    io.to(player.getId()).emit("player_state", playerData);
+                }
             } catch (error) {
                 console.error("Game update error:", error);
             }

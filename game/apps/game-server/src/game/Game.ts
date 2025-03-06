@@ -1,28 +1,24 @@
-import { Player, GameState } from "@packages/game-data";
-import { PlayerColor } from "@packages/game-data/dist/data/types";
-import { IMap } from "@packages/game-db";
+import { GameState } from "@packages/game-data";
+import { IMap, IPlayer } from "@packages/game-db";
 import GameLogic from "./logic/GameLogic";
 
 class Game {
     #id;
-    #players: Map<string, Player>;
     #gameLogic;
 
     constructor(gameId: string, map: IMap, gameData: GameState) {
         this.#id = gameId;
-        this.#players = new Map();
         this.#gameLogic = new GameLogic(gameId, gameData, map);
     }
 
-    addPlayer(playerId: string, color: PlayerColor) {
-        const player = new Player(playerId, color);
-        this.#players.set(player.getId(), player);
+    addPlayer(playerData: IPlayer) {
+        this.#gameLogic.addPlayer(playerData);
     }
     removePlayer(playerId: string) {
-        this.#players.delete(playerId);
+        this.#gameLogic.removePlayer(playerId);
     }
     getPlayers() {
-        return [...this.#players.values()];
+        this.#gameLogic.getPlayers();
     }
 
     getId() {
@@ -32,14 +28,7 @@ class Game {
         return this.#gameLogic;
     }
     isGameOver() {
-        let over = false;
-        const colors = [...this.#players.values()].flatMap((player: Player) =>
-            player.getColor(),
-        );
-        colors.forEach(
-            (color: PlayerColor) => (over = this.#gameLogic.isGameOver(color)),
-        );
-        return over;
+        return false;
     }
 }
 
