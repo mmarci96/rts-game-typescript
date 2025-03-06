@@ -15,7 +15,6 @@ import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
 import AnimatedSprite from "../data/AnimatedSprite";
 import AnimatedTree from "../data/AnimatedTree";
-import { GameEntityData } from "@packages/game-db";
 
 class EntityManager {
     #unitController: UnitController;
@@ -23,8 +22,6 @@ class EntityManager {
     #resourceController: ResourceController;
     #drawables: Map<string, Drawable>;
     #assets: AssetManager;
-    MAX: number = 3;
-    current: number = 0;
 
     constructor(assets: AssetManager) {
         this.#assets = assets;
@@ -70,7 +67,7 @@ class EntityManager {
             this.#unitController.getUnitIds(),
         );
 
-        this.#unitController.getUnits().forEach((unit: Unit, i: number) => {
+        this.#unitController.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
             if (
                 drawable &&
@@ -86,34 +83,20 @@ class EntityManager {
                     unit.setY(y);
                 }
                 drawable.entity = unit;
-                if (i < 2 && this.current < this.MAX) {
-                    console.log("Unit:", unit);
-                    console.log("drawbleentity", drawable.entity);
-                } else {
-                    this.current++;
-                }
-                if (unit.attackable.getHealth() <= 0) {
-                    console.log(
-                        "A unit should die:",
-                        unit.attackable.getHealth(),
-                        unit.getId(),
-                    );
-                }
                 existingKeys.delete(drawable.entity.getId());
             }
         });
         [...existingKeys].forEach((unitId: string) => {
             const unit = this.#unitController.getUnitById(unitId);
+            console.log(unit);
+
             if (unit) {
-                if (unit.attackable.getHealth() < 4) {
-                    console.log(unit);
-                }
-                const animatedSprite = this.loadUnitDrawable(unit);
+                const animatedSprite = this.loadAnimatedUnit(unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
             }
         });
     }
-    loadUnitDrawable(unit: Unit) {
+    loadAnimatedUnit(unit: Unit) {
         const color = unit.getColor();
         console.log(`${unit.getType().toLowerCase()}_${color}`);
 
@@ -128,50 +111,54 @@ class EntityManager {
     }
 
     loadDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
-        const units = this.getUnitsController().getUnits();
-        const buildings = this.getBuildingController().getBuildings();
-        const resources = this.getResourceController().getResources();
-        if (!ctx) {
-            return;
+        try {
+            const units = this.getUnitsController().getUnits();
+            const buildings = this.getBuildingController().getBuildings();
+            const resources = this.getResourceController().getResources();
+            if (!ctx) {
+                return;
+            }
+            units.forEach((unit: Unit) => {
+                const color = unit.getColor();
+                const img = assets.getImage(
+                    `${unit.getType().toLowerCase()}_${color}`,
+                );
+                if (!img) {
+                    throw new Error("not found");
+                }
+                const animatedSprite = new AnimatedSprite(img, unit);
+                this.#drawables.set(unit.getId(), animatedSprite);
+            });
+
+            buildings.forEach((building: Building) => {
+                const color = building.getColor();
+                const img = assets.getImage(`house_${color.toLowerCase()}`);
+                if (!img) {
+                    throw new Error("not found");
+                }
+                const drawable = new Drawable(img, building);
+                this.#drawables.set(building.getId(), drawable);
+            });
+
+            resources.forEach((resource: Resource) => {
+                const img = assets.getImage(resource.getType());
+                if (!img) {
+                    throw new Error("not found");
+                }
+                switch (resource.getType()) {
+                    case ResourceType.TREE:
+                        const tree = new AnimatedTree(img, resource);
+                        this.#drawables.set(resource.getId(), tree);
+                        break;
+                    default:
+                        const drawable = new Drawable(img, resource);
+                        this.#drawables.set(resource.getId(), drawable);
+                        break;
+                }
+            });
+        } catch (err) {
+            console.error(err);
         }
-        units.forEach((unit: Unit) => {
-            const color = unit.getColor();
-            const img = assets.getImage(
-                `${unit.getType().toLowerCase()}_${color}`,
-            );
-            if (!img) {
-                throw new Error("not found");
-            }
-            const animatedSprite = new AnimatedSprite(img, unit);
-            this.#drawables.set(unit.getId(), animatedSprite);
-        });
-
-        buildings.forEach((building: Building) => {
-            const color = building.getColor();
-            const img = assets.getImage(`house_${color.toLowerCase()}`);
-            if (!img) {
-                throw new Error("not found");
-            }
-            const drawable = new Drawable(img, building);
-            this.#drawables.set(building.getId(), drawable);
-        });
-
-        resources.forEach((resource: Resource) => {
-            const img = assets.getImage(resource.getType());
-            if (!img) {
-                throw new Error("not found");
-            }
-            switch (resource.getType()) {
-                case ResourceType.TREE:
-                    const tree = new AnimatedTree(img, resource);
-                    this.#drawables.set(resource.getId(), tree);
-                    break;
-                default:
-                    const drawable = new Drawable(img, resource);
-                    this.#drawables.set(resource.getId(), drawable);
-                    break;
-            }
-        });
     }
 }
 

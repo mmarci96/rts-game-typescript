@@ -1,11 +1,11 @@
 import {
     getEntitiesByGameId,
-    saveEntitiesToMongo,
     getGameById,
     getMapById,
     getPlayerById,
     IPlayer,
     IGame,
+    saveEntitiesToMongo,
 } from "@packages/game-db";
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
@@ -154,7 +154,6 @@ export const websocketController = (io: Server) => {
                         gameData,
                     );
                     console.log("state saved to mongo");
-
                     delete connectedPlayers[socket.id];
                 }
             } catch (error) {

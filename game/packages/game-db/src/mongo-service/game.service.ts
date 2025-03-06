@@ -88,6 +88,11 @@ export const saveEntitiesToMongo = async (
     if (gameState.units.length > 0) {
         await Promise.all(
             gameState.units.map(async (unit) => {
+                const existing = await UnitModel.findById(unit.id);
+                if (!existing) {
+                    console.log(unit.id, unit);
+                    return;
+                }
                 await UnitModel.findOneAndUpdate(
                     { _id: unit.id, gameId },
                     unit,

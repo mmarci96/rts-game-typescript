@@ -17,14 +17,7 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
     const activeUnitIds = new Set(units.map((unit) => unit.getId()));
     const pattern = gameKey(gameId, "unit", "*");
     const existingKeys = await scanKeys(pattern);
-    for (const key of existingKeys) {
-        const parts = key.split(":");
-        const unitIdFromKey = parts[parts.length - 1];
-        if (!activeUnitIds.has(unitIdFromKey)) {
-            pipeline.del(key);
-            console.log("Deleting stale unit key:", key);
-        }
-    }
+
     for (const unit of units) {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
@@ -39,10 +32,24 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             unitType: unit.getType(),
             state: unit.getStatus(),
             target: JSON.stringify(target),
+            id: unit.getId(),
+            color: unit.getColor(),
+            speed: unit.movable.getSpeed(),
+            damage: unit.attacker.getAttackDamage(),
+            attackSpeed: unit.attacker.getAttackSpeed(),
+            size: JSON.stringify(unit.getSize()),
+            gameId,
             updatedAt: new Date().toISOString(),
         });
     }
-
+    for (const key of existingKeys) {
+        const parts = key.split(":");
+        const unitIdFromKey = parts[parts.length - 1];
+        if (!activeUnitIds.has(unitIdFromKey)) {
+            pipeline.del(key);
+            console.log("Deleting stale unit key:", key);
+        }
+    }
     await pipeline.exec();
 };
 

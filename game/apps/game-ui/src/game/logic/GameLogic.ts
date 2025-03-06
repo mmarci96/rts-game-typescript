@@ -37,7 +37,7 @@ class GameLogic {
             this.#camera,
             this.#assets,
         );
-        this.#gameCanvas = new GameCanvas(this.#camera);
+        this.#gameCanvas = new GameCanvas();
 
         this.#gameMapDrawer.drawMap();
         this.#keyEventHandler = new KeyEventHandler(this.#camera);

@@ -27,25 +27,29 @@ const socketHandler = (
     gameId: string,
     game: Game,
 ) => {
-    socket.on("connect", () => {
-        console.log("connected");
-        const data = { playerId, gameId };
-        socket.emit("load_game", data);
-    });
-    socket.on("game_state", (data: GameState) => {
-        game.getLogic().updateGameState(data);
-        if (!game.getLogic().running) {
-            game.getLogic().startGameLoop(createCommand);
-        }
-    });
+    try {
+        socket.on("connect", () => {
+            console.log("connected");
+            const data = { playerId, gameId };
+            socket.emit("load_game", data);
+        });
+        socket.on("game_state", (data: GameState) => {
+            game.getLogic().updateGameState(data);
+            if (!game.getLogic().running) {
+                game.getLogic().startGameLoop(createCommand);
+            }
+        });
 
-    const commandInterval = setInterval(() => {
-        if (pendingCommands.length >= 1) {
-            socket.emit("pendingCommands", pendingCommands);
-            console.log("Commands added to stack:", pendingCommands);
-            pendingCommands = [];
-        }
-    }, 60);
+        setInterval(() => {
+            if (pendingCommands.length >= 1) {
+                socket.emit("pendingCommands", pendingCommands);
+                console.log("Commands added to stack:", pendingCommands);
+                pendingCommands = [];
+            }
+        }, 60);
+    } catch (err) {
+        console.error(err);
+    }
 };
 
 const getIdFromUrl = (url: string) => {

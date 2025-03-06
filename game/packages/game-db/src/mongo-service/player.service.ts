@@ -10,3 +10,16 @@ export const getPlayerById = async (
     }
     return player;
 };
+
+export const setPlayerReadyStatus = async (
+    playerId: Types.ObjectId,
+    readyStatus: boolean,
+) => {
+    const player = await PlayerModel.findByIdAndUpdate(playerId, {
+        isReady: readyStatus,
+    });
+    if (!player) {
+        return null;
+    }
+    return player;
+};
