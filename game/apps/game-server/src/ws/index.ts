@@ -5,6 +5,7 @@ import {
     getPlayerById,
     IPlayer,
     IGame,
+    saveEntitiesToMongo,
 } from "@packages/game-db";
 import { Server, Socket } from "socket.io";
 import Game from "../game/Game";
@@ -17,6 +18,7 @@ import {
 } from "../redis";
 import { GameState } from "@packages/game-data";
 import { SaveGameStateParams } from "../types";
+import { Types } from "mongoose";
 
 interface GameData {
     gameData: IGame;
@@ -138,24 +140,25 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("disconnect", async () => {
-            //try {
-            console.log("Connection ended: ", socket.id);
-            const connectionData = connectedPlayers[socket.id];
+            try {
+                console.log("Connection ended: ", socket.id);
+                const connectionData = connectedPlayers[socket.id];
 
-            if (connectionData) {
-                games[connectionData.gameId]?.game.removePlayer(
-                    connectionData.playerData.id,
-                );
-                const gameData = await getGameState(connectionData.gameId);
-                //await saveEntitiesToMongo(connectionData.gameId, gameData);
-                //console.log("state saved to mongo");
-                console.log("Not saved! Game state: ", gameData);
-
-                delete connectedPlayers[socket.id];
+                if (connectionData) {
+                    games[connectionData.gameId]?.game.removePlayer(
+                        connectionData.playerData.id,
+                    );
+                    const gameData = await getGameState(connectionData.gameId);
+                    await saveEntitiesToMongo(
+                        new Types.ObjectId(connectionData.gameId),
+                        gameData,
+                    );
+                    console.log("state saved to mongo");
+                    delete connectedPlayers[socket.id];
+                }
+            } catch (error) {
+                console.error("Error during disconnect handling:", error);
             }
-            //} catch (error) {
-            //    console.error("Error during disconnect handling:", error);
-            //}
         });
     });
 };
