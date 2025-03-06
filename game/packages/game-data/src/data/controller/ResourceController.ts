@@ -24,6 +24,7 @@ class ResourceController {
             }
         });
     }
+
     getResources() {
         return [...this.#resources.values()];
     }
