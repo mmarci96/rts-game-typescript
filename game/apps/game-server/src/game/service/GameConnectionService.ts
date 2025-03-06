@@ -43,15 +43,10 @@ export class GameConnectionService {
         const { gameId, playerData } = connection;
         await saveEntitiesToMongo(gameId, await getGameState(gameId));
         const playerCacheData = await getPlayerCache(gameId, playerData.id);
-        if (playerCacheData) {
-            console.log("Player from cache", playerData);
-
-            const updatedPlayer = await updatePlayerResources(
-                playerData.id,
-                playerCacheData.playerResources,
-            );
-            console.log("Updated player:", updatedPlayer);
-        }
+        await updatePlayerResources(
+            playerData.id,
+            playerCacheData?.playerResources,
+        );
 
         await deletePlayerCache(playerData.id, gameId);
         delete this.connectedPlayers[socketId];
