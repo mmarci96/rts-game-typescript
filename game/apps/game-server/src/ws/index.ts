@@ -50,8 +50,6 @@ export const websocketController = (io: Server) => {
         socket.on("pendingCommands", (data) => {
             try {
                 const connection = connectionService.getConnection(socket.id);
-                console.log(connection);
-
                 if (!connection) return;
 
                 const game = gameStateService.getGame(connection.gameId);

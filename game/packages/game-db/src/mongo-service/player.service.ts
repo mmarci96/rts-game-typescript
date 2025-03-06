@@ -30,9 +30,12 @@ export const updatePlayerResources = async (
     playerResources: PlayerResources,
 ) => {
     const id = new Types.ObjectId(playerId);
-    const player = await PlayerModel.findByIdAndUpdate(id, playerResources, {
-        upsert: true,
-        new: true,
-    });
+
+    const player = await PlayerModel.findByIdAndUpdate(
+        id,
+        { $set: { playerResources } },
+        { upsert: true, new: true },
+    );
+
     return player;
 };
