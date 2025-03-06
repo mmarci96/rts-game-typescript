@@ -88,6 +88,8 @@ class EntityManager {
         });
         [...existingKeys].forEach((unitId: string) => {
             const unit = this.#unitController.getUnitById(unitId);
+            console.log(unit);
+
             if (unit) {
                 const animatedSprite = this.loadAnimatedUnit(unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
