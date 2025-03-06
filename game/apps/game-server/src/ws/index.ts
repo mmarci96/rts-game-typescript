@@ -3,6 +3,7 @@ import { GameStateService } from "../game/service/GameStateService";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { GameUpdateService } from "../game/service/GameUpdateService";
 import { GameConnectionService } from "../game/service/GameConnectionService";
+import { cachePlayer } from "../redis";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
@@ -34,7 +35,8 @@ export const websocketController = (io: Server) => {
                     const { playerData } = connectionService.getConnection(
                         socket.id,
                     )!;
-                    game.addPlayer(playerData.id, playerData.color);
+                    game.addPlayer(playerData);
+                    socket.join(playerData.id);
 
                     if (!updateService.isGameUpdating(gameId)) {
                         updateService.startGameUpdates(io, gameId, game);

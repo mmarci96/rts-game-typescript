@@ -1,6 +1,6 @@
 import { IPlayer, saveEntitiesToMongo, getPlayerById } from "@packages/game-db";
 import { Types } from "mongoose";
-import { getGameState } from "../../redis";
+import { cachePlayer, deletePlayerCache, getGameState } from "../../redis";
 
 export class GameConnectionService {
     private connectedPlayers: Record<
@@ -16,6 +16,7 @@ export class GameConnectionService {
         const playerData = await getPlayerById(new Types.ObjectId(playerId));
 
         if (!playerData) throw new Error("Player not found");
+        await cachePlayer(playerData);
 
         this.connectedPlayers[socketId] = {
             playerData,
@@ -35,6 +36,7 @@ export class GameConnectionService {
             await getGameState(gameId),
         );
 
+        await deletePlayerCache(playerData.id, gameId);
         delete this.connectedPlayers[socketId];
         return { gameId, playerId: playerData.id };
     }

@@ -6,7 +6,10 @@ import {
     updateBuildingsCache,
     updateResourceFieldsCache,
     getGameState,
+    getPlayerCache,
+    cachePlayerResources,
 } from "../../redis";
+import { Player } from "@packages/game-data";
 
 export class GameUpdateService {
     private updateIntervals: Record<string, NodeJS.Timeout> = {};
@@ -36,6 +39,17 @@ export class GameUpdateService {
 
                 const gameData = await getGameState(gameId);
                 io.to(gameId).emit("game_state", gameData);
+
+                const players = logic.getPlayers();
+
+                for (const player of players) {
+                    await cachePlayerResources(gameId, player);
+                    const playerData = await getPlayerCache(
+                        gameId,
+                        player.getId(),
+                    );
+                    io.to(player.getId()).emit("player_state", playerData);
+                }
             } catch (error) {
                 console.error("Game update error:", error);
             }
