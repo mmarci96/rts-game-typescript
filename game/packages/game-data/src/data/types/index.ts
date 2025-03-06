@@ -147,3 +147,8 @@ export interface GameState {
     resources: ResourceData[];
     buildings: BuildingData[];
 }
+
+export interface PlayerResources {
+    wood: number;
+    food: number;
+}
