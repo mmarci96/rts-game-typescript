@@ -93,6 +93,10 @@ export const saveEntitiesToMongo = async (
                     console.log(unit.id, unit);
                     return;
                 }
+                if (!unit.health) {
+                    await UnitModel.findByIdAndDelete(unit.id);
+                    return;
+                }
                 await UnitModel.findOneAndUpdate(
                     { _id: unit.id, gameId },
                     unit,
@@ -117,6 +121,10 @@ export const saveEntitiesToMongo = async (
     if (gameState.resources.length > 0) {
         await Promise.all(
             gameState.resources.map(async (resource) => {
+                if (!resource.availableResource) {
+                    await ResourceModel.findByIdAndDelete(resource.id);
+                    return;
+                }
                 await ResourceModel.findOneAndUpdate(
                     { _id: resource.id, gameId },
                     resource,
