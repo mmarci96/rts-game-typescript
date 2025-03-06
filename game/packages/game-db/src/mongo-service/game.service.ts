@@ -82,7 +82,7 @@ export const deleteResourceById = async (resourceId: Types.ObjectId) => {
 };
 
 export const saveEntitiesToMongo = async (
-    gameId: Types.ObjectId,
+    gameId: string,
     gameState: GameState,
 ) => {
     if (gameState.units.length > 0) {
