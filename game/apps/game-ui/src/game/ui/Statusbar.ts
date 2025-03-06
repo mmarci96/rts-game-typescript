@@ -6,6 +6,9 @@ class StatusBar {
     pingElement: HTMLDivElement;
     fpsElement: HTMLDivElement;
 
+    private fpsSamples: number[] = [];
+    private pingSamples: number[] = [];
+    private lastUpdateTime: number = Date.now();
     constructor() {
         const resources: PlayerResources = { wood: 0, food: 0 };
         this.element = document.createElement("div");
@@ -78,12 +81,46 @@ class StatusBar {
     }
 
     setPing(ms: number): void {
-        this.pingElement.textContent = `Ping: ${Math.round(ms)}ms`;
+        this.pingSamples.push(ms);
+        this.checkAndUpdate();
     }
 
-    setFps(deltaTime: number): void {
-        const fps = deltaTime > 0 ? Math.round(1000 / deltaTime) : 0;
+    setFps(deltaTimeMs: number): void {
+        this.fpsSamples.push(deltaTimeMs);
+        this.checkAndUpdate();
+    }
+
+    private checkAndUpdate(): void {
+        const now = Date.now();
+        if (now - this.lastUpdateTime >= 1000) {
+            this.updateDisplay(now);
+        }
+    }
+
+    private updateDisplay(now: number): void {
+        // Calculate averaged FPS
+        let fps = 0;
+        if (this.fpsSamples.length > 0) {
+            const averageFrameTime =
+                this.fpsSamples.reduce((a, b) => a + b, 0) /
+                this.fpsSamples.length;
+            fps = Math.round(1000 / averageFrameTime);
+        }
         this.fpsElement.textContent = `FPS: ${fps}`;
+
+        // Calculate averaged ping
+        let ping = 0;
+        if (this.pingSamples.length > 0) {
+            ping =
+                this.pingSamples.reduce((a, b) => a + b, 0) /
+                this.pingSamples.length;
+        }
+        this.pingElement.textContent = `Ping: ${Math.round(ping)}ms`;
+
+        // Reset samples and update time
+        this.fpsSamples = [];
+        this.pingSamples = [];
+        this.lastUpdateTime = now;
     }
 }
 

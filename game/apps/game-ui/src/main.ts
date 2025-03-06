@@ -22,13 +22,13 @@ const createCommand = (commands: Command[]) => {
     });
 };
 
+let lastTime = Date.now();
 const socketHandler = (
     socket: Socket,
     playerId: string,
     gameId: string,
     game: Game,
 ) => {
-    let lastTime = Date.now();
     try {
         socket.on("connect", () => {
             console.log("connected");
@@ -37,10 +37,9 @@ const socketHandler = (
         });
         socket.on("game_state", (data: GameState) => {
             const now = Date.now();
-            const deltaTime = (now - lastTime) / 1000;
+            const deltaTimeMs = now - lastTime;
             lastTime = now;
-
-            Overlay.statusBar.setPing(deltaTime);
+            Overlay.statusBar.setPing(deltaTimeMs);
             game.getLogic().updateGameState(data);
             if (!game.getLogic().running) {
                 game.getLogic().startGameLoop(createCommand);

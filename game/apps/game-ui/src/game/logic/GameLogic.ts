@@ -59,6 +59,8 @@ class GameLogic {
     }
     updatePlayerState(playerResources: PlayerResources) {
         this.#player.setResources(playerResources);
+        Overlay.statusBar.setResource("food", playerResources.food);
+        Overlay.statusBar.setResource("wood", playerResources.wood);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {
@@ -89,7 +91,7 @@ class GameLogic {
                     drawable.draw(ctx, this.#camera);
                 },
             );
-            Overlay.statusBar.setFps(deltaTime);
+            Overlay.statusBar.setFps(deltaTime * 1000);
 
             requestAnimationFrame(animate);
         };
