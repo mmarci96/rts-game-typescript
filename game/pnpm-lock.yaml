@@ -14,6 +14,9 @@ importers:
       '@packages/game-db':
         specifier: link:packages/game-db
         version: link:packages/game-db
+      game-data:
+        specifier: link:game-data
+        version: link:game-data
       game-db:
         specifier: link:game-db
         version: link:game-db

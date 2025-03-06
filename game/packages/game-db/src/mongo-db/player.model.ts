@@ -15,6 +15,7 @@ interface IPlayer extends Document {
     name: string;
     color: PlayerColor;
     isReady: boolean;
+    playerResources: PlayerResources;
     createdAt: Date;
     updatedAt?: Date;
 }
