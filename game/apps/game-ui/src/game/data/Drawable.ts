@@ -30,7 +30,7 @@ class Drawable {
             camera.getY(),
         );
         if (this.#hasShadow) {
-            this.drawShadow(ctx, px, py);
+            this.drawShadow(ctx, px - this.entity.getSize().height, py - this.entity.getSize().width);
         }
         ctx.drawImage(
             this.#spriteSheet,

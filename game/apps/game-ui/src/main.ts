@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "./game/GameLoader";
 import Game from "./game/Game";
-import { GameState } from "@packages/game-data";
+import { GameState, PlayerColor } from "@packages/game-data";
 import Overlay from "./game/ui/Overlay";
 
 let pendingCommands: Command[] = [];
@@ -49,6 +49,15 @@ const socketHandler = (
         socket.on("player_state", (playerState) => {
             game.getLogic().updatePlayerState(playerState.playerResources);
         });
+        socket.on("game_over", (winnerColor: PlayerColor) => {
+            if (game.getLogic().getPlayerColor() === winnerColor) {
+                console.log("winner is you");
+            } else {
+                console.log("You lost");
+
+            }
+
+        })
 
         setInterval(() => {
             if (pendingCommands.length >= 1) {

@@ -19,6 +19,11 @@ class ResourceController {
                 case "tree":
                     const tree = new Tree(resourceParams);
                     this.#resources.set(tree.getId(), tree);
+                    break;
+                case "wheat":
+                    const wheat = new WheatField(resourceParams);
+                    this.#resources.set(wheat.getId(), wheat);
+                    break;
                 default:
                     break;
             }
@@ -27,6 +32,10 @@ class ResourceController {
 
     getResources() {
         return [...this.#resources.values()];
+    }
+
+    getResourceById(id: string) {
+        return this.#resources.get(id);
     }
 }
 

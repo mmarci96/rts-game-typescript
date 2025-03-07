@@ -1,6 +1,7 @@
-import { UnitData, UnitUpdateData, PlayerColor } from "../types";
+import { UnitData, UnitUpdateData, PlayerColor, PlayerResources } from "../types";
 import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior } from "../entities";
+import { Unit, Archer, Worker, Warrior, Resource } from "../entities";
+import Player from "../Player";
 
 class UnitController {
     #units;
@@ -28,11 +29,65 @@ class UnitController {
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
                     break;
+                case "mining":
+                    unit.update(deltaTime);
+                    break;
                 default:
                     break;
             }
         });
     }
+    checkWinner(): PlayerColor | undefined {
+        const colorPresence = new Set<PlayerColor>();
+        for (const unit of this.#units.values()) {
+            if (unit.attackable.getHealth() > 0) {
+                colorPresence.add(unit.getColor());
+            }
+        }
+
+        if (colorPresence.size === 1) {
+            return colorPresence.values().next().value;
+        }
+
+        return undefined;
+    }
+    groupUnitsByColor(): Record<PlayerColor, Unit[]> {
+        const colorGroups = {
+            [PlayerColor.RED]: [] as Unit[],
+            [PlayerColor.BLUE]: [] as Unit[],
+            [PlayerColor.PURPLE]: [] as Unit[],
+            [PlayerColor.YELLOW]: [] as Unit[],
+        };
+
+        for (const unit of this.#units.values()) {
+            const color = unit.getColor();
+            colorGroups[color].push(unit);
+        }
+
+        return colorGroups;
+    }
+    getMinedResources(player: Player): PlayerResources {
+        let wood = 0;
+        let food = 0;
+        const workers: Worker[] = [...this.#units.values()].filter((worker: Unit) =>
+            worker instanceof Worker && worker.getColor() === player.getColor()
+        ) as Worker[];
+
+        workers.forEach(worker => {
+            const resType = worker.collector.getTarget()?.getType();
+            switch (resType) {
+                case "tree":
+                    wood += worker.collector.getCollected();
+                    break;
+                case "wheat":
+                    food += worker.collector.getCollected();
+                default:
+                    break;
+            }
+        })
+        return { wood, food }
+    }
+
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];

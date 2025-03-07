@@ -17,7 +17,7 @@ class Game {
         return this.#gameLogic;
     }
     isGameOver() {
-        return false;
+        return this.#gameLogic.isGameOver();
     }
 }
 

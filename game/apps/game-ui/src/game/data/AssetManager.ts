@@ -33,6 +33,10 @@ class AssetManager {
                     "attack_cursor",
                     "/assets/cursor_pack/36x36px/cursor_attack_enemy.png",
                 ),
+                this.loadImage(
+                    "mine_cursor",
+                    "/assets/cursor_pack/36x36px/cursor_chop_green.png",
+                ),
 
                 // Warriors
                 this.loadImage(

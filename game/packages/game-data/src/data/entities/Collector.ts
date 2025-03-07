@@ -1,6 +1,7 @@
 import { Resource } from "./resources";
 class Collector {
     #capacity: number;
+    #collected: number = 0;
     #collectingResource: Resource | null = null;
     #timePassed: number = 0;
 
@@ -17,13 +18,24 @@ class Collector {
             this.#timePassed = 0;
             return 0;
         }
-        if (this.#timePassed > 4) {
+        if (this.#timePassed > 1) {
             this.#timePassed = 0;
-            return this.#collectingResource.collectResource(this.#capacity);
+            this.#collected += this.#capacity;
+            return this.#collected;
         } else {
             this.#timePassed += deltaTime;
             return 0;
         }
+    }
+    getCollected() {
+        const amount = this.#collected;
+        this.#collected = 0;
+        return amount
+    }
+
+
+    getTarget() {
+        return this.#collectingResource;
     }
 }
 

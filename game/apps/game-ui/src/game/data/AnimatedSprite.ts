@@ -153,6 +153,9 @@ class AnimatedSprite extends Drawable {
             case "delete":
                 this.frameY = 1;
                 break;
+            case "mining":
+                this.frameY = 3;
+                break;
             default:
                 this.frameY = 0;
                 break;
