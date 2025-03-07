@@ -15,6 +15,7 @@ class GameLogic {
     #entityController: EntityController;
     #gameId: string;
     #gameMap;
+    winnerColor: PlayerColor | undefined;
 
     constructor(id: string, gameData: GameState, gameMap: IMap) {
         this.#gameId = id;
@@ -64,9 +65,16 @@ class GameLogic {
             this.#entityController.getResources(),
         );
     }
-    isGameOver(playerColor: PlayerColor) {
-        console.log("checking game over.", playerColor);
+    isGameOver() {
+        const winnerColor = this.#entityController.checkWinner();
+        if (winnerColor) {
+            this.winnerColor = winnerColor;
+            return true;
+        }
         return false;
+    }
+    getWinner() {
+        return this.winnerColor;
     }
 }
 

@@ -37,6 +37,7 @@ export class GameUpdateService {
 
             if (game.isGameOver()) {
                 this.stopGameUpdates(gameId);
+                io.to(gameId).emit("game_over", { winner: logic.winnerColor })
             }
 
             const gameData = await getGameState(gameId);

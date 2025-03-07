@@ -37,7 +37,35 @@ class UnitController {
             }
         });
     }
+    checkWinner(): PlayerColor | undefined {
+        const colorPresence = new Set<PlayerColor>();
+        for (const unit of this.#units.values()) {
+            if (unit.attackable.getHealth() > 0) {
+                colorPresence.add(unit.getColor());
+            }
+        }
 
+        if (colorPresence.size === 1) {
+            return colorPresence.values().next().value;
+        }
+
+        return undefined;
+    }
+    groupUnitsByColor(): Record<PlayerColor, Unit[]> {
+        const colorGroups = {
+            [PlayerColor.RED]: [] as Unit[],
+            [PlayerColor.BLUE]: [] as Unit[],
+            [PlayerColor.PURPLE]: [] as Unit[],
+            [PlayerColor.YELLOW]: [] as Unit[],
+        };
+
+        for (const unit of this.#units.values()) {
+            const color = unit.getColor();
+            colorGroups[color].push(unit);
+        }
+
+        return colorGroups;
+    }
     getMinedResources(player: Player): PlayerResources {
         let wood = 0;
         let food = 0;

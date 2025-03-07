@@ -162,6 +162,9 @@ class EntityController {
         const mining = this.#unitController.getMinedResources(player);
         return mining;
     }
+    checkWinner(): PlayerColor | undefined {
+        return this.#unitController.checkWinner();
+    }
 }
 
 export default EntityController;
