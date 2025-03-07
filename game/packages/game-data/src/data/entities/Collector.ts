@@ -1,4 +1,3 @@
-import Player from "../Player";
 import { Resource } from "./resources";
 class Collector {
     #capacity: number;
@@ -19,38 +18,21 @@ class Collector {
             this.#timePassed = 0;
             return 0;
         }
-        if (this.#timePassed > 4) {
+        if (this.#timePassed > 1) {
             this.#timePassed = 0;
-            this.#collected += this.#collectingResource.collectResource(this.#capacity);
+            this.#collected += this.#capacity;
+            return this.#collected;
         } else {
             this.#timePassed += deltaTime;
             return 0;
         }
     }
-
-    onLoadCollected(player: Player) {
-        let loaded = true;
-        const collected = this.#collected;
-        if (!collected) return;
-        const resourceType = this.#collectingResource?.getType();
-        switch (resourceType) {
-            case "wheat":
-                const currentFood = player.getResources().food
-                player.setFood(currentFood + collected)
-                break;
-            case "tree":
-                const currentWood = player.getResources().wood;
-                player.setWood(currentWood + collected);
-                break;
-            default:
-                loaded = false;
-                break;
-        }
-
-        if (loaded) {
-            this.#collected = 0;
-        }
+    getCollected() {
+        const amount = this.#collected;
+        this.#collected = 0;
+        return amount
     }
+
 
     getTarget() {
         return this.#collectingResource;

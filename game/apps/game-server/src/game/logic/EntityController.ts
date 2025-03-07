@@ -11,6 +11,7 @@ import {
     ResourceController,
     Unit,
     UnitController,
+    Worker,
 } from "@packages/game-data";
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db";
@@ -72,6 +73,18 @@ class EntityController {
             entity.setStatus(command.action);
         }
         switch (command.action) {
+            case "mining":
+                if (!command.targetId) {
+                    break;
+                }
+                const worker = this.#unitController.getUnitById(command.entityId);
+                const targetResource = this.#resourceController.getResourceById(command.targetId);
+                if (worker &&
+                    worker instanceof Worker &&
+                    targetResource) {
+                    worker.collector.collectResource(targetResource);
+                }
+                break;
             case "train":
                 const mainBuilding = this.#buildingController.getBuildingById(
                     command.entityId,
@@ -143,6 +156,11 @@ class EntityController {
     refreshEntities(deltaTime: number) {
         this.#unitController.refreshUnits(deltaTime);
         this.#buildingController.refreshBuilding(deltaTime);
+
+    }
+    loadMinedResources(player: Player) {
+        const mining = this.#unitController.getMinedResources(player);
+        return mining;
     }
 }
 

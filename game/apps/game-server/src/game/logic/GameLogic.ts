@@ -40,6 +40,10 @@ class GameLogic {
         this.#entityController.refreshEntities(deltaTime);
     }
 
+    loadMinedResources(player: Player) {
+        return this.#entityController.loadMinedResources(player)
+    }
+
     handlePlayerCommands(commands: PlayerCommand[], player: Player) {
         commands.forEach((command: PlayerCommand) => {
             this.#entityController.handlePlayerCommand(command, player);

@@ -1,6 +1,6 @@
-import { UnitData, UnitUpdateData, PlayerColor } from "../types";
+import { UnitData, UnitUpdateData, PlayerColor, PlayerResources } from "../types";
 import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior } from "../entities";
+import { Unit, Archer, Worker, Warrior, Resource } from "../entities";
 import Player from "../Player";
 
 class UnitController {
@@ -38,10 +38,28 @@ class UnitController {
         });
     }
 
-    getMinedResources(player: Player) {
-        const workers: Worker[] = [...this.#units.values()].filter((worker: Unit) => worker instanceof Worker);
-        workers.forEach((worker: Worker) => worker.collector.onLoadCollected(player));
+    getMinedResources(player: Player): PlayerResources {
+        let wood = 0;
+        let food = 0;
+        const workers: Worker[] = [...this.#units.values()].filter((worker: Unit) =>
+            worker instanceof Worker && worker.getColor() === player.getColor()
+        ) as Worker[];
+
+        workers.forEach(worker => {
+            const resType = worker.collector.getTarget()?.getType();
+            switch (resType) {
+                case "tree":
+                    wood += worker.collector.getCollected();
+                    break;
+                case "wheat":
+                    food += worker.collector.getCollected();
+                default:
+                    break;
+            }
+        })
+        return { wood, food }
     }
+
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];

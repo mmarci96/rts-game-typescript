@@ -44,6 +44,16 @@ export class GameUpdateService {
 
             ConnectionService.connectedPlayers.forEach(
                 async (value: Player, key: string) => {
+                    const minedRes = logic.loadMinedResources(value);
+                    console.log(minedRes);
+
+                    if (minedRes.food || minedRes.wood) {
+                        const { food, wood } = value.getResources()
+                        value.setFood(food + minedRes.food)
+                        value.setWood(wood + minedRes.wood)
+                        console.log(value.getResources());
+
+                    }
                     await cachePlayerResources(gameId, value);
                     const playerData = await getPlayerCache(
                         gameId,
