@@ -11,7 +11,7 @@
     "keywords": [],
     "author": "",
     "license": "ISC",
-    "packageManager": "pnpm@10.4.1",
+    "packageManager": "pnpm@10.6.0",
     "dependencies": {
         "mongoose": "^8.12.1"
     },
