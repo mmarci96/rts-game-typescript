@@ -25,7 +25,7 @@ class GameLoader {
         const mapTiles: Tile[][] = await this.fetchMapByGameId(gameId);
         const player = await this.fetchPlayerById(playerId);
         const assetManager = await this.loadAssets();
-        const game = new Game(assetManager, mapTiles, player);
+        const game = new Game(assetManager, mapTiles, player, gameId);
         return game;
     }
 }

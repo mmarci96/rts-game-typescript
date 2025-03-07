@@ -9,6 +9,8 @@ class UnitController {
     }
 
     refreshUnits(deltaTime: number) {
+        console.log("pppp");
+
         [...this.#units.values()].forEach((unit: Unit) => {
             if (unit.attackable.getHealth() <= 0) {
                 this.#units.delete(unit.getId());
