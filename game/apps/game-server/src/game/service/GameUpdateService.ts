@@ -20,7 +20,7 @@ export class GameUpdateService {
     }
 
     startGameUpdates(io: Server, gameId: string, game: Game): void {
-        //if (this.isGameUpdating(gameId)) return;
+        if (this.isGameUpdating(gameId)) return;
         let lastTime = Date.now();
         this.#updateIntervals[gameId] = setInterval(async () => {
             try {
@@ -52,7 +52,7 @@ export class GameUpdateService {
             } catch (error) {
                 console.error("Game update error:", error);
             }
-        }, 50);
+        }, 100);
     }
 
     stopGameUpdates(gameId: string): void {

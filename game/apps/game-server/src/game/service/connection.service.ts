@@ -26,6 +26,7 @@ export class ConnectionService {
         const player = new Player(playerId, playerData.color, gameId);
         player.setResources(playerData.playerResources);
         ConnectionService.connectedPlayers.set(socketId, player);
+        console.log(ConnectionService.connectedPlayers);
     }
 
     async handlePlayerLeave(
