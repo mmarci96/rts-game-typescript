@@ -45,7 +45,7 @@ class EntityManager {
             existingIds.delete(resourceData.id),
         );
         [...existingIds.keys()].forEach((entityId: string) => {
-            this.#drawables.delete(entityId);
+            //this.#drawables.delete(entityId);
             this.#unitController.removeUnit(entityId);
         });
     }
@@ -140,6 +140,7 @@ class EntityManager {
                         break;
                     default:
                         const drawable = new Drawable(img, resource);
+                        drawable.setShadow(true)
                         this.#drawables.set(resource.getId(), drawable);
                         break;
                 }
