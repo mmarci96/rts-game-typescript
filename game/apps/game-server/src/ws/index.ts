@@ -9,7 +9,12 @@ export const websocketController = (io: Server) => {
     const connectionService = new ConnectionService();
     const updateService = new GameUpdateService();
     const commandService = new GameCommandService();
-
+    console.log(
+        gameStateService,
+        connectionService,
+        updateService,
+        commandService,
+    );
     io.on("connection", (socket: Socket) => {
         console.log("New connection: ", socket.id);
 
@@ -71,7 +76,7 @@ export const websocketController = (io: Server) => {
                 console.error(connection);
                 throw new Error("Error during disconnect");
             }
-
+            updateService.stopGameUpdates(connection.gameId);
             //const game = gameStateService.getGame(connection.gameId);
             //if (!game) throw new Error("Disconnect game");
             //

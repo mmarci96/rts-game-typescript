@@ -26,7 +26,7 @@ export class ConnectionService {
         const player = new Player(playerId, playerData.color, gameId);
         player.setResources(playerData.playerResources);
         ConnectionService.connectedPlayers.set(socketId, player);
-        console.log(ConnectionService.connectedPlayers);
+        console.log(ConnectionService.connectedPlayers.values());
     }
 
     async handlePlayerLeave(
@@ -39,9 +39,11 @@ export class ConnectionService {
         const playerId = connection.getId();
         await saveEntitiesToMongo(gameId, await getGameState(gameId));
         const playerCacheData = await getPlayerCache(gameId, playerId);
-        await updatePlayerResources(playerId, playerCacheData?.playerResources);
+        console.log(playerCacheData);
 
-        await deletePlayerCache(playerId, gameId);
+        //await updatePlayerResources(playerId, playerCacheData);
+
+        //await deletePlayerCache(playerId, gameId);
         ConnectionService.connectedPlayers.delete(socketId);
         return { gameId, playerId: playerId };
     }
