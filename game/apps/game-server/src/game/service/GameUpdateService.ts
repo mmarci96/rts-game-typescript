@@ -9,6 +9,7 @@ import {
     getPlayerCache,
     cachePlayerResources,
 } from "../../redis";
+import { ConnectionService } from "./connection.service";
 
 export class GameUpdateService {
     private updateIntervals: Record<string, NodeJS.Timeout> = {};
@@ -39,6 +40,7 @@ export class GameUpdateService {
                 const gameData = await getGameState(gameId);
                 io.to(gameId).emit("game_state", gameData);
 
+                const connections = ConnectionService.connectedPlayers;
                 const players = logic.getPlayers();
 
                 for (const player of players) {
@@ -58,7 +60,6 @@ export class GameUpdateService {
     stopGameUpdates(gameId: string): void {
         if (this.updateIntervals[gameId]) {
             console.log("stop game updates");
-
             clearInterval(this.updateIntervals[gameId]);
             delete this.updateIntervals[gameId];
         }

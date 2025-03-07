@@ -12,10 +12,12 @@ import {
     getMapById,
 } from "@packages/game-db";
 import { Types } from "mongoose";
+import { ConnectionService } from "./connection.service";
 
 export class GameStateService {
     private games: Record<string, Game> = {};
     private pendingGameCreations: Record<string, Promise<void>> = {};
+    private connectionService = new ConnectionService();
 
     async initializeGame(gameId: string): Promise<Game> {
         if (!this.pendingGameCreations[gameId]) {
@@ -36,11 +38,15 @@ export class GameStateService {
             if (!gameData) throw new Error("Game not found");
             const map = await getMapById(gameData.mapId);
             if (!map) throw new Error("Map not found");
-
             await cacheGameEntities(gameEntities);
             const gameState = await getGameState(gameId);
 
-            this.games[gameId] = new Game(gameId, map, gameState);
+            this.games[gameId] = new Game(
+                gameId,
+                map,
+                gameState,
+                this.connectionService,
+            );
             delete this.pendingGameCreations[gameId];
         } catch (error) {
             delete this.pendingGameCreations[gameId];

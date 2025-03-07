@@ -1,5 +1,5 @@
 import { GameState } from "@packages/game-data";
-import { IMap, IPlayer } from "@packages/game-db";
+import { IMap } from "@packages/game-db";
 import GameLogic from "./logic/GameLogic";
 
 class Game {
@@ -10,17 +10,6 @@ class Game {
         this.#id = gameId;
         this.#gameLogic = new GameLogic(gameId, gameData, map);
     }
-
-    addPlayer(playerData: IPlayer) {
-        this.#gameLogic.addPlayer(playerData);
-    }
-    removePlayer(playerId: string) {
-        this.#gameLogic.removePlayer(playerId);
-    }
-    getPlayers() {
-        this.#gameLogic.getPlayers();
-    }
-
     getId() {
         return this.#id;
     }
