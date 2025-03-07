@@ -51,14 +51,14 @@ class GameLogic {
             this.#gameId,
             this.#entityController.getUnits(),
         );
-        //await redisCache.cacheBuildings(
-        //    this.#gameId,
-        //    this.#entityController.getBuildings(),
-        //);
-        //await redisCache.cacheResources(
-        //    this.#gameId,
-        //    this.#entityController.getResources(),
-        //);
+        await redisCache.cacheBuildings(
+            this.#gameId,
+            this.#entityController.getBuildings(),
+        );
+        await redisCache.cacheResources(
+            this.#gameId,
+            this.#entityController.getResources(),
+        );
     }
     isGameOver(playerColor: PlayerColor) {
         console.log("checking game over.", playerColor);

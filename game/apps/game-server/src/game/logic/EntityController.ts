@@ -7,6 +7,7 @@ import {
     MainBuilding,
     Player,
     PlayerColor,
+    Resource,
     ResourceController,
     Unit,
     UnitController,
@@ -52,6 +53,9 @@ class EntityController {
     getBuildings(): Building[] {
         return this.#buildingController.getBuildings();
     }
+    getResources(): Resource[] {
+        return this.#resourceController.getResources();
+    }
 
     getEntities() {
         const entities: GameEntity[] = [
@@ -67,9 +71,6 @@ class EntityController {
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
-        console.log("handling combat", command);
-        console.log(player);
-
         switch (command.action) {
             case "train":
                 const mainBuilding = this.#buildingController.getBuildingById(

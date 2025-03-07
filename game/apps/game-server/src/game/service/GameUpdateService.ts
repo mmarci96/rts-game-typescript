@@ -60,7 +60,6 @@ export class GameUpdateService {
     stopGameUpdates(gameId: string): void {
         const interval = this.#updateIntervals.get(gameId);
         if (interval) {
-            console.log("stop game updates");
             clearInterval(interval);
             this.#updateIntervals.delete(gameId);
         }

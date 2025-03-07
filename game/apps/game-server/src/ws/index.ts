@@ -23,6 +23,7 @@ export const websocketController = (io: Server) => {
             async (data: { playerId: string; gameId: string }) => {
                 try {
                     const { playerId, gameId } = data;
+                    updateService.stopGameUpdates(gameId);
                     await gameStateService.initializeGame(gameId);
                     const game = gameStateService.getGame(gameId);
                     if (!game) throw new Error("Game initialization failed");
@@ -33,7 +34,6 @@ export const websocketController = (io: Server) => {
                     );
                     socket.join(gameId);
                     if (!updateService.isGameUpdating(gameId)) {
-                        console.log("Loop should start.");
                         updateService.startGameUpdates(io, gameId, game);
                     }
                 } catch (error) {
@@ -52,9 +52,7 @@ export const websocketController = (io: Server) => {
                 if (!game) return;
 
                 const { playerId, pendingCommands } = data;
-                if (playerId !== connection.getId()) {
-                    console.log("playerId not valid.");
-                }
+                if (playerId !== connection.getId()) return;
 
                 commandService.handlePlayerCommands(
                     game,
@@ -67,23 +65,20 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("disconnect", async () => {
-            console.log("disconnect", socket.id);
-
             const connection = await connectionService.handlePlayerLeave(
                 socket.id,
             );
             if (!connection) {
-                console.error(connection);
                 throw new Error("Error during disconnect");
             }
             updateService.stopGameUpdates(connection.gameId);
-            //const game = gameStateService.getGame(connection.gameId);
-            //if (!game) throw new Error("Disconnect game");
-            //
-            //if (game.isGameOver()) {
-            //    gameStateService.removeGame(connection.gameId);
-            //    updateService.stopGameUpdates(connection.gameId);
-            //}
+            const game = gameStateService.getGame(connection.gameId);
+            if (!game) throw new Error("Disconnect game");
+
+            if (game.isGameOver()) {
+                gameStateService.removeGame(connection.gameId);
+                updateService.stopGameUpdates(connection.gameId);
+            }
         });
     });
 };
