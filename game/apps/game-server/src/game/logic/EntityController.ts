@@ -140,7 +140,6 @@ class EntityController {
     }
 
     refreshEntities(deltaTime: number) {
-        console.log(this.#unitController.getUnits());
         this.#unitController.refreshUnits(deltaTime);
         this.#buildingController.refreshBuilding(deltaTime);
     }
