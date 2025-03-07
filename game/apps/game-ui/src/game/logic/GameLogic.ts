@@ -98,6 +98,9 @@ class GameLogic {
 
         animate();
     }
+    getPlayerColor() {
+        return this.#player.getColor()
+    }
 }
 
 export default GameLogic;
