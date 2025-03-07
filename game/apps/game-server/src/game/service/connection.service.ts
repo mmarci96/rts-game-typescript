@@ -21,7 +21,6 @@ export class ConnectionService {
         gameId: string,
     ): Promise<void> {
         const playerData = await getPlayerById(new Types.ObjectId(playerId));
-
         if (!playerData) throw new Error("Player not found");
         await cachePlayer(playerData);
         const player = new Player(playerId, playerData.color, gameId);

@@ -67,6 +67,8 @@ class EntityController {
         if (entity instanceof ControlledEntity) {
             entity.setStatus(command.action);
         }
+        console.log("handling combat", command);
+        console.log(player);
 
         switch (command.action) {
             case "train":
@@ -138,6 +140,7 @@ class EntityController {
     }
 
     refreshEntities(deltaTime: number) {
+        console.log(this.#unitController.getUnits());
         this.#unitController.refreshUnits(deltaTime);
         this.#buildingController.refreshBuilding(deltaTime);
     }

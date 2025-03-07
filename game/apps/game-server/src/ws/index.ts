@@ -28,6 +28,8 @@ export const websocketController = (io: Server) => {
                     );
                     socket.join(gameId);
                     if (!updateService.isGameUpdating(gameId)) {
+                        console.log("Loop should start.");
+
                         updateService.startGameUpdates(io, gameId, game);
                     }
                 } catch (error) {

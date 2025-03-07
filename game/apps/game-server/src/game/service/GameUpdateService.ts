@@ -10,20 +10,19 @@ import {
     cachePlayerResources,
 } from "../../redis";
 import { ConnectionService } from "./connection.service";
+import { Player } from "@packages/game-data";
 
 export class GameUpdateService {
-    private updateIntervals: Record<string, NodeJS.Timeout> = {};
+    #updateIntervals: Record<string, NodeJS.Timeout> = {};
 
     isGameUpdating(gameId: string): boolean {
-        return !!this.updateIntervals[gameId];
+        return !!this.#updateIntervals[gameId];
     }
 
     startGameUpdates(io: Server, gameId: string, game: Game): void {
-        if (this.isGameUpdating(gameId)) return;
-
+        //if (this.isGameUpdating(gameId)) return;
         let lastTime = Date.now();
-
-        this.updateIntervals[gameId] = setInterval(async () => {
+        this.#updateIntervals[gameId] = setInterval(async () => {
             try {
                 const now = Date.now();
                 const deltaTime = (now - lastTime) / 1000;
@@ -40,17 +39,16 @@ export class GameUpdateService {
                 const gameData = await getGameState(gameId);
                 io.to(gameId).emit("game_state", gameData);
 
-                const connections = ConnectionService.connectedPlayers;
-                const players = logic.getPlayers();
-
-                for (const player of players) {
-                    await cachePlayerResources(gameId, player);
-                    const playerData = await getPlayerCache(
-                        gameId,
-                        player.getId(),
-                    );
-                    io.to(player.getId()).emit("player_state", playerData);
-                }
+                ConnectionService.connectedPlayers.forEach(
+                    async (value: Player, key: string) => {
+                        await cachePlayerResources(gameId, value);
+                        const playerData = await getPlayerCache(
+                            gameId,
+                            value.getId(),
+                        );
+                        io.to(key).emit("player_state", playerData);
+                    },
+                );
             } catch (error) {
                 console.error("Game update error:", error);
             }
@@ -58,10 +56,10 @@ export class GameUpdateService {
     }
 
     stopGameUpdates(gameId: string): void {
-        if (this.updateIntervals[gameId]) {
+        if (this.#updateIntervals[gameId]) {
             console.log("stop game updates");
-            clearInterval(this.updateIntervals[gameId]);
-            delete this.updateIntervals[gameId];
+            clearInterval(this.#updateIntervals[gameId]);
+            delete this.#updateIntervals[gameId];
         }
     }
 
