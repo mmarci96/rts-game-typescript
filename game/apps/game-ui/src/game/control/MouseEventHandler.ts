@@ -1,4 +1,4 @@
-import { ControlledEntity, Player, PlayerColor } from "@packages/game-data";
+import { ControlledEntity, Player, PlayerColor, Resource } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
@@ -43,6 +43,7 @@ class MouseEventHandler {
         this.#assets = assets;
         this.#entities = [];
         this.#selectedUnits = [];
+        this.setCursor("default")
     }
 
     addCanvasEventListeners(
@@ -163,6 +164,13 @@ class MouseEventHandler {
             hoveredEntity.entity.getColor() !== playerColor
         ) {
             this.setCursor("attack");
+        } else if (hoveredEntity.entity instanceof Resource) {
+            const selectedWorkers = this.#selectedUnits.filter(
+                (drawable: Drawable) => drawable.entity.getType() === "worker" && drawable
+            )
+            if (selectedWorkers.length >= 1) {
+                this.setCursor("mine")
+            }
         }
     }
 
@@ -173,16 +181,20 @@ class MouseEventHandler {
         this.#selectedUnits.forEach((unit, index) => {
             if (unit.isSelected) {
                 if (this.hoveredEntity) {
-                    const targetEnemy = this.hoveredEntity.entity;
+                    const targetEntity = this.hoveredEntity.entity;
                     if (
-                        targetEnemy instanceof ControlledEntity &&
-                        targetEnemy.getColor() !== this.#player.getColor()
+                        targetEntity instanceof ControlledEntity &&
+                        targetEntity.getColor() !== this.#player.getColor()
                     ) {
                         const attackCommand = this.createAttackCommand(
-                            targetEnemy,
+                            targetEntity,
                             unit.entity.getId(),
                         );
                         commands.push(attackCommand);
+                    } if (targetEntity instanceof Resource) {
+                        console.log(targetEntity);
+                        const mineCommand = this.createMineResourceCommand(targetEntity.getId(), unit.entity.getId())
+                        commands.push(mineCommand)
                     }
                 } else {
                     const { targetX, targetY } = this.createCheapGrid(
@@ -234,6 +246,13 @@ class MouseEventHandler {
             this.#canvas.style.cursor = `url(${defaultCursor}), auto`;
         } else {
             console.warn("Default cursor is not a valid image or URL.");
+        }
+    }
+    createMineResourceCommand(resourceId: string, unitId: string): Command {
+        return {
+            action: "mine",
+            entityId: unitId,
+            targetId: resourceId
         }
     }
 
