@@ -1,6 +1,7 @@
 import { UnitData, UnitUpdateData, PlayerColor } from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
+import Player from "../Player";
 
 class UnitController {
     #units;
@@ -28,10 +29,18 @@ class UnitController {
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
                     break;
+                case "mining":
+                    unit.update(deltaTime);
+                    break;
                 default:
                     break;
             }
         });
+    }
+
+    getMinedResources(player: Player) {
+        const workers: Worker[] = [...this.#units.values()].filter((worker: Unit) => worker instanceof Worker);
+        workers.forEach((worker: Worker) => worker.collector.onLoadCollected(player));
     }
 
     adjustIdleUnitPosition(idleUnit: Unit) {

@@ -28,6 +28,10 @@ class ResourceController {
     getResources() {
         return [...this.#resources.values()];
     }
+
+    getResourceById(id: string) {
+        return this.#resources.get(id);
+    }
 }
 
 export default ResourceController;

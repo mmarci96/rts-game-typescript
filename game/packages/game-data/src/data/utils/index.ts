@@ -6,6 +6,7 @@ import {
     BuildingData,
     ResourceData,
     ResourceParams,
+    Position,
 } from "../types";
 
 export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
@@ -57,3 +58,13 @@ export const mapResourceToResourceParams = (
         size: resource.size,
     };
 };
+
+export const calculateDistance = (
+    start: Position,
+    target: Position,
+) => {
+    const dx = start.x - target.x;
+    const dy = start.y - target.y;
+    const distance = Math.sqrt((dx ** 2) + (dy ** 2))
+    return distance;
+}

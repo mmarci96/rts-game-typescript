@@ -22,7 +22,9 @@ class Unit extends ControlledEntity {
             this.attacker.setTargetId(parameters.target.id);
         }
     }
+    update(deltaTime: number) {
 
+    }
     updatePosition(deltaTime: number) {
         const { newX, newY, progress } = this.movable.move(
             this.getX(),
