@@ -58,6 +58,11 @@ const CreateGame = () => {
                         <MapList maps={gameMaps} onSelect={setSelectedMap} />
                     )}
                 </div>
+                {error && (
+                    <div>
+                        <p>{error}</p>
+                    </div>
+                )}
             </DefaultLayout>
         </AnimatedComponent>
     );

@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 import GameLoader from "./game/GameLoader";
 import Game from "./game/Game";
 import { GameState } from "@packages/game-data";
+import Overlay from "./game/ui/Overlay";
 
 let pendingCommands: Command[] = [];
 
@@ -21,6 +22,7 @@ const createCommand = (commands: Command[]) => {
     });
 };
 
+let lastTime = Date.now();
 const socketHandler = (
     socket: Socket,
     playerId: string,
@@ -34,6 +36,10 @@ const socketHandler = (
             socket.emit("load_game", data);
         });
         socket.on("game_state", (data: GameState) => {
+            const now = Date.now();
+            const deltaTimeMs = now - lastTime;
+            lastTime = now;
+            Overlay.statusBar.setPing(deltaTimeMs);
             game.getLogic().updateGameState(data);
             if (!game.getLogic().running) {
                 game.getLogic().startGameLoop(createCommand);

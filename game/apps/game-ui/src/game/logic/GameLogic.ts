@@ -10,9 +10,7 @@ import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
 import { Command } from "../../main";
-
-let prevWoodAmount = 0;
-let prevFoodAmount = 0;
+import Overlay from "../ui/Overlay";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -51,6 +49,7 @@ class GameLogic {
             this.#camera,
             new SelectionBox(),
             this.#assets,
+            new Overlay(),
         );
 
         this.#entityManager = new EntityManager(this.#assets);
@@ -60,6 +59,8 @@ class GameLogic {
     }
     updatePlayerState(playerResources: PlayerResources) {
         this.#player.setResources(playerResources);
+        Overlay.statusBar.setResource("food", playerResources.food);
+        Overlay.statusBar.setResource("wood", playerResources.wood);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {
@@ -90,6 +91,7 @@ class GameLogic {
                     drawable.draw(ctx, this.#camera);
                 },
             );
+            Overlay.statusBar.setFps(deltaTime * 1000);
 
             requestAnimationFrame(animate);
         };

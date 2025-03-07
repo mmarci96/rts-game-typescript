@@ -10,21 +10,19 @@ class Resource extends Neutral {
     }
 
     collectResource(amount: number) {
-        if (this.#availableResource <= 0) return 0;
-
-        const collected = this.#availableResource - amount;
-        if (collected >= 0) {
-            this.#availableResource = collected;
-            return amount;
+        if (this.#availableResource < amount) {
+            const remaining = this.#availableResource;
+            this.#availableResource = 0;
+            return remaining;
         }
-
-        this.#availableResource = 0;
-        return amount + collected;
+        this.#availableResource = this.#availableResource - amount;
+        return amount;
     }
 
     getAvailableResource() {
         return this.#availableResource;
     }
+
     getType(): string {
         return "resource";
     }

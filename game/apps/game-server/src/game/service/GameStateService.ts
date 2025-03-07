@@ -14,16 +14,30 @@ import {
 import { Types } from "mongoose";
 
 export class GameStateService {
-    private games: Record<string, Game> = {};
-    private pendingGameCreations: Record<string, Promise<void>> = {};
+    #games = new Map<string, Game>();
+    #pendingGameCreations = new Map<string, Promise<void>>();
 
     async initializeGame(gameId: string): Promise<Game> {
-        if (!this.pendingGameCreations[gameId]) {
-            this.pendingGameCreations[gameId] =
-                this._createGameInstance(gameId);
+        if (!this.#pendingGameCreations.has(gameId)) {
+            this.#pendingGameCreations.set(
+                gameId,
+                this._createGameInstance(gameId),
+            );
         }
-        await this.pendingGameCreations[gameId];
-        return this.games[gameId];
+
+        try {
+            await this.#pendingGameCreations.get(gameId);
+        } finally {
+            if (this.#games.has(gameId)) {
+                this.#pendingGameCreations.delete(gameId);
+            }
+        }
+
+        const game = this.#games.get(gameId);
+        if (!game) {
+            throw new Error(`Game ${gameId} failed to initialize`);
+        }
+        return game;
     }
 
     private async _createGameInstance(gameId: string): Promise<void> {
@@ -40,23 +54,25 @@ export class GameStateService {
             await cacheGameEntities(gameEntities);
             const gameState = await getGameState(gameId);
 
-            this.games[gameId] = new Game(gameId, map, gameState);
-            delete this.pendingGameCreations[gameId];
+            const game = new Game(gameId, map, gameState);
+            this.#games.set(gameId, game);
         } catch (error) {
-            delete this.pendingGameCreations[gameId];
+            this.#games.delete(gameId);
             throw error;
         }
     }
 
     getGame(gameId: string): Game | undefined {
-        return this.games[gameId];
+        return this.#games.get(gameId);
     }
 
     removeGame(gameId: string): void {
-        delete this.games[gameId];
+        this.#games.delete(gameId);
+        this.#pendingGameCreations.delete(gameId);
     }
+
     async saveGameState(gameId: string): Promise<void> {
-        const game = this.games[gameId];
+        const game = this.#games.get(gameId);
         if (!game) return;
 
         const logic = game.getLogic();

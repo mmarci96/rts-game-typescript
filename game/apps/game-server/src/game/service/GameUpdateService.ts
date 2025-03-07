@@ -9,58 +9,59 @@ import {
     getPlayerCache,
     cachePlayerResources,
 } from "../../redis";
+import { ConnectionService } from "./connection.service";
+import { Player } from "@packages/game-data";
 
 export class GameUpdateService {
-    private updateIntervals: Record<string, NodeJS.Timeout> = {};
+    #updateIntervals = new Map<string, NodeJS.Timeout>();
 
     isGameUpdating(gameId: string): boolean {
-        return !!this.updateIntervals[gameId];
+        return this.#updateIntervals.has(gameId);
     }
 
-    startGameUpdates(io: Server, gameId: string, game: Game): void {
+    async startGameUpdates(
+        io: Server,
+        gameId: string,
+        game: Game,
+    ): Promise<void> {
         if (this.isGameUpdating(gameId)) return;
-
         let lastTime = Date.now();
+        const interval = setInterval(async () => {
+            const now = Date.now();
+            const deltaTime = (now - lastTime) / 1000;
+            lastTime = now;
 
-        this.updateIntervals[gameId] = setInterval(async () => {
-            try {
-                const now = Date.now();
-                const deltaTime = (now - lastTime) / 1000;
-                lastTime = now;
+            const logic = game.getLogic();
+            logic.updateGameState(deltaTime);
+            await logic.saveGameState(this.getRedisSavers());
 
-                const logic = game.getLogic();
-                logic.updateGameState(deltaTime);
-                await logic.saveGameState(this.getRedisSavers());
+            if (game.isGameOver()) {
+                this.stopGameUpdates(gameId);
+            }
 
-                if (game.isGameOver()) {
-                    this.stopGameUpdates(gameId);
-                }
+            const gameData = await getGameState(gameId);
+            io.to(gameId).emit("game_state", gameData);
 
-                const gameData = await getGameState(gameId);
-                io.to(gameId).emit("game_state", gameData);
-
-                const players = logic.getPlayers();
-
-                for (const player of players) {
-                    await cachePlayerResources(gameId, player);
+            ConnectionService.connectedPlayers.forEach(
+                async (value: Player, key: string) => {
+                    await cachePlayerResources(gameId, value);
                     const playerData = await getPlayerCache(
                         gameId,
-                        player.getId(),
+                        value.getId(),
                     );
-                    io.to(player.getId()).emit("player_state", playerData);
-                }
-            } catch (error) {
-                console.error("Game update error:", error);
-            }
-        }, 50);
+
+                    io.to(key).emit("player_state", playerData);
+                },
+            );
+        }, 100);
+        this.#updateIntervals.set(gameId, interval);
     }
 
     stopGameUpdates(gameId: string): void {
-        if (this.updateIntervals[gameId]) {
-            console.log("stop game updates");
-
-            clearInterval(this.updateIntervals[gameId]);
-            delete this.updateIntervals[gameId];
+        const interval = this.#updateIntervals.get(gameId);
+        if (interval) {
+            clearInterval(interval);
+            this.#updateIntervals.delete(gameId);
         }
     }
 

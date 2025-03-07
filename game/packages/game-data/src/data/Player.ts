@@ -4,15 +4,20 @@ class Player {
     #playerId;
     #color;
     #resources: PlayerResources;
+    #gameId: string;
 
     /**
      * @param { string } playerId
      * @param { string } color
      */
-    constructor(playerId: string, color: PlayerColor) {
+    constructor(playerId: string, color: PlayerColor, gameId: string) {
+        this.#gameId = gameId;
         this.#playerId = playerId;
         this.#color = color;
         this.#resources = { wood: 0, food: 0 };
+    }
+    getGameId() {
+        return this.#gameId;
     }
 
     spendWood(amount: number) {

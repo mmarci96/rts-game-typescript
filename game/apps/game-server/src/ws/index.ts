@@ -2,14 +2,19 @@ import { Server, Socket } from "socket.io";
 import { GameStateService } from "../game/service/GameStateService";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { GameUpdateService } from "../game/service/GameUpdateService";
-import { GameConnectionService } from "../game/service/GameConnectionService";
+import { ConnectionService } from "../game/service/connection.service";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
-    const connectionService = new GameConnectionService();
+    const connectionService = new ConnectionService();
     const updateService = new GameUpdateService();
     const commandService = new GameCommandService();
-
+    console.log(
+        gameStateService,
+        connectionService,
+        updateService,
+        commandService,
+    );
     io.on("connection", (socket: Socket) => {
         console.log("New connection: ", socket.id);
 
@@ -18,25 +23,16 @@ export const websocketController = (io: Server) => {
             async (data: { playerId: string; gameId: string }) => {
                 try {
                     const { playerId, gameId } = data;
-
+                    updateService.stopGameUpdates(gameId);
                     await gameStateService.initializeGame(gameId);
                     const game = gameStateService.getGame(gameId);
-
                     if (!game) throw new Error("Game initialization failed");
-
                     await connectionService.handlePlayerJoin(
                         socket.id,
                         playerId,
                         gameId,
                     );
                     socket.join(gameId);
-
-                    const { playerData } = connectionService.getConnection(
-                        socket.id,
-                    )!;
-                    game.addPlayer(playerData);
-                    socket.join(playerData.id);
-
                     if (!updateService.isGameUpdating(gameId)) {
                         updateService.startGameUpdates(io, gameId, game);
                     }
@@ -52,14 +48,16 @@ export const websocketController = (io: Server) => {
                 const connection = connectionService.getConnection(socket.id);
                 if (!connection) return;
 
-                const game = gameStateService.getGame(connection.gameId);
+                const game = gameStateService.getGame(connection.getGameId());
                 if (!game) return;
 
                 const { playerId, pendingCommands } = data;
+                if (playerId !== connection.getId()) return;
+
                 commandService.handlePlayerCommands(
                     game,
                     pendingCommands,
-                    playerId,
+                    connection,
                 );
             } catch (error) {
                 console.error("Command error:", error);
@@ -67,21 +65,19 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("disconnect", async () => {
-            try {
-                const connection = await connectionService.handlePlayerLeave(
-                    socket.id,
-                );
-                if (!connection) return;
+            const connection = await connectionService.handlePlayerLeave(
+                socket.id,
+            );
+            if (!connection) {
+                throw new Error("Error during disconnect");
+            }
+            updateService.stopGameUpdates(connection.gameId);
+            const game = gameStateService.getGame(connection.gameId);
+            if (!game) throw new Error("Disconnect game");
 
-                const game = gameStateService.getGame(connection.gameId);
-                game?.removePlayer(connection.playerId);
-
-                if (!game?.isGameOver()) {
-                    gameStateService.removeGame(connection.gameId);
-                    updateService.stopGameUpdates(connection.gameId);
-                }
-            } catch (error) {
-                console.error("Disconnect error:", error);
+            if (game.isGameOver()) {
+                gameStateService.removeGame(connection.gameId);
+                updateService.stopGameUpdates(connection.gameId);
             }
         });
     });

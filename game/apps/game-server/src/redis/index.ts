@@ -25,9 +25,7 @@ export const getPlayerCache = async (gameId: string, playerId: string) => {
 
     return {
         ...playerData,
-        playerResources: playerData.playerResources
-            ? JSON.parse(playerData.playerResources)
-            : null,
+        playerResources: JSON.parse(playerData.playerResources),
     };
 };
 

@@ -7,19 +7,17 @@ import {
     PlayerColor,
     Player,
 } from "@packages/game-data";
-import { IMap, IPlayer } from "@packages/game-db";
+import { IMap } from "@packages/game-db";
 import EntityController from "./EntityController";
 import { PlayerCommand, SaveGameStateParams } from "../../types";
 
 class GameLogic {
     #entityController: EntityController;
     #gameId: string;
-    #players: Map<string, Player>;
     #gameMap;
 
     constructor(id: string, gameData: GameState, gameMap: IMap) {
         this.#gameId = id;
-        this.#players = new Map<string, Player>();
         const unitController = new UnitController();
         const resourceController = new ResourceController();
         const buildingController = new BuildingController();
@@ -42,26 +40,10 @@ class GameLogic {
         this.#entityController.refreshEntities(deltaTime);
     }
 
-    handlePlayerCommands(commands: PlayerCommand[], playerId: string) {
-        const player = this.#players.get(playerId);
-        if (!player) throw new Error("No player with id");
+    handlePlayerCommands(commands: PlayerCommand[], player: Player) {
         commands.forEach((command: PlayerCommand) => {
             this.#entityController.handlePlayerCommand(command, player);
         });
-    }
-
-    addPlayer(playerData: IPlayer) {
-        const player = new Player(playerData.id, playerData.color);
-        player.setResources(playerData.playerResources);
-        this.#players.set(player.getId(), player);
-    }
-
-    removePlayer(playerId: string) {
-        this.#players.delete(playerId);
-    }
-
-    getPlayers() {
-        return [...this.#players.values()];
     }
 
     async saveGameState(redisCache: SaveGameStateParams) {
@@ -69,20 +51,18 @@ class GameLogic {
             this.#gameId,
             this.#entityController.getUnits(),
         );
-        //await redisCache.cacheBuildings(
-        //    this.#gameId,
-        //    this.#entityController.getBuildings(),
-        //);
-        //await redisCache.cacheResources(
-        //    this.#gameId,
-        //    this.#entityController.getResources(),
-        //);
+        await redisCache.cacheBuildings(
+            this.#gameId,
+            this.#entityController.getBuildings(),
+        );
+        await redisCache.cacheResources(
+            this.#gameId,
+            this.#entityController.getResources(),
+        );
     }
     isGameOver(playerColor: PlayerColor) {
-        if (this.#entityController.getEnemyUnits(playerColor).length === 0) {
-            return true;
-        }
-        return true;
+        console.log("checking game over.", playerColor);
+        return false;
     }
 }
 
