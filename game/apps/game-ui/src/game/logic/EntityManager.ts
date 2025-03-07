@@ -118,18 +118,6 @@ class EntityManager {
             if (!ctx) {
                 return;
             }
-            units.forEach((unit: Unit) => {
-                const color = unit.getColor();
-                const img = assets.getImage(
-                    `${unit.getType().toLowerCase()}_${color}`,
-                );
-                if (!img) {
-                    throw new Error("not found");
-                }
-                const animatedSprite = new AnimatedSprite(img, unit);
-                this.#drawables.set(unit.getId(), animatedSprite);
-            });
-
             buildings.forEach((building: Building) => {
                 const color = building.getColor();
                 const img = assets.getImage(`house_${color.toLowerCase()}`);
@@ -156,6 +144,19 @@ class EntityManager {
                         break;
                 }
             });
+
+            units.forEach((unit: Unit) => {
+                const color = unit.getColor();
+                const img = assets.getImage(
+                    `${unit.getType().toLowerCase()}_${color}`,
+                );
+                if (!img) {
+                    throw new Error("not found");
+                }
+                const animatedSprite = new AnimatedSprite(img, unit);
+                this.#drawables.set(unit.getId(), animatedSprite);
+            });
+
         } catch (err) {
             console.error(err);
         }

@@ -250,7 +250,7 @@ class MouseEventHandler {
     }
     createMineResourceCommand(resourceId: string, unitId: string): Command {
         return {
-            action: "mine",
+            action: "mining",
             entityId: unitId,
             targetId: resourceId
         }
