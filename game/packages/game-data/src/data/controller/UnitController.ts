@@ -130,16 +130,18 @@ class UnitController {
         const dx = tx - unit.getX();
         const dy = ty - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = 1.2;
+        const attackRange = 1.1;
+
         if (distance <= attackRange) {
             const status = unit.attacker.attackUnit(targetUnit);
-            unit.movable.setTarget(unit.getX(), unit.getY());
-            unit.setStatus(status);
+            if (status === 'attack') {
+                unit.setStatus(status);
+            }
         } else {
             const directionX = dx / distance;
             const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange - 0.1);
-            const targetY = ty - directionY * (attackRange - 0.1);
+            const targetX = tx - directionX * (attackRange - 0.2);
+            const targetY = ty - directionY * (attackRange - 0.2);
             unit.movable.setTarget(targetX, targetY);
             unit.setStatus("moving");
         }
@@ -199,7 +201,7 @@ class UnitController {
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
-        //unit.attackable.setHealth(unitUpdateData.health);
+        unit.attackable.setHealth(unitUpdateData.health);
         const targetId = unitUpdateData.target.id?.toString();
         if (targetId) {
             unit.attacker.setTargetId(targetId);

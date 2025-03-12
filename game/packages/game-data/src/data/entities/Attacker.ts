@@ -37,9 +37,10 @@ class Attacker {
     }
 
     updateCooldown(deltaTime: number) {
-        this.#coolDown -= deltaTime;
-        if (this.#coolDown < 0) {
+        if (this.#coolDown <= 0) {
             this.#coolDown = 0;
+        } else {
+            this.#coolDown -= deltaTime;
         }
     }
 
@@ -51,11 +52,6 @@ class Attacker {
 
         const damage = this.getAttackDamage();
         targetUnit.attackable.getAttacked(damage);
-        if (targetUnit.attackable.getHealth() <= 0 || !targetUnit) {
-            this.#targetId = null;
-            return "idle";
-        }
-
         return "cooldown";
     }
     canAttack() {
