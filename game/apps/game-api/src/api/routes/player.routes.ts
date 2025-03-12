@@ -27,7 +27,7 @@ router.patch(
             const { playerId } = req.params;
             const isReady: boolean = req.body.isReady;
             const player = await setPlayerReadyStatus(
-                new Types.ObjectId(playerId),
+                playerId,
                 isReady,
             );
             res.status(203).send(player);

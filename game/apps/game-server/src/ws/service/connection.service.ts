@@ -1,14 +1,13 @@
 import { Player } from "@packages/game-data";
 import { ConnectionData } from "../../types";
 import { getPlayerById, saveEntitiesToMongo, updatePlayerResources } from "@packages/game-db";
-import { Types } from "mongoose";
 import { cachePlayer, deletePlayerCache, getGameState, getPlayerCache } from "../../redis";
 
 export class ConnectionService {
     static connections: Record<string, ConnectionData> = {};
 
     static async handlePlayerJoin(socketId: string, playerId: string, gameId: string) {
-        const playerData = await getPlayerById(new Types.ObjectId(playerId));
+        const playerData = await getPlayerById(playerId);
         if (!playerData) {
             return;
         }

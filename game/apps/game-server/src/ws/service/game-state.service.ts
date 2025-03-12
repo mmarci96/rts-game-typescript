@@ -11,7 +11,6 @@ import {
     getGameById,
     getMapById,
 } from "@packages/game-db";
-import { Types } from "mongoose";
 
 export class GameStateService {
     #games = new Map<string, Game>();
@@ -43,12 +42,12 @@ export class GameStateService {
     private async _createGameInstance(gameId: string): Promise<void> {
         try {
             const [gameData, gameEntities] = await Promise.all([
-                getGameById(new Types.ObjectId(gameId)),
-                getEntitiesByGameId(new Types.ObjectId(gameId)),
+                getGameById(gameId),
+                getEntitiesByGameId(gameId),
             ]);
 
             if (!gameData) throw new Error("Game not found");
-            const map = await getMapById(gameData.mapId);
+            const map = await getMapById(gameData.mapId.toString());
             if (!map) throw new Error("Map not found");
 
             await cacheGameEntities(gameEntities);

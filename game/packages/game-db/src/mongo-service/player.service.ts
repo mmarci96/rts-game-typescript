@@ -3,9 +3,10 @@ import { IPlayer, PlayerModel } from "../mongo-db";
 import { PlayerResources } from "@packages/game-data";
 
 export const getPlayerById = async (
-    playerId: Types.ObjectId,
+    playerId: string,
 ): Promise<IPlayer | null> => {
-    const player = await PlayerModel.findById(playerId);
+    const id = new Types.ObjectId(playerId);
+    const player = await PlayerModel.findById(id);
     if (!player) {
         return null;
     }
@@ -13,10 +14,11 @@ export const getPlayerById = async (
 };
 
 export const setPlayerReadyStatus = async (
-    playerId: Types.ObjectId,
+    playerId: string,
     readyStatus: boolean,
 ) => {
-    const player = await PlayerModel.findByIdAndUpdate(playerId, {
+    const id = new Types.ObjectId(playerId);
+    const player = await PlayerModel.findByIdAndUpdate(id, {
         isReady: readyStatus,
     });
     if (!player) {
@@ -30,7 +32,6 @@ export const updatePlayerResources = async (
     playerResources: PlayerResources,
 ) => {
     const id = new Types.ObjectId(playerId);
-
     const player = await PlayerModel.findByIdAndUpdate(
         id,
         { $set: { playerResources } },
