@@ -8,14 +8,14 @@ const getStarterPositionByColor = (color: PlayerColor, mapSize: number) => {
         case "red":
             break;
         case "blue":
-            starterPosition.x = mapSize - 32;
-            starterPosition.y = mapSize - 32;
+            starterPosition.x = mapSize - 16;
+            starterPosition.y = mapSize - 16;
             break;
         case "yellow":
-            starterPosition.x = mapSize - 32;
+            starterPosition.x = mapSize - 16;
             break;
         case "purple":
-            starterPosition.y = mapSize - 32;
+            starterPosition.y = mapSize - 16;
             break;
         default:
             break;
