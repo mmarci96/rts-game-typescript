@@ -45,11 +45,31 @@ class EntityManager {
             existingIds.delete(resourceData.id),
         );
         [...existingIds.keys()].forEach((entityId: string) => {
-            this.#unitController.removeUnit(entityId);
-            this.#drawables.delete(entityId)
-            console.log("Entity removed", entityId);
+            const unit = this.#drawables.get(entityId);
+            if (unit instanceof AnimatedSprite) {
+                this.handleDeath(unit);
+            } else {
+                this.#unitController.removeUnit(entityId);
+                this.#drawables.delete(entityId);
+                console.log("Entity removed", entityId);
+            }
         });
     }
+
+    handleDeath(animatedSprite: AnimatedSprite) {
+        if (animatedSprite.isAnimationComplete) {
+            this.#unitController.removeUnit(animatedSprite.entity.getId());
+            this.#drawables.delete(animatedSprite.entity.getId());
+            return;
+        }
+        if (animatedSprite.entity instanceof Unit && !animatedSprite.isDying) {
+            animatedSprite.isDying = true;
+            const deathSprite = this.#assets.getImage("dead");
+            if (!deathSprite) return;
+            animatedSprite.setDeathAnimation(deathSprite);
+        }
+    }
+
     getUnitsController() {
         return this.#unitController;
     }
@@ -141,7 +161,7 @@ class EntityManager {
                         break;
                     default:
                         const drawable = new Drawable(img, resource);
-                        drawable.setShadow(true)
+                        drawable.setShadow(true);
                         this.#drawables.set(resource.getId(), drawable);
                         break;
                 }
@@ -158,7 +178,6 @@ class EntityManager {
                 const animatedSprite = new AnimatedSprite(img, unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
             });
-
         } catch (err) {
             console.error(err);
         }

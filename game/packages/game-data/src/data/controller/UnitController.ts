@@ -1,4 +1,9 @@
-import { UnitData, UnitUpdateData, PlayerColor, PlayerResources } from "../types";
+import {
+    UnitData,
+    UnitUpdateData,
+    PlayerColor,
+    PlayerResources,
+} from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
@@ -24,7 +29,7 @@ class UnitController {
                     unit.updatePosition(deltaTime);
                     break;
                 case "cooldown":
-                    this.handleCooldown(deltaTime, unit)
+                    this.handleCooldown(deltaTime, unit);
                     break;
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
@@ -69,11 +74,13 @@ class UnitController {
     getMinedResources(player: Player): PlayerResources {
         let wood = 0;
         let food = 0;
-        const workers: Worker[] = [...this.#units.values()].filter((worker: Unit) =>
-            worker instanceof Worker && worker.getColor() === player.getColor()
+        const workers: Worker[] = [...this.#units.values()].filter(
+            (worker: Unit) =>
+                worker instanceof Worker &&
+                worker.getColor() === player.getColor(),
         ) as Worker[];
 
-        workers.forEach(worker => {
+        workers.forEach((worker) => {
             const resType = worker.collector.getTarget()?.getType();
             switch (resType) {
                 case "tree":
@@ -84,14 +91,13 @@ class UnitController {
                 default:
                     break;
             }
-        })
-        return { wood, food }
+        });
+        return { wood, food };
     }
-
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];
-        const bufferDistance = 1.6;
+        const bufferDistance = 1;
 
         unitsArray.forEach((otherUnit) => {
             if (idleUnit === otherUnit || otherUnit.getStatus() !== "idle")
@@ -145,7 +151,7 @@ class UnitController {
     }
     handleCooldown(deltaTime: number, unit: Unit) {
         if (unit.attacker.canAttack()) {
-            unit.setStatus("attack")
+            unit.setStatus("attack");
             return;
         }
         unit.attacker.updateCooldown(deltaTime);
@@ -214,7 +220,7 @@ class UnitController {
 
     checkForOverlaps() {
         const unitsArray = [...this.#units.values()];
-        const minDistance = 1.2;
+        const minDistance = 1;
 
         for (let i = 0; i < unitsArray.length; i++) {
             const unitA = unitsArray[i];

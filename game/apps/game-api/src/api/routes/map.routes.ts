@@ -32,7 +32,7 @@ router.get(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { gameId } = req.params;
-            const { game } = await getGameById(new Types.ObjectId(gameId));
+            const { game } = await getGameById(gameId);
             const map = await getMapById(game.mapId);
             res.status(200).send({ data: map });
         } catch (err) {

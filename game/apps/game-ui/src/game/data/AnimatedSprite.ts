@@ -24,7 +24,7 @@ class AnimatedSprite extends Drawable {
         this.frameX = 0;
         this.frameY = 0;
         this.gameFrame = 0;
-        this.staggerFrames = 7;
+        this.staggerFrames = 6;
         this.maxFrame = 5;
         this.skullFrames = 0;
         this.isAnimationComplete = false;
@@ -32,18 +32,25 @@ class AnimatedSprite extends Drawable {
     }
 
     updateAnimation() {
-        if (this.isDying && this.maxFrame === 6) {
-            if (this.skullFrames >= 7) {
-                this.frameY = 1;
-                this.isAnimationComplete = true;
-            } else {
-                this.skullFrames++;
-            }
+        if (this.isDying) {
+            this.updateDeathAnimation();
         }
         if (this.gameFrame % this.staggerFrames === 0) {
-            this.frameX < this.maxFrame ? this.frameX++ : (this.frameX = 0);
+            this.frameX = (this.frameX + 1) % (this.maxFrame + 1);
         }
+
         this.gameFrame++;
+    }
+
+    updateDeathAnimation() {
+        if (this.skullFrames >= 12) {
+            this.isAnimationComplete = true;
+            return;
+        }
+        if (this.skullFrames === 6) {
+            this.frameY = 1;
+        }
+        this.skullFrames++;
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
@@ -162,7 +169,8 @@ class AnimatedSprite extends Drawable {
         }
     }
     setDeathAnimation(deathSprite: CanvasImageSource) {
-        this.staggerFrames = 12;
+        this.frameY = 0;
+        this.frameX = 0;
         this.skullFrames = 0;
         this.maxFrame = 6;
         this.frameWidth = 896 / 7;

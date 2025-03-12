@@ -7,7 +7,11 @@ class Attacker {
     #attackRange: number;
     #coolDown: number;
 
-    constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
+    constructor(
+        attackDamage: number,
+        attackSpeed: number,
+        attackRange: number,
+    ) {
         this.#attackDamage = attackDamage;
         this.#attackSpeed = attackSpeed;
         this.#attackRange = attackRange;

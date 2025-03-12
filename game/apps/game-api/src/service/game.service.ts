@@ -38,7 +38,7 @@ export const createGame = async (
 export const joinGame = async (
     userId: Types.ObjectId,
     color: PlayerColor,
-    gameId: Types.ObjectId,
+    gameId: string,
 ) => {
     const game = await GameModel.findById(gameId);
     if (!game) {
@@ -69,7 +69,7 @@ export const joinGame = async (
     return await player.save();
 };
 
-export const getGameById = async (gameId: Types.ObjectId) => {
+export const getGameById = async (gameId: string) => {
     const game = await GameModel.findById(gameId);
     if (!game) {
         throw new Error("No game found with id!");
@@ -79,7 +79,7 @@ export const getGameById = async (gameId: Types.ObjectId) => {
     return { game, players };
 };
 
-export const startGame = async (gameId: Types.ObjectId) => {
+export const startGame = async (gameId: string) => {
     const players = await PlayerModel.find({ gameId });
     const gameCheck = await GameModel.findById(gameId);
     if (!gameCheck) {
@@ -109,7 +109,7 @@ export const startGame = async (gameId: Types.ObjectId) => {
             const units = generateStarterUnits(
                 player.color,
                 map.tiles.length,
-                game._id,
+                game.id,
             );
             const building = createMainBuilding(
                 player.color,
@@ -134,7 +134,7 @@ export const getGamesToJoin = async () => {
     return games;
 };
 
-export const deleteGame = async (gameId: Types.ObjectId) => {
+export const deleteGame = async (gameId: string) => {
     const game = await GameModel.findById(gameId);
     if (game?.status !== GameStatus.WAITING) {
         throw new Error("Game already running, cannot delete.");
