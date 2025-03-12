@@ -26,8 +26,6 @@ export class GameUpdateService {
 
         this.updateInterval = setInterval(() => {
             const now = Date.now();
-            console.log("Updating ", this.activeGames.size, ",number of games");
-
             this.activeGames.forEach((game, gameId) => {
                 this.updateGame(io, gameId, game, now);
             });
