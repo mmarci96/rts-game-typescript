@@ -95,7 +95,7 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                drawable.setAnimationType(drawable.entity.getStatus());
+                drawable.setAnimationType(unit.getStatus());
                 const tx = unit.movable.getTarget().targetX;
                 const ty = unit.movable.getTarget().targetY;
                 if (tx && ty) {
