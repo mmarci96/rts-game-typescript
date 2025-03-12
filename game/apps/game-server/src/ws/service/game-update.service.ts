@@ -31,7 +31,7 @@ export class GameUpdateService {
             this.activeGames.forEach((game, gameId) => {
                 this.updateGame(io, gameId, game, now);
             });
-        }, 1000);
+        }, 100);
     }
 
     private async updateGame(io: Server, gameId: string, game: Game, now: number): Promise<void> {
@@ -40,7 +40,7 @@ export class GameUpdateService {
 
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
-        logic.saveGameState(this.getRedisSavers());
+        await logic.saveGameState(this.getRedisSavers());
 
         if (game.isGameOver()) {
             this.stopGameUpdates();

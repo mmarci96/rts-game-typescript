@@ -46,11 +46,13 @@ class MouseEventHandler {
         this.setCursor("default")
     }
 
+    updateDrawables(drawables: Iterable<Drawable>) {
+        this.#entities = Array.from(drawables);
+    }
+
     addCanvasEventListeners(
-        drawables: Iterable<Drawable>,
         createCommand: (commands: Command[]) => void,
     ) {
-        this.#entities = Array.from(drawables);
         const ctx = this.#canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");

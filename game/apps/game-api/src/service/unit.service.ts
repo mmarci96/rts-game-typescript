@@ -5,9 +5,9 @@ import { Types } from "mongoose";
 const UNIT_SIZE = { height: 32, width: 32 };
 
 const BASE_STATS = {
-    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 2 },
-    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 1 },
-    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 2 },
+    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 1.6, attackRange: 1.2 },
+    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 2, attackRange: 1.0 },
+    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 1.2, attackRange: 6 },
 };
 
 const getStarterPositionByColor = (color: PlayerColor, mapSize: number) => {

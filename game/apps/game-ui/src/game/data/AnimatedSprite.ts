@@ -124,7 +124,7 @@ class AnimatedSprite extends Drawable {
                 this.frameY = 0;
                 break;
             case "cooldown":
-                this.frameY = 2;
+                this.frameY = 0;
                 break;
             case "attack":
                 this.frameY = 3;

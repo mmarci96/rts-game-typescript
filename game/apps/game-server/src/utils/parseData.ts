@@ -20,6 +20,7 @@ export const mapMongoUnitToData = (mongoUnit: IUnit): UnitData => {
         speed: mongoUnit.speed,
         unitType: mongoUnit.unitType,
         attackSpeed: mongoUnit.attackSpeed,
+        attackRange: mongoUnit.attackRange,
         gameId: mongoUnit.gameId.toString(),
     };
 };
