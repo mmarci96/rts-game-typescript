@@ -1,8 +1,8 @@
 import { Player } from "@packages/game-data";
 import { ConnectionData } from "../../types";
-import { getPlayerById } from "@packages/game-db";
+import { getPlayerById, saveEntitiesToMongo, updatePlayerResources } from "@packages/game-db";
 import { Types } from "mongoose";
-import { cachePlayer } from "../../redis";
+import { cachePlayer, deletePlayerCache, getGameState, getPlayerCache } from "../../redis";
 
 export class ConnectionService {
     static connections: Record<string, ConnectionData> = {};
@@ -19,7 +19,13 @@ export class ConnectionService {
             playerId, gameId, player
         }
     }
-    static handleDisconnect(socketId: string) {
+    static async handleDisconnect(socketId: string) {
+        const { gameId, playerId } = ConnectionService.connections[socketId];
+
+        await saveEntitiesToMongo(gameId, await getGameState(gameId));
+        const playerCache = await getPlayerCache(gameId, playerId);
+        await updatePlayerResources(playerId, playerCache?.playerResources);
+        await deletePlayerCache(playerId, gameId);
         delete ConnectionService.connections[socketId]
     }
     static getConnectionData(socketId: string) {

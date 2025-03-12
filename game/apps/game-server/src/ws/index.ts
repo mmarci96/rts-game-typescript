@@ -17,7 +17,6 @@ export const websocketController = (io: Server) => {
             async (data: { playerId: string; gameId: string }) => {
                 const { playerId, gameId } = data;
                 ConnectionService.handlePlayerJoin(socket.id, playerId, gameId);
-                console.log(ConnectionService.getConnectionData(socket.id));
                 await gameStateService.initializeGame(gameId);
                 const game = gameStateService.getGame(gameId);
                 if (game) {
@@ -45,7 +44,7 @@ export const websocketController = (io: Server) => {
         });
 
         socket.on("disconnect", async () => {
-            ConnectionService.handleDisconnect(socket.id);
+            await ConnectionService.handleDisconnect(socket.id);
         });
     });
 };
