@@ -45,8 +45,9 @@ class EntityManager {
             existingIds.delete(resourceData.id),
         );
         [...existingIds.keys()].forEach((entityId: string) => {
-            //this.#drawables.delete(entityId);
             this.#unitController.removeUnit(entityId);
+            this.#drawables.delete(entityId)
+            console.log("Entity removed", entityId);
         });
     }
     getUnitsController() {

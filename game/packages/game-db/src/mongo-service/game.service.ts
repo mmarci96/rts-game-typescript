@@ -13,19 +13,20 @@ import { GameState, PlayerColor, Position } from "@packages/game-data";
 const UNIT_SIZE = { height: 32, width: 32 };
 
 const BASE_STATS = {
-    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 2 },
-    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 1 },
-    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 2 },
+    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 1.6, attackRange: 1.2 },
+    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 2, attackRange: 1.0 },
+    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 1.2, attackRange: 6 },
+};
+export const deleteUnitById = async (unitId: string) => {
+    const id = new Types.ObjectId(unitId)
+    await UnitModel.findByIdAndDelete(id);
 };
 
-export const deleteUnitById = async (unitId: Types.ObjectId) => {
-    await UnitModel.findByIdAndDelete(unitId);
-};
 const createUnitModel = (
     unitType: string,
     position: Position,
     color: PlayerColor,
-    gameId: Types.ObjectId,
+    gameId: string,
 ) => {
     let stats;
     switch (unitType) {
@@ -41,10 +42,11 @@ const createUnitModel = (
         default:
             return;
     }
+    const gameIdToSave = new Types.ObjectId(gameId);
     const unitData = {
         position,
         color,
-        gameId,
+        gameId: gameIdToSave,
         unitType: unitType,
         size: UNIT_SIZE,
         ...stats,
@@ -64,7 +66,7 @@ export const createUnit = async (
         unitType,
         position,
         color,
-        new Types.ObjectId(gameId),
+        gameId,
     );
     if (!unit) {
         return;
@@ -73,12 +75,14 @@ export const createUnit = async (
     return saved;
 };
 
-export const deleteBuildingById = async (buildingId: Types.ObjectId) => {
-    await BuildingModel.findByIdAndDelete(buildingId);
+export const deleteBuildingById = async (buildingId: string) => {
+    const id = new Types.ObjectId(buildingId)
+    await BuildingModel.findByIdAndDelete(id);
 };
 
-export const deleteResourceById = async (resourceId: Types.ObjectId) => {
-    await ResourceModel.findByIdAndDelete(resourceId);
+export const deleteResourceById = async (resourceId: string) => {
+    const id = new Types.ObjectId(resourceId)
+    await ResourceModel.findByIdAndDelete(id);
 };
 
 export const saveEntitiesToMongo = async (
@@ -136,9 +140,10 @@ export const saveEntitiesToMongo = async (
 };
 
 export const getGameById = async (
-    gameId: Types.ObjectId,
+    gameId: string,
 ): Promise<IGame | null> => {
-    const game = await GameModel.findById(gameId);
+    const id = new Types.ObjectId(gameId)
+    const game = await GameModel.findById(id);
     if (!game) {
         return null;
     }
@@ -146,8 +151,9 @@ export const getGameById = async (
 };
 
 export const getEntitiesByGameId = async (
-    gameId: Types.ObjectId,
+    id: string,
 ): Promise<GameEntityData> => {
+    const gameId = new Types.ObjectId(id);
     const gameEntityData: GameEntityData = {
         units: [],
         resources: [],

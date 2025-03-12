@@ -73,7 +73,6 @@ class GameLogic {
         this.#entityManager.loadDrawableEntities(ctx, this.#assets);
 
         this.#mouseEventHandler.addCanvasEventListeners(
-            this.#entityManager.getDrawables().values(),
             createCommand,
         );
 
@@ -85,6 +84,7 @@ class GameLogic {
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
             this.#entityManager.refreshEntities(deltaTime);
+            this.#mouseEventHandler.updateDrawables(this.#entityManager.getDrawables().values());
 
             [...this.#entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {

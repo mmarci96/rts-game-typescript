@@ -1,6 +1,6 @@
 import { UnitData, UnitUpdateData, PlayerColor, PlayerResources } from "../types";
 import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior, Resource } from "../entities";
+import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
 
 class UnitController {
@@ -24,7 +24,7 @@ class UnitController {
                     unit.updatePosition(deltaTime);
                     break;
                 case "cooldown":
-                    unit.attacker.updateCooldown(deltaTime);
+                    this.handleCooldown(deltaTime, unit)
                     break;
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
@@ -130,19 +130,25 @@ class UnitController {
         const dx = tx - unit.getX();
         const dy = ty - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = 1.2;
+        const attackRange = unit.attacker.getAttackRange();
         if (distance <= attackRange) {
             const status = unit.attacker.attackUnit(targetUnit);
-            unit.movable.setTarget(unit.getX(), unit.getY());
             unit.setStatus(status);
         } else {
             const directionX = dx / distance;
             const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange - 0.1);
-            const targetY = ty - directionY * (attackRange - 0.1);
+            const targetX = tx - directionX * (attackRange - 0.2);
+            const targetY = ty - directionY * (attackRange - 0.2);
             unit.movable.setTarget(targetX, targetY);
             unit.setStatus("moving");
         }
+    }
+    handleCooldown(deltaTime: number, unit: Unit) {
+        if (unit.attacker.canAttack()) {
+            unit.setStatus("attack")
+            return;
+        }
+        unit.attacker.updateCooldown(deltaTime);
     }
 
     loadUnits(unitsData: UnitData[]) {
@@ -199,7 +205,7 @@ class UnitController {
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
-        //unit.attackable.setHealth(unitUpdateData.health);
+        unit.attackable.setHealth(unitUpdateData.health);
         const targetId = unitUpdateData.target.id?.toString();
         if (targetId) {
             unit.attacker.setTargetId(targetId);

@@ -85,6 +85,7 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             speed: unit.movable.getSpeed(),
             damage: unit.attacker.getAttackDamage(),
             attackSpeed: unit.attacker.getAttackSpeed(),
+            attackRange: unit.attacker.getAttackRange(),
             size: JSON.stringify(unit.getSize()),
             gameId,
             updatedAt: new Date().toISOString(),
@@ -202,10 +203,10 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
             parsed[key] = ["position", "target", "size"].includes(key)
                 ? JSON.parse(value)
                 : ["health", "speed", "damage", "availableResource"].includes(
-                        key,
-                    )
-                  ? Number(value || 0)
-                  : value;
+                    key,
+                )
+                    ? Number(value || 0)
+                    : value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);
             parsed[key] = value;
@@ -255,6 +256,7 @@ export const cacheUnit = async (
         speed: unit.speed,
         damage: unit.damage,
         attackSpeed: unit.attackSpeed,
+        attackRange: unit.attackRange,
         unitType: unit.unitType,
         state: unit.state,
         target: JSON.stringify(unit.target),

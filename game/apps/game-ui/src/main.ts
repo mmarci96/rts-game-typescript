@@ -32,7 +32,8 @@ const socketHandler = (
     try {
         socket.on("connect", () => {
             console.log("connected");
-            const data = { playerId, gameId };
+            const playerColor = game.getLogic().getPlayerColor();
+            const data = { playerId, gameId, playerColor };
             socket.emit("load_game", data);
         });
         socket.on("game_state", (data: GameState) => {
@@ -47,6 +48,9 @@ const socketHandler = (
         });
 
         socket.on("player_state", (playerState) => {
+            if (!playerState) {
+                return;
+            }
             game.getLogic().updatePlayerState(playerState.playerResources);
         });
         socket.on("game_over", (winnerColor: PlayerColor) => {

@@ -15,6 +15,7 @@ interface IUnit extends Document {
     speed: number;
     damage: number;
     attackSpeed: number;
+    attackRange: number;
     unitType: string;
     state: string;
     target: Target;
@@ -47,6 +48,7 @@ const unitSchema = new Schema<IUnit>({
     speed: { type: Number, required: true },
     damage: { type: Number, required: true },
     attackSpeed: { type: Number, required: true },
+    attackRange: { type: Number, required: true },
     unitType: { type: String, required: true },
     state: { type: String, default: "idle" },
     target: { type: TargetSchema, default: {} },

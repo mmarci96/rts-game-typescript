@@ -4,14 +4,21 @@ class Attacker {
     #attackDamage: number;
     #targetId: string | null;
     #attackSpeed: number;
+    #attackRange: number;
     #coolDown: number;
 
-    constructor(attackDamage: number, attackSpeed: number) {
+    constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
         this.#attackDamage = attackDamage;
         this.#attackSpeed = attackSpeed;
+        this.#attackRange = attackRange;
         this.#coolDown = 0;
         this.#targetId = null;
     }
+
+    getAttackRange() {
+        return this.#attackRange;
+    }
+
     getAttackSpeed() {
         return this.#attackSpeed;
     }
@@ -37,30 +44,21 @@ class Attacker {
     }
 
     updateCooldown(deltaTime: number) {
-        this.#coolDown -= deltaTime;
-        if (this.#coolDown < 0) {
-            this.#coolDown = 0;
-        }
+        this.#coolDown = Math.max(0, this.#coolDown - deltaTime);
     }
 
     attackUnit(targetUnit: Unit) {
         if (this.canAttack()) {
             this.startCoolDown();
+            const damage = this.getAttackDamage();
+            targetUnit.attackable.getAttacked(damage);
             return "attack";
         }
-
-        const damage = this.getAttackDamage();
-        targetUnit.attackable.getAttacked(damage);
-        if (targetUnit.attackable.getHealth() <= 0 || !targetUnit) {
-            this.#targetId = null;
-            return "idle";
-        }
-
         return "cooldown";
     }
+
     canAttack() {
         return this.#coolDown <= 0;
     }
 }
-
 export default Attacker;

@@ -5,6 +5,7 @@ import GameLogic from "./logic/GameLogic";
 class Game {
     #id;
     #gameLogic;
+    lastUpdateTime: number = 0;
 
     constructor(gameId: string, map: IMap, gameData: GameState) {
         this.#id = gameId;
