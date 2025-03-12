@@ -37,6 +37,7 @@ export interface UnitParams {
     speed: number;
     target: Target;
     attackSpeed: number;
+    attackRange: number;
 }
 
 export interface BuildingParams {
@@ -58,6 +59,7 @@ export interface UnitData {
     health: number;
     speed: number;
     damage: number;
+    attackRange: number;
     attackSpeed: number;
     unitType: string;
     state: string;

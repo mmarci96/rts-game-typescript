@@ -17,7 +17,7 @@ class Unit extends ControlledEntity {
         this.#speed = parameters.speed;
         this.movable = new Movable(this.#speed);
         this.movable.setTarget(parameters.target.x, parameters.target.y);
-        this.attacker = new Attacker(parameters.damage, parameters.attackSpeed);
+        this.attacker = new Attacker(parameters.damage, parameters.attackSpeed, parameters.attackRange);
         if (parameters.target.id) {
             this.attacker.setTargetId(parameters.target.id);
         }
