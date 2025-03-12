@@ -1,4 +1,10 @@
-import { Building, Resource, Unit } from "@packages/game-data";
+import { Building, Player, Resource, Unit } from "@packages/game-data";
+
+export interface ConnectionData {
+    gameId: string;
+    playerId: string;
+    player: Player;
+}
 
 export interface PlayerCommand {
     action: string;
