@@ -1,14 +1,12 @@
 import { BuildingParams } from "../../types";
 import Attackable from "../Attackable";
-import ControlledEntity from "../ControlledEntity";
 
-class Building extends ControlledEntity {
-    attackable;
+class Building extends Attackable {
 
     constructor(parameters: BuildingParams) {
         super(parameters.controlledParams);
-        this.attackable = new Attackable(parameters.health);
     }
+
     getActions(): string[] {
         return [];
     }

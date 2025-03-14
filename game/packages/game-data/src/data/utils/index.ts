@@ -7,21 +7,25 @@ import {
     ResourceData,
     ResourceParams,
     Position,
+    AttackableParams,
 } from "../types";
 
 export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
-    const controlledParams: ControlledEntityParams = {
+    const params: ControlledEntityParams = {
         id: unit.id,
         position: unit.position,
         description: `A ${unit.unitType} unit`,
         color: unit.color,
         status: unit.state,
         size: unit.size,
+    }
+    const controlledParams: AttackableParams = {
+        controlledParams: params,
+        health: unit.health
     };
 
     return {
         controlledParams,
-        health: unit.health,
         damage: unit.damage,
         target: unit.target,
         speed: unit.speed,
@@ -33,7 +37,7 @@ export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
 export const mapBuildingToBuildingParams = (
     building: BuildingData,
 ): BuildingParams => {
-    const controlledParams = {
+    const controlledParams: ControlledEntityParams = {
         id: building.id,
         position: building.position,
         description: `A ${building.buildingType} building`,
@@ -41,11 +45,14 @@ export const mapBuildingToBuildingParams = (
         status: building.state,
         size: building.size,
     };
-
-    return {
-        controlledParams,
-        health: building.health,
-    };
+    const attackAbleParams: AttackableParams = {
+        controlledParams: controlledParams,
+        health: building.health
+    }
+    const buildingParams: BuildingParams = {
+        controlledParams: attackAbleParams
+    }
+    return buildingParams
 };
 
 export const mapResourceToResourceParams = (

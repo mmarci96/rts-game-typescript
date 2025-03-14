@@ -1,4 +1,6 @@
-class Movable {
+import { IMovable } from "../types";
+
+class Movable implements IMovable {
     #speed: number;
     #targetX: number | null;
     #targetY: number | null;

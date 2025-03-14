@@ -10,6 +10,7 @@ import {
 } from "../../redis";
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
+import { deleteBuildingById, deleteResourceById, deleteUnitById } from "@packages/game-db";
 
 export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
@@ -40,11 +41,6 @@ export class GameUpdateService {
         logic.updateGameState(deltaTime);
         await logic.saveGameState(this.getRedisSavers());
 
-        if (game.isGameOver()) {
-            this.stopGameUpdates();
-            io.to(gameId).emit("game_over", { winner: logic.winnerColor });
-        }
-
         const gameData = await getGameState(gameId);
         io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(async ([socketId, connectionData]) => {
@@ -58,6 +54,10 @@ export class GameUpdateService {
             const data = await getPlayerCache(gameId, connectionData.playerId);
             io.to(socketId).emit("player_state", data);
         })
+        if (game.isGameOver()) {
+            this.removeGame(gameId);
+            io.to(gameId).emit("game_over", { winner: logic.winnerColor });
+        }
     }
 
     private stopGameUpdates(): void {

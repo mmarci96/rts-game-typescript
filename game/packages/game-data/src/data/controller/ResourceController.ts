@@ -30,6 +30,14 @@ class ResourceController {
         });
     }
 
+    updateResources() {
+        this.#resources.forEach((resource: Resource, id: string) => {
+            if (resource.getAvailableResource() <= 0) {
+                this.#resources.delete(id);
+            }
+        })
+    }
+
     getResources() {
         return [...this.#resources.values()];
     }

@@ -31,8 +31,7 @@ export interface ControlledEntityParams {
 }
 
 export interface UnitParams {
-    controlledParams: ControlledEntityParams;
-    health: number;
+    controlledParams: AttackableParams;
     damage: number;
     speed: number;
     target: Target;
@@ -41,15 +40,19 @@ export interface UnitParams {
 }
 
 export interface BuildingParams {
-    controlledParams: ControlledEntityParams;
-    health: number;
+    controlledParams: AttackableParams;
 }
+
 export interface ResourceParams {
     id: string;
     position: Position;
     description: string;
     availableResource: number;
     size: Size;
+}
+export interface AttackableParams {
+    controlledParams: ControlledEntityParams;
+    health: number;
 }
 
 export interface UnitData {
@@ -153,4 +156,29 @@ export interface GameState {
 export interface PlayerResources {
     wood: number;
     food: number;
+}
+
+export interface IAttackable {
+    getHealth(): number;
+    getMaxHealth(): number;
+    takeDamage(damage: number): void;
+}
+
+export interface IAttacker {
+    attack(target: IAttackable): string;
+    getAttackableTarget(): IAttackable | null;
+    setAttackableTarget(target: IAttackable | null): void;
+    getAttackRange(): number;
+    canAttack(): boolean;
+    resetTarget(): void;
+    getAttackDamage(): number;
+    getAttackSpeed(): number;
+}
+
+
+
+export interface IMovable {
+    getTarget(): { targetX: number | null; targetY: number | null };
+    setTarget(x: number | null, y: number | null): void;
+    getSpeed(): number;
 }

@@ -1,6 +1,5 @@
 import {
     UnitData,
-    UnitUpdateData,
     PlayerColor,
     PlayerResources,
 } from "../types";
@@ -16,36 +15,22 @@ class UnitController {
 
     refreshUnits(deltaTime: number) {
         [...this.#units.values()].forEach((unit: Unit) => {
-            if (unit.attackable.getHealth() <= 0) {
+            if (unit.getHealth() <= 0) {
                 this.#units.delete(unit.getId());
                 return;
             }
-            let state = unit.getStatus();
-            switch (state) {
-                case "attack":
-                    this.handleAttack(unit);
-                    break;
-                case "moving":
-                    unit.updatePosition(deltaTime);
-                    break;
-                case "cooldown":
-                    this.handleCooldown(deltaTime, unit);
-                    break;
-                case "idle":
-                    this.adjustIdleUnitPosition(unit);
-                    break;
-                case "mining":
-                    unit.update(deltaTime);
-                    break;
-                default:
-                    break;
+            unit.update(deltaTime);
+            if (unit.idleTime >= 1) {
+                this.adjustIdleUnitPosition(unit);
             }
         });
+        this.checkForOverlaps();
     }
+
     checkWinner(): PlayerColor | undefined {
         const colorPresence = new Set<PlayerColor>();
         for (const unit of this.#units.values()) {
-            if (unit.attackable.getHealth() > 0) {
+            if (unit.getHealth() > 0) {
                 colorPresence.add(unit.getColor());
             }
         }
@@ -56,6 +41,7 @@ class UnitController {
 
         return undefined;
     }
+
     groupUnitsByColor(): Record<PlayerColor, Unit[]> {
         const colorGroups = {
             [PlayerColor.RED]: [] as Unit[],
@@ -71,6 +57,7 @@ class UnitController {
 
         return colorGroups;
     }
+
     getMinedResources(player: Player): PlayerResources {
         let wood = 0;
         let food = 0;
@@ -119,52 +106,9 @@ class UnitController {
         });
     }
 
-    handleAttack(unit: Unit) {
-        const targetId = unit.attacker.getTargetId();
-        if (!targetId) {
-            unit.setStatus("idle");
-            return;
-        }
-        const targetUnit = this.getUnitById(targetId);
-        if (!targetUnit) {
-            unit.setStatus("idle");
-            unit.attacker.resetTarget();
-            return;
-        }
-        const tx = targetUnit.getX();
-        const ty = targetUnit.getY();
-        const dx = tx - unit.getX();
-        const dy = ty - unit.getY();
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = unit.attacker.getAttackRange();
-        if (distance <= attackRange) {
-            const status = unit.attacker.attackUnit(targetUnit);
-            unit.setStatus(status);
-        } else {
-            const directionX = dx / distance;
-            const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange - 0.2);
-            const targetY = ty - directionY * (attackRange - 0.2);
-            unit.movable.setTarget(targetX, targetY);
-            unit.setStatus("moving");
-        }
-    }
-    handleCooldown(deltaTime: number, unit: Unit) {
-        if (unit.attacker.canAttack()) {
-            unit.setStatus("attack");
-            return;
-        }
-        unit.attacker.updateCooldown(deltaTime);
-    }
 
     loadUnits(unitsData: UnitData[]) {
         unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
-    }
-
-    updateUnits(unitUpdatesData: UnitUpdateData[]) {
-        unitUpdatesData.forEach((unitUpdateData: UnitUpdateData) =>
-            this.updateUnit(unitUpdateData),
-        );
     }
 
     getUnitsByColor(color: PlayerColor) {
@@ -201,26 +145,9 @@ class UnitController {
         return unit;
     }
 
-    updateUnit(unitUpdateData: UnitUpdateData) {
-        const unit = this.getUnitById(unitUpdateData.id);
-        if (!unit) {
-            return;
-        }
-        unit.setStatus(unitUpdateData.state);
-        unit.movable.setTarget(
-            unitUpdateData.target.x,
-            unitUpdateData.target.y,
-        );
-        unit.attackable.setHealth(unitUpdateData.health);
-        const targetId = unitUpdateData.target.id?.toString();
-        if (targetId) {
-            unit.attacker.setTargetId(targetId);
-        }
-    }
-
     checkForOverlaps() {
         const unitsArray = [...this.#units.values()];
-        const minDistance = 1;
+        const minDistance = 0.4;
 
         for (let i = 0; i < unitsArray.length; i++) {
             const unitA = unitsArray[i];
@@ -235,21 +162,46 @@ class UnitController {
                 if (distance < minDistance) {
                     const angleA = Math.random() * Math.PI * 2;
                     const angleB = Math.random() * Math.PI * 2;
+                    if (unitA.getStatus() !== 'idle' && unitB.getStatus() !== "idle") {
+                        unitA.setX(unitA.getX() + Math.cos(angleA) * 0.2)
+                        unitA.setY(unitA.getY() + Math.sin(angleA) * 0.2)
+                        unitB.setX(unitB.getX() + Math.cos(angleB) * 0.2)
+                        unitB.setY(unitB.getY() + Math.sin(angleB) * 0.2)
+                        return;
+                    }
+                    if (unitA.getStatus() === "idle") {
+                        unitA.setStatus("moving");
+                        unitA.setTarget(
+                            unitA.getX() + Math.cos(angleA) * minDistance,
+                            unitA.getY() + Math.sin(angleA) * minDistance,
+                        );
+                    }
 
-                    unitA.movable.setTarget(
-                        unitA.getX() + Math.cos(angleA) * minDistance,
-                        unitA.getY() + Math.sin(angleA) * minDistance,
-                    );
-                    unitB.movable.setTarget(
-                        unitB.getX() + Math.cos(angleB) * minDistance,
-                        unitB.getY() + Math.sin(angleB) * minDistance,
-                    );
+                    if (unitB.getStatus() === "idle") {
+                        unitB.setStatus("moving")
+                        unitB.setTarget(
+                            unitB.getX() + Math.cos(angleB) * minDistance,
+                            unitB.getY() + Math.sin(angleB) * minDistance,
+                        );
+                    }
                 }
             }
         }
     }
 
+    updateUnitWithData(unit: Unit, unitData: UnitData) {
+        unit.setStatus(unitData.state);
+        unit.setPosition(unitData.position);
+        unit.setTarget(unitData.target.x, unitData.target.y);
+        unit.setHealth(unitData.health);
+    }
+
     loadUnit(unitData: UnitData) {
+        const existing = this.#units.get(unitData.id);
+        if (existing) {
+            this.updateUnitWithData(existing, unitData);
+            return;
+        }
         const unitParam = mapUnitToUnitParams(unitData);
         switch (unitData.unitType) {
             case "archer":

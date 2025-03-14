@@ -1,22 +1,36 @@
-import { Unit } from "./units";
+import { IAttacker } from "../types";
+import Attackable from "./Attackable";
 
-class Attacker {
+class Attacker implements IAttacker {
     #attackDamage: number;
-    #targetId: string | null;
     #attackSpeed: number;
     #attackRange: number;
     #coolDown: number;
+    #attackableTarget: Attackable | null = null;
 
-    constructor(
-        attackDamage: number,
-        attackSpeed: number,
-        attackRange: number,
-    ) {
+    constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
         this.#attackDamage = attackDamage;
         this.#attackSpeed = attackSpeed;
         this.#attackRange = attackRange;
         this.#coolDown = 0;
-        this.#targetId = null;
+    }
+
+    attack() {
+        if (!this.#attackableTarget) {
+            return "idle";
+        }
+        if (this.canAttack()) {
+            this.startCoolDown();
+            this.#attackableTarget.takeDamage(this.#attackDamage);
+            return "attack";
+        }
+        return "cooldown";
+    }
+    setAttackableTarget(attackable: Attackable | null) {
+        this.#attackableTarget = attackable;
+    }
+    getAttackableTarget() {
+        return this.#attackableTarget;
     }
 
     getAttackRange() {
@@ -31,16 +45,8 @@ class Attacker {
         return this.#attackDamage;
     }
 
-    setTargetId(targetId: string | null) {
-        this.#targetId = targetId;
-    }
-
     resetTarget() {
-        this.#targetId = null;
-    }
-
-    getTargetId() {
-        return this.#targetId;
+        this.#attackableTarget = null;
     }
 
     startCoolDown() {
@@ -50,15 +56,8 @@ class Attacker {
     updateCooldown(deltaTime: number) {
         this.#coolDown = Math.max(0, this.#coolDown - deltaTime);
     }
-
-    attackUnit(targetUnit: Unit) {
-        if (this.canAttack()) {
-            this.startCoolDown();
-            const damage = this.getAttackDamage();
-            targetUnit.attackable.getAttacked(damage);
-            return "attack";
-        }
-        return "cooldown";
+    getCooldown() {
+        return this.#coolDown;
     }
 
     canAttack() {

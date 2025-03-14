@@ -3,9 +3,9 @@ import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
-import { Command } from "../../main";
 import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
+import { Command } from "../../types";
 
 class MouseEventHandler {
     #player: Player;
@@ -48,6 +48,15 @@ class MouseEventHandler {
 
     updateDrawables(drawables: Iterable<Drawable>) {
         this.#entities = Array.from(drawables);
+        this.#selectedUnits.forEach((selected: Drawable) => {
+            const updater = this.#entities
+                .find(
+                    (updatedDrawable) => updatedDrawable.entity.getId() === selected.entity.getId()
+                );
+            if (!updater) return;
+            selected.entity = updater.entity;
+        })
+        this.#overlay.updateSelection(this.#selectedUnits);
     }
 
     addCanvasEventListeners(
@@ -107,8 +116,6 @@ class MouseEventHandler {
                 selectableEntities,
                 this.#camera,
             );
-            //console.log(this.#selectedUnits);
-
             if (this.#selectedUnits.length > 0) {
                 this.selectionActive = true;
                 this.#overlay.setVisible();

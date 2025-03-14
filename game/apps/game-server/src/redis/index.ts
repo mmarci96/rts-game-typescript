@@ -1,5 +1,5 @@
 import Redis, { ChainableCommander } from "ioredis";
-import { IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db";
+import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db";
 import {
     BuildingData,
     ResourceData,
@@ -9,6 +9,7 @@ import {
     Building,
     Resource,
     Player,
+    GameEntity,
 } from "@packages/game-data";
 
 const redis = new Redis();
@@ -70,22 +71,22 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
         const unitId = unit.getId();
         const key = gameKey(gameId, "unit", unitId);
         const target = {
-            id: unit.attacker.getTargetId(),
-            x: unit.movable.getTarget().targetX,
-            y: unit.movable.getTarget().targetY,
+            x: unit.getTarget().targetX,
+            y: unit.getTarget().targetY,
         };
+
         pipeline.hmset(key, {
             position: JSON.stringify(unit.getPosition()),
-            health: unit.attackable.getHealth().toString(),
+            health: unit.getHealth().toString(),
             unitType: unit.getType(),
             state: unit.getStatus(),
             target: JSON.stringify(target),
             id: unit.getId(),
             color: unit.getColor(),
-            speed: unit.movable.getSpeed(),
-            damage: unit.attacker.getAttackDamage(),
-            attackSpeed: unit.attacker.getAttackSpeed(),
-            attackRange: unit.attacker.getAttackRange(),
+            speed: unit.getSpeed(),
+            damage: unit.getAttackDamage(),
+            attackSpeed: unit.getAttackSpeed(),
+            attackRange: unit.getAttackRange(),
             size: JSON.stringify(unit.getSize()),
             gameId,
             updatedAt: new Date().toISOString(),
@@ -97,6 +98,8 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
         if (!activeUnitIds.has(unitIdFromKey)) {
             pipeline.del(key);
             console.log("Deleting stale unit key:", key);
+            await deleteUnitById(unitIdFromKey);
+            console.log("Deleting stale unit from mongo db:", unitIdFromKey);
         }
     }
     await pipeline.exec();
@@ -107,18 +110,29 @@ export const updateBuildingsCache = async (
     buildings: Building[],
 ) => {
     const pipeline = redis.pipeline();
-
+    const activeBuildingIds = new Set(buildings.map((building) => building.getId()));
+    const pattern = gameKey(gameId, "building", "*");
+    const existingKeys = await scanKeys(pattern);
     for (const building of buildings) {
         const buildingId = building.getId();
         const key = gameKey(gameId, "building", buildingId);
 
         pipeline.hmset(key, {
-            health: building.attackable.getHealth().toString(),
+            health: building.getHealth().toString(),
             state: building.getStatus(),
             updatedAt: new Date().toISOString(),
         });
     }
-
+    for (const key of existingKeys) {
+        const parts = key.split(":");
+        const buildingIdFromKey = parts[parts.length - 1];
+        if (!activeBuildingIds.has(buildingIdFromKey)) {
+            pipeline.del(key);
+            console.log("Deleting stale building key:", key);
+            await deleteBuildingById(buildingIdFromKey)
+            console.log("Deleting stale building from mongo db:", buildingIdFromKey);
+        }
+    }
     await pipeline.exec();
 };
 
@@ -127,7 +141,9 @@ export const updateResourceFieldsCache = async (
     resources: Resource[],
 ) => {
     const pipeline = redis.pipeline();
-
+    const activeResourceIds = new Set(resources.map((resource) => resource.getId()));
+    const pattern = gameKey(gameId, "resource", "*");
+    const existingKeys = await scanKeys(pattern);
     for (const resource of resources) {
         const resourceId = resource.getId();
         const key = gameKey(gameId, "resource", resourceId);
@@ -136,7 +152,16 @@ export const updateResourceFieldsCache = async (
             availableResource: resource.getAvailableResource().toString(),
         });
     }
-
+    for (const key of existingKeys) {
+        const parts = key.split(":");
+        const resourceIdFromKey = parts[parts.length - 1];
+        if (!activeResourceIds.has(resourceIdFromKey)) {
+            pipeline.del(key);
+            console.log("Deleting state resource key:", key);
+            await deleteResourceById(resourceIdFromKey);
+            console.log("Deleting resource from mongo db:", resourceIdFromKey);
+        }
+    }
     await pipeline.exec();
 };
 

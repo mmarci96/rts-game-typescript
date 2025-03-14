@@ -1,34 +1,28 @@
-class Attackable {
-    #health;
-    #maxHealth;
+import { AttackableParams, IAttackable } from "../types";
+import ControlledEntity from "./ControlledEntity";
 
-    /**
-     * @param health number
-     */
-    constructor(health: number) {
-        this.#health = health;
-        this.#maxHealth = health;
+class Attackable extends ControlledEntity implements IAttackable {
+    #health: number;
+    #maxHealth: number;
+
+    constructor(params: AttackableParams) {
+        super(params.controlledParams);
+        this.#health = params.health;
+        this.#maxHealth = params.health;
     }
+
     getMaxHealth() {
         return this.#maxHealth;
     }
 
-    /**
-     * @param damage number
-     */
-    getAttacked(damage: number) {
-        this.#health = this.#health - damage;
+    takeDamage(damage: number) {
+        this.#health = Math.max(0, this.#health - damage);
     }
-
-    /**
-     * @returns number
-     */
+    setHealth(hp: number) {
+        this.#health = hp;
+    }
     getHealth() {
         return this.#health;
-    }
-
-    setHealth(health: number) {
-        this.#health = health;
     }
 }
 

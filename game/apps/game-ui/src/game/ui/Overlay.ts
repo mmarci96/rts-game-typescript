@@ -1,12 +1,12 @@
-import { Building, GameEntity, MainBuilding, Unit } from "@packages/game-data";
+import { Building, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
-import { Command } from "../../main";
 import StatusBar from "./Statusbar";
+import { Command } from "../../types";
 
 class Overlay {
     #overlayDiv;
     #isVisible;
-    #selectedList: Drawable[] = [];
+    selectedList: Drawable[] = [];
     static statusBar: StatusBar;
 
     constructor() {
@@ -33,32 +33,60 @@ class Overlay {
         return this.#isVisible;
     }
 
-    updateSelection(drawables: Map<string, GameEntity>) {
-        this.#selectedList.forEach((selectedEntity: Drawable) => {
-            const updatedEntity = drawables.get(selectedEntity.entity.getId());
-            if (!updatedEntity) return;
-            selectedEntity.entity = updatedEntity;
-        })
+    updateSelection(drawables: Drawable[]) {
+        if (!drawables.length) {
+            return;
+        }
+        this.selectedList = drawables
+        if (!this.#overlayDiv) {
+            return;
+        }
+
+        const units = new Set<Drawable>();
+        const buildings = new Set<Drawable>();
+
+        this.selectedList.forEach((selectedEntity) => {
+            if (selectedEntity.entity instanceof Unit) {
+                units.add(selectedEntity);
+            } else if (selectedEntity.entity instanceof Building) {
+                buildings.add(selectedEntity);
+            }
+        });
+        if (!units.size && !buildings.size) {
+            return;
+        }
+
+        if (!units.size && buildings.size === 1) {
+            return;
+        }
+
+        if (!buildings.size && units.size) {
+            this.#overlayDiv.innerHTML = "";
+            const selectionDetails = document.createElement("ul");
+            selectionDetails.id = "selectionList";
+            selectionDetails.style.display = "flex";
+            this.#overlayDiv.appendChild(selectionDetails);
+            this.displaySelection(units, selectionDetails);
+        }
     }
 
     displayUnitSelection(
         selectedList: Drawable[],
         createTrainUnitCommand: (commands: Command[]) => void,
     ) {
-        this.#selectedList = selectedList;
-        console.log(selectedList);
+        this.selectedList = selectedList;
         if (!this.#overlayDiv) {
             return;
         }
-        this.#overlayDiv.innerHTML = "";
 
+        this.#overlayDiv.innerHTML = "";
         const units = new Set<Drawable>();
         const buildings = new Set<Drawable>();
         const selectionDetails = document.createElement("ul");
         selectionDetails.id = "selectionList";
         selectionDetails.style.display = "flex";
         this.#overlayDiv.appendChild(selectionDetails);
-        this.#selectedList.forEach((selectedEntity) => {
+        this.selectedList.forEach((selectedEntity) => {
             if (selectedEntity.entity instanceof Unit) {
                 units.add(selectedEntity);
             } else if (selectedEntity.entity instanceof Building) {
@@ -112,13 +140,13 @@ class Overlay {
         selectionList: Set<Drawable>,
         selectionDetails: HTMLElement,
     ) {
-        selectionList.forEach((unit) => {
-            if (!(unit.entity instanceof Unit)) {
+        selectionList.forEach((selected) => {
+            if (!(selected.entity instanceof Unit) && !(selected.entity instanceof Building)) {
                 return;
             }
-            const hp = unit.entity.attackable.getHealth();
-            const maxHp = unit.entity.attackable.getHealth();
-            const type = unit.entity.getType();
+            const hp = selected.entity.getHealth();
+            const maxHp = selected.entity.getHealth();
+            const type = selected.entity.getType();
             const unitElement = this.createUnitCard(type, hp, maxHp);
             selectionDetails.appendChild(unitElement);
         });
