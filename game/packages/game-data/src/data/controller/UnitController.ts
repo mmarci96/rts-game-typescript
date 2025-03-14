@@ -10,13 +10,16 @@ import Player from "../Player";
 
 class UnitController {
     #units;
+    #deleted
     constructor() {
         this.#units = new Map<string, Unit>();
+        this.#deleted = new Set<string>();
     }
 
     refreshUnits(deltaTime: number) {
         [...this.#units.values()].forEach((unit: Unit) => {
             if (unit.attackable.getHealth() <= 0) {
+                this.#deleted.add(unit.getId());
                 this.#units.delete(unit.getId());
                 return;
             }
@@ -41,6 +44,12 @@ class UnitController {
                     break;
             }
         });
+    }
+    getDeletedUnits(): string[] {
+        return [...this.#deleted.keys()]
+    }
+    flushDeletedUnits() {
+        this.#deleted.clear();
     }
     checkWinner(): PlayerColor | undefined {
         const colorPresence = new Set<PlayerColor>();
