@@ -209,14 +209,14 @@ class UnitController {
             return;
         }
         unit.setStatus(unitUpdateData.state);
-        unit.#movable.setTarget(
+        unit.setTarget(
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
-        unit.#attackable.setHealth(unitUpdateData.health);
+        unit.setHealth(unitUpdateData.health);
         const targetId = unitUpdateData.target.id?.toString();
         if (targetId) {
-            unit.#attacker.setTargetId(targetId);
+            unit.setTargetId(targetId);
         }
     }
 
@@ -238,11 +238,11 @@ class UnitController {
                     const angleA = Math.random() * Math.PI * 2;
                     const angleB = Math.random() * Math.PI * 2;
 
-                    unitA.#movable.setTarget(
+                    unitA.setTarget(
                         unitA.getX() + Math.cos(angleA) * minDistance,
                         unitA.getY() + Math.sin(angleA) * minDistance,
                     );
-                    unitB.#movable.setTarget(
+                    unitB.setTarget(
                         unitB.getX() + Math.cos(angleB) * minDistance,
                         unitB.getY() + Math.sin(angleB) * minDistance,
                     );

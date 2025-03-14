@@ -35,6 +35,9 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
     takeDamage(damage: number): void {
         this.#attackable.takeDamage(damage);
     }
+    setHealth(health: number) {
+        this.#attackable.setHealth(health);
+    }
     attack(target: IAttackable): string {
         return this.#attacker.attack(target);
     }
