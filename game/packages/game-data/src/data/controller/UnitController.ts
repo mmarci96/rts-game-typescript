@@ -27,9 +27,8 @@ class UnitController {
             const y = Math.round(unit.getY())
             const tileName: Tile = this.#gameMap.getTiles()[y][x];
             if (tileName.tile === "water1") {
-                return;
+                this.checkInWater(unit);
             }
-
             unit.update(deltaTime);
             if (unit.idleTime >= 1) {
                 this.adjustIdleUnitPosition(unit);
@@ -154,24 +153,64 @@ class UnitController {
         return unit;
     }
 
+
+    checkInWater(unit: Unit) {
+        const waterPushForce = 0.2;
+        const unitX = Math.round(unit.getX());
+        const unitY = Math.round(unit.getY());
+
+        // Check surrounding tiles
+        const directions = [
+            { dx: -1, dy: 0 }, // Left
+            { dx: 1, dy: 0 },  // Right
+            { dx: 0, dy: -1 }, // Up
+            { dx: 0, dy: 1 },  // Down
+        ];
+
+        let pushX = 0;
+        let pushY = 0;
+
+        directions.forEach(({ dx, dy }) => {
+            const newX = unitX + dx;
+            const newY = unitY + dy;
+
+            // Ensure within map bounds
+            if (newY >= 0 && newY < this.#gameMap.getTiles().length &&
+                newX >= 0 && newX < this.#gameMap.getTiles()[0].length) {
+                const tile = this.#gameMap.getTiles()[newY][newX];
+
+                // If it's not water, move in that direction
+                if (tile.tile !== "water1") {
+                    pushX += dx;
+                    pushY += dy;
+                }
+            }
+        });
+
+        // Normalize direction
+        const magnitude = Math.sqrt(pushX ** 2 + pushY ** 2);
+        if (magnitude > 0) {
+            pushX = (pushX / magnitude) * waterPushForce;
+            pushY = (pushY / magnitude) * waterPushForce;
+        } else {
+            // If no clear direction, push randomly
+            pushX = (Math.random() - 0.5) * waterPushForce;
+            pushY = (Math.random() - 0.5) * waterPushForce;
+        }
+
+        // Move the unit away from water
+        unit.setStatus("moving");
+        unit.setX(unit.getX() + pushX);
+        unit.setY(unit.getY() + pushY);
+        unit.setTarget(null, null);
+    }
+
     checkForOverlaps() {
         const unitsArray = [...this.#units.values()];
         const minDistance = 0.4;
-        const waterPushForce = 0.2;
 
         for (let i = 0; i < unitsArray.length; i++) {
             const unitA = unitsArray[i];
-            const unitAX = Math.round(unitA.getX());
-            const unitAY = Math.round(unitA.getY());
-            const unitATile = this.#gameMap.getTiles()[unitAY]?.[unitAX]?.tile;
-
-            if (unitATile === "water1") {
-                const angle = Math.random() * Math.PI * 2;
-                unitA.setStatus("moving");
-                unitA.setTarget(
-                    unitA.getX() + Math.cos(angle) * waterPushForce,
-                    unitA.getY() + Math.sin(angle) * waterPushForce)
-            }
             for (let j = i + 1; j < unitsArray.length; j++) {
                 const unitB = unitsArray[j];
 

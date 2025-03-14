@@ -18,8 +18,9 @@ class GameLogic {
     winnerColor: PlayerColor | undefined;
 
     constructor(id: string, gameData: GameState, gameMap: IMap) {
+        this.#gameMap = new GameMap(gameMap.tiles);
         this.#gameId = id;
-        const unitController = new UnitController();
+        const unitController = new UnitController(this.#gameMap);
         const resourceController = new ResourceController();
         const buildingController = new BuildingController();
         this.#entityController = new EntityController(
@@ -30,7 +31,6 @@ class GameLogic {
         );
 
         this.loadData(gameData);
-        this.#gameMap = new GameMap(gameMap.tiles);
     }
 
     loadData(data: GameState) {

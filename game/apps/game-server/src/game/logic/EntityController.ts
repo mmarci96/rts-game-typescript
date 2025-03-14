@@ -5,7 +5,6 @@ import {
     ControlledEntity,
     GameEntity,
     GameState,
-    IAttackable,
     MainBuilding,
     Player,
     PlayerColor,
@@ -53,9 +52,11 @@ class EntityController {
     getUnits(): Unit[] {
         return this.#unitController.getUnits();
     }
+
     getBuildings(): Building[] {
         return this.#buildingController.getBuildings();
     }
+
     getResources(): Resource[] {
         return this.#resourceController.getResources();
     }
@@ -165,6 +166,7 @@ class EntityController {
     refreshEntities(deltaTime: number) {
         this.#unitController.refreshUnits(deltaTime);
         this.#buildingController.refreshBuilding(deltaTime);
+        this.#resourceController.updateResources();
     }
 
     loadMinedResources(player: Player) {
