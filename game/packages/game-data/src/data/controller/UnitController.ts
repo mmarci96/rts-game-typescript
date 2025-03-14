@@ -129,7 +129,12 @@ class UnitController {
 
     handleAttack(unit: Unit) {
         const targetUnit = unit.getAttackableTarget();
-        if (!targetUnit || !(targetUnit instanceof GameEntity)) {
+        if (!targetUnit) {
+            unit.setStatus("idle");
+            unit.resetTarget();
+            return;
+        }
+        if (targetUnit.getHealth() >= 0) {
             unit.setStatus("idle");
             unit.resetTarget();
             return;

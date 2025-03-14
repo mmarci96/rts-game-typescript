@@ -1,19 +1,16 @@
-import ControlledEntity from "../ControlledEntity";
 import { UnitParams } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
 import { IAttackable, IAttacker, IMovable } from "../../types";
 
-class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable {
-    #attackable;
+class Unit extends Attackable implements IAttacker, IMovable {
     idleTime: number = 0;
     #movable: Movable;
     #attacker: Attacker;
 
     constructor(parameters: UnitParams) {
         super(parameters.controlledParams);
-        this.#attackable = new Attackable(parameters.health);
         this.#movable = new Movable(parameters.speed);
         this.#attacker = new Attacker(
             parameters.damage,
@@ -26,7 +23,7 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
     getAttackableTarget(): IAttackable | null {
         return this.#attacker.getAttackableTarget()
     }
-    setAttackableTarget(target: IAttackable | null): void {
+    setAttackableTarget(target: Attackable | null): void {
         this.#attacker.setAttackableTarget(target)
     }
     getAttackSpeed(): number {
@@ -35,23 +32,12 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
     getAttackDamage(): number {
         return this.#attacker.getAttackDamage()
     }
-    getHealth(): number {
-        return this.#attackable.getHealth()
-    }
-    getMaxHealth(): number {
-        return this.#attackable.getMaxHealth();
-    }
-    takeDamage(damage: number): void {
-        this.#attackable.takeDamage(damage);
-    }
-    setHealth(health: number) {
-        this.#attackable.setHealth(health);
-    }
     attack(): string {
         return this.#attacker.attack();
     }
 
     resetTarget(): void {
+        this.setStatus("idle")
         this.#attacker.resetTarget();
     }
     getTarget(): { targetX: number | null; targetY: number | null; } {
@@ -72,6 +58,9 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
         return this.#attacker.canAttack()
     }
     updateCooldown(deltaTime: number) {
+        if (this.#attacker.getCooldown() <= 0 && !this.#attacker.getAttackableTarget()) {
+            this.setStatus("idle");
+        }
         this.#attacker.updateCooldown(deltaTime)
     }
 
@@ -80,7 +69,7 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
         //this.updatePosition(deltaTime);
     }
     updatePosition(deltaTime: number) {
-        const { newX, newY, progress } = this.#movable.move(
+        const { newX, newY, progress } = this.move(
             this.getX(),
             this.getY(),
             deltaTime,
@@ -97,7 +86,7 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
             return;
         }
 
-        if (this.#attacker.getAttackableTarget() !== null) {
+        if (this.#attacker.getAttackableTarget()) {
             this.idleTime = 0;
             this.setStatus("attack");
             return;

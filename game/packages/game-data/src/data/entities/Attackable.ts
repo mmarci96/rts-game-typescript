@@ -1,12 +1,14 @@
-import { IAttackable } from "../types";
+import { AttackableParams, IAttackable } from "../types";
+import ControlledEntity from "./ControlledEntity";
 
-class Attackable implements IAttackable {
+class Attackable extends ControlledEntity implements IAttackable {
     #health: number;
     #maxHealth: number;
 
-    constructor(health: number) {
-        this.#health = health;
-        this.#maxHealth = health;
+    constructor(params: AttackableParams) {
+        super(params.controlledParams);
+        this.#health = params.health;
+        this.#maxHealth = params.health;
     }
 
     getMaxHealth() {

@@ -31,8 +31,7 @@ export interface ControlledEntityParams {
 }
 
 export interface UnitParams {
-    controlledParams: ControlledEntityParams;
-    health: number;
+    controlledParams: AttackableParams;
     damage: number;
     speed: number;
     target: Target;
@@ -41,8 +40,7 @@ export interface UnitParams {
 }
 
 export interface BuildingParams {
-    controlledParams: ControlledEntityParams;
-    health: number;
+    controlledParams: AttackableParams;
 }
 export interface ResourceParams {
     id: string;
@@ -50,6 +48,10 @@ export interface ResourceParams {
     description: string;
     availableResource: number;
     size: Size;
+}
+export interface AttackableParams {
+    controlledParams: ControlledEntityParams;
+    health: number;
 }
 
 export interface UnitData {

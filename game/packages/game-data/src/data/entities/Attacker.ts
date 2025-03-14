@@ -1,11 +1,12 @@
-import { IAttacker, IAttackable } from "../types";
+import { IAttacker } from "../types";
+import Attackable from "./Attackable";
 
 class Attacker implements IAttacker {
     #attackDamage: number;
     #attackSpeed: number;
     #attackRange: number;
     #coolDown: number;
-    #attackableTarget: IAttackable | null = null;
+    #attackableTarget: Attackable | null = null;
 
     constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
         this.#attackDamage = attackDamage;
@@ -25,7 +26,7 @@ class Attacker implements IAttacker {
         }
         return "cooldown";
     }
-    setAttackableTarget(attackable: IAttackable | null) {
+    setAttackableTarget(attackable: Attackable | null) {
         this.#attackableTarget = attackable;
     }
     getAttackableTarget() {
@@ -54,6 +55,9 @@ class Attacker implements IAttacker {
 
     updateCooldown(deltaTime: number) {
         this.#coolDown = Math.max(0, this.#coolDown - deltaTime);
+    }
+    getCooldown() {
+        return this.#coolDown;
     }
 
     canAttack() {
