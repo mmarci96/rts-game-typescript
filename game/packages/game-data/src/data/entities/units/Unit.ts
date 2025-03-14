@@ -24,6 +24,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         return this.#attacker.getAttackableTarget()
     }
     setAttackableTarget(target: Attackable | null): void {
+        this.setStatus("attack")
         this.#attacker.setAttackableTarget(target)
     }
     getAttackSpeed(): number {
@@ -37,7 +38,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     resetTarget(): void {
-        this.setStatus("idle")
+        //this.setStatus("idle")
         this.#attacker.resetTarget();
     }
     getTarget(): { targetX: number | null; targetY: number | null; } {
@@ -48,9 +49,6 @@ class Unit extends Attackable implements IAttacker, IMovable {
         return this.#attacker.getAttackRange();
     }
 
-    move(startX: number, startY: number, deltaTime: number) {
-        return this.#movable.move(startX, startY, deltaTime);
-    }
     setTarget(x: number | null, y: number | null): void {
         this.#movable.setTarget(x, y);
     }
@@ -58,8 +56,8 @@ class Unit extends Attackable implements IAttacker, IMovable {
         return this.#attacker.canAttack()
     }
     updateCooldown(deltaTime: number) {
-        if (this.#attacker.getCooldown() <= 0 && !this.#attacker.getAttackableTarget()) {
-            this.setStatus("idle");
+        if (this.canAttack()) {
+            this.setStatus('attack');
         }
         this.#attacker.updateCooldown(deltaTime)
     }
@@ -69,7 +67,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         //this.updatePosition(deltaTime);
     }
     updatePosition(deltaTime: number) {
-        const { newX, newY, progress } = this.move(
+        const { newX, newY, progress } = this.#movable.move(
             this.getX(),
             this.getY(),
             deltaTime,

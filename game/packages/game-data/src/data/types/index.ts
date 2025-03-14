@@ -178,7 +178,6 @@ export interface IAttacker {
 
 
 export interface IMovable {
-    move(startX: number, startY: number, deltaTime: number): { newX: number; newY: number; progress: string };
     getTarget(): { targetX: number | null; targetY: number | null };
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;

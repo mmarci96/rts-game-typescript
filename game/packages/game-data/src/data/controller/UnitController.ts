@@ -131,12 +131,11 @@ class UnitController {
         const targetUnit = unit.getAttackableTarget();
         if (!targetUnit) {
             unit.setStatus("idle");
-            unit.resetTarget();
             return;
         }
-        if (targetUnit.getHealth() >= 0) {
+        if (targetUnit.getHealth() <= 0) {
             unit.setStatus("idle");
-            unit.resetTarget();
+            unit.setAttackableTarget(null);
             return;
         }
         const tx = targetUnit.getX();
