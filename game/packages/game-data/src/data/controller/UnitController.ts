@@ -147,7 +147,7 @@ class UnitController {
 
     checkForOverlaps() {
         const unitsArray = [...this.#units.values()];
-        const minDistance = 1;
+        const minDistance = 0.4;
 
         for (let i = 0; i < unitsArray.length; i++) {
             const unitA = unitsArray[i];
@@ -162,15 +162,28 @@ class UnitController {
                 if (distance < minDistance) {
                     const angleA = Math.random() * Math.PI * 2;
                     const angleB = Math.random() * Math.PI * 2;
+                    if (unitA.getStatus() !== 'idle' && unitB.getStatus() !== "idle") {
+                        unitA.setX(unitA.getX() + Math.cos(angleA) * 0.2)
+                        unitA.setY(unitA.getY() + Math.sin(angleA) * 0.2)
+                        unitB.setX(unitB.getX() + Math.cos(angleB) * 0.2)
+                        unitB.setY(unitB.getY() + Math.sin(angleB) * 0.2)
+                        return;
+                    }
+                    if (unitA.getStatus() === "idle") {
+                        unitA.setStatus("moving");
+                        unitA.setTarget(
+                            unitA.getX() + Math.cos(angleA) * minDistance,
+                            unitA.getY() + Math.sin(angleA) * minDistance,
+                        );
+                    }
 
-                    unitA.setTarget(
-                        unitA.getX() + Math.cos(angleA) * minDistance,
-                        unitA.getY() + Math.sin(angleA) * minDistance,
-                    );
-                    unitB.setTarget(
-                        unitB.getX() + Math.cos(angleB) * minDistance,
-                        unitB.getY() + Math.sin(angleB) * minDistance,
-                    );
+                    if (unitB.getStatus() === "idle") {
+                        unitB.setStatus("moving")
+                        unitB.setTarget(
+                            unitB.getX() + Math.cos(angleB) * minDistance,
+                            unitB.getY() + Math.sin(angleB) * minDistance,
+                        );
+                    }
                 }
             }
         }
