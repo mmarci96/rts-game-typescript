@@ -4,8 +4,10 @@ import { mapResourceToResourceParams } from "../utils";
 
 class ResourceController {
     #resources;
+    #deleted;
     constructor() {
         this.#resources = new Map<string, Resource>();
+        this.#deleted = new Set<string>();
     }
 
     loadResources(resourcesData: ResourceData[]) {
@@ -28,6 +30,20 @@ class ResourceController {
                     break;
             }
         });
+    }
+    updateResources() {
+        this.#resources.forEach((resource: Resource, id: string) => {
+            if (resource.getAvailableResource() <= 0) {
+                this.#deleted.add(id);
+                this.#resources.delete(id);
+            }
+        })
+    }
+    getDeleted() {
+        return [...this.#deleted.keys()];
+    }
+    flushDeleted() {
+        this.#deleted.clear();
     }
 
     getResources() {
