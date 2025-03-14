@@ -9,47 +9,24 @@ import Player from "../Player";
 
 class UnitController {
     #units;
-    #deleted
     constructor() {
         this.#units = new Map<string, Unit>();
-        this.#deleted = new Set<string>();
     }
 
     refreshUnits(deltaTime: number) {
         [...this.#units.values()].forEach((unit: Unit) => {
             if (unit.getHealth() <= 0) {
-                this.#deleted.add(unit.getId());
                 this.#units.delete(unit.getId());
                 return;
             }
-            let state = unit.getStatus();
-            switch (state) {
-                case "attack":
-                    this.handleAttack(unit);
-                    break;
-                case "moving":
-                    unit.updatePosition(deltaTime);
-                    break;
-                case "cooldown":
-                    unit.updateCooldown(deltaTime);
-                    break;
-                case "idle":
-                    this.adjustIdleUnitPosition(unit);
-                    break;
-                case "mining":
-                    unit.update(deltaTime);
-                    break;
-                default:
-                    break;
+            unit.update(deltaTime);
+            if (unit.idleTime >= 1) {
+                this.adjustIdleUnitPosition(unit);
             }
         });
+        this.checkForOverlaps();
     }
-    getDeletedUnits(): string[] {
-        return [...this.#deleted.keys()]
-    }
-    flushDeletedUnits() {
-        this.#deleted.clear();
-    }
+
     checkWinner(): PlayerColor | undefined {
         const colorPresence = new Set<PlayerColor>();
         for (const unit of this.#units.values()) {
@@ -64,6 +41,7 @@ class UnitController {
 
         return undefined;
     }
+
     groupUnitsByColor(): Record<PlayerColor, Unit[]> {
         const colorGroups = {
             [PlayerColor.RED]: [] as Unit[],
@@ -79,6 +57,7 @@ class UnitController {
 
         return colorGroups;
     }
+
     getMinedResources(player: Player): PlayerResources {
         let wood = 0;
         let food = 0;
@@ -127,35 +106,6 @@ class UnitController {
         });
     }
 
-    handleAttack(unit: Unit) {
-        const targetUnit = unit.getAttackableTarget();
-        if (!targetUnit) {
-            unit.setStatus("idle");
-            return;
-        }
-        if (targetUnit.getHealth() <= 0) {
-            unit.setStatus("idle");
-            unit.setAttackableTarget(null);
-            return;
-        }
-        const tx = targetUnit.getX();
-        const ty = targetUnit.getY();
-        const dx = tx - unit.getX();
-        const dy = ty - unit.getY();
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = unit.getAttackRange();
-        if (distance <= attackRange) {
-            const status = unit.attack();
-            unit.setStatus(status);
-        } else {
-            const directionX = dx / distance;
-            const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange - 0.2);
-            const targetY = ty - directionY * (attackRange - 0.2);
-            unit.setTarget(targetX, targetY);
-            unit.setStatus("moving");
-        }
-    }
 
     loadUnits(unitsData: UnitData[]) {
         unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
@@ -226,7 +176,19 @@ class UnitController {
         }
     }
 
+    updateUnitWithData(unit: Unit, unitData: UnitData) {
+        unit.setStatus(unitData.state);
+        unit.setPosition(unitData.position);
+        unit.setTarget(unitData.target.x, unitData.target.y);
+        unit.setHealth(unitData.health);
+    }
+
     loadUnit(unitData: UnitData) {
+        const existing = this.#units.get(unitData.id);
+        if (existing) {
+            this.updateUnitWithData(existing, unitData);
+            return;
+        }
         const unitParam = mapUnitToUnitParams(unitData);
         switch (unitData.unitType) {
             case "archer":

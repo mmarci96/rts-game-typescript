@@ -58,14 +58,70 @@ class Unit extends Attackable implements IAttacker, IMovable {
     updateCooldown(deltaTime: number) {
         if (this.canAttack()) {
             this.setStatus('attack');
+            return;
         }
         this.#attacker.updateCooldown(deltaTime)
     }
+    attackHandler() {
+        const targetUnit = this.getAttackableTarget();
+        if (!targetUnit) {
+            this.setStatus("idle");
+            return;
+        }
+        if (targetUnit.getHealth() <= 0) {
+            this.setStatus("idle");
+            this.setAttackableTarget(null);
+            return;
+        }
+        const tx = targetUnit.getX();
+        const ty = targetUnit.getY();
+        const dx = tx - this.getX();
+        const dy = ty - this.getY();
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const attackRange = this.getAttackRange();
+        if (distance <= attackRange) {
+            const status = this.attack();
+            this.setStatus(status);
+        } else {
+            const directionX = dx / distance;
+            const directionY = dy / distance;
+            const targetX = tx - directionX * (attackRange - 0.2);
+            const targetY = ty - directionY * (attackRange - 0.2);
+            this.setTarget(targetX, targetY);
+            this.setStatus("moving");
+        }
+    }
 
     update(deltaTime: number) {
+        let state = this.getStatus();
+        switch (state) {
+            case "attack":
+                this.attackHandler();
+                break;
+            case "moving":
+                this.updatePosition(deltaTime);
+                break;
+            case "cooldown":
+                this.updateCooldown(deltaTime);
+                break;
+            case "idle":
+                this.idleTime += deltaTime;
+                break;
+            case "mining":
+                this.mining(deltaTime);
+                break;
+            default:
+                break;
+        }
+
         //this.#attacker.updateCooldown(deltaTime);
         //this.updatePosition(deltaTime);
     }
+    mining(deltaTime: number) {
+        if (deltaTime) {
+            this.setStatus("idle");
+        }
+    };
     updatePosition(deltaTime: number) {
         const { newX, newY, progress } = this.#movable.move(
             this.getX(),

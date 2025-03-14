@@ -4,11 +4,9 @@ import { mapBuildingToBuildingParams } from "../utils";
 
 class BuildingController {
     #buildings;
-    #deleted;
 
     constructor() {
         this.#buildings = new Map<string, Building>();
-        this.#deleted = new Set<string>();
     }
 
     loadBuildings(buildingsData: BuildingData[]) {
@@ -32,7 +30,6 @@ class BuildingController {
     refreshBuilding(deltaTime: number) {
         [...this.#buildings.values()].forEach((building: Building) => {
             if (building.getHealth() <= 0) {
-                this.#deleted.add(building.getId());
                 this.#buildings.delete(building.getId());
                 return;
             }
@@ -40,12 +37,6 @@ class BuildingController {
                 building.updateTraining(deltaTime);
             }
         });
-    }
-    getDeleted(): string[] {
-        return [...this.#deleted.values()]
-    }
-    flushDeletedBuildings() {
-        this.#deleted.clear();
     }
 
     getBuildingById(buildingId: string) {
