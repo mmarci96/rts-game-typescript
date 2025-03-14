@@ -112,13 +112,13 @@ class Overlay {
         selectionList: Set<Drawable>,
         selectionDetails: HTMLElement,
     ) {
-        selectionList.forEach((unit) => {
-            if (!(unit.entity instanceof Unit)) {
+        selectionList.forEach((selected) => {
+            if (!(selected.entity instanceof Unit) && !(selected.entity instanceof Building)) {
                 return;
             }
-            const hp = unit.entity.attackable.getHealth();
-            const maxHp = unit.entity.attackable.getHealth();
-            const type = unit.entity.getType();
+            const hp = selected.entity.attackable.getHealth();
+            const maxHp = selected.entity.attackable.getHealth();
+            const type = selected.entity.getType();
             const unitElement = this.createUnitCard(type, hp, maxHp);
             selectionDetails.appendChild(unitElement);
         });
