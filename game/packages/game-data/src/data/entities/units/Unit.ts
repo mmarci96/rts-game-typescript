@@ -2,7 +2,7 @@ import { UnitParams } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
-import { IAttackable, IAttacker, IMovable } from "../../types";
+import { IAttacker, IMovable } from "../../types";
 
 class Unit extends Attackable implements IAttacker, IMovable {
     idleTime: number = 0;
@@ -20,7 +20,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         this.#movable.setTarget(parameters.target.x, parameters.target.y);
     }
 
-    getAttackableTarget(): IAttackable | null {
+    getAttackableTarget(): Attackable | null {
         return this.#attacker.getAttackableTarget()
     }
     setAttackableTarget(target: Attackable | null): void {
