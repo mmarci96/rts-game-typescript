@@ -40,10 +40,7 @@ export class GameUpdateService {
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
         await logic.saveGameState(this.getRedisSavers());
-        if (game.isGameOver()) {
-            this.stopGameUpdates();
-            io.to(gameId).emit("game_over", { winner: logic.winnerColor });
-        }
+
         const gameData = await getGameState(gameId);
         io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(async ([socketId, connectionData]) => {
@@ -57,6 +54,10 @@ export class GameUpdateService {
             const data = await getPlayerCache(gameId, connectionData.playerId);
             io.to(socketId).emit("player_state", data);
         })
+        if (game.isGameOver()) {
+            this.removeGame(gameId);
+            io.to(gameId).emit("game_over", { winner: logic.winnerColor });
+        }
     }
 
     private stopGameUpdates(): void {

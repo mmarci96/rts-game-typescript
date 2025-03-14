@@ -9,7 +9,7 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
-import { Command } from "../../main";
+import { Command } from "../../types";
 import Overlay from "../ui/Overlay";
 
 class GameLogic {
@@ -87,7 +87,6 @@ class GameLogic {
                 },
             );
             Overlay.statusBar.setFps(deltaTime * 1000);
-
             requestAnimationFrame(animate);
         };
 

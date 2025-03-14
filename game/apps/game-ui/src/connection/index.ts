@@ -92,7 +92,6 @@ export class ConnectionHandler {
     }
 
     private setupCommandBatching() {
-        // Use window.setInterval for browser environment
         this.commandInterval = window.setInterval(() => {
             if (this.pendingCommands.length > 0) {
                 const commands = {
