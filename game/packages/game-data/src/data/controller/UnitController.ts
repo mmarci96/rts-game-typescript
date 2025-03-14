@@ -4,7 +4,7 @@ import {
     PlayerResources,
 } from "../types";
 import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior, GameEntity } from "../entities";
+import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
 
 class UnitController {

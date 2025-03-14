@@ -42,6 +42,7 @@ export interface UnitParams {
 export interface BuildingParams {
     controlledParams: AttackableParams;
 }
+
 export interface ResourceParams {
     id: string;
     position: Position;
