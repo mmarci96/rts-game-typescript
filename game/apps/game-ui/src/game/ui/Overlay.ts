@@ -116,8 +116,8 @@ class Overlay {
             if (!(selected.entity instanceof Unit) && !(selected.entity instanceof Building)) {
                 return;
             }
-            const hp = selected.entity.attackable.getHealth();
-            const maxHp = selected.entity.attackable.getHealth();
+            const hp = selected.entity.getHealth();
+            const maxHp = selected.entity.getHealth();
             const type = selected.entity.getType();
             const unitElement = this.createUnitCard(type, hp, maxHp);
             selectionDetails.appendChild(unitElement);

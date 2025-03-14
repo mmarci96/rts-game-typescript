@@ -122,7 +122,7 @@ class AnimatedSprite extends Drawable {
         const dx = targetX - x;
         const dy = targetY - y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = this.entity.movable.getSpeed() / 4;
+        const speed = this.entity.getSpeed() / 4;
         const stepDistance = speed * deltaTime;
         if (distance <= stepDistance) {
             return { x, y };

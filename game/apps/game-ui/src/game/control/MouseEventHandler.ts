@@ -48,6 +48,14 @@ class MouseEventHandler {
 
     updateDrawables(drawables: Iterable<Drawable>) {
         this.#entities = Array.from(drawables);
+        this.#selectedUnits.forEach((selected: Drawable) => {
+            const updater = this.#entities
+                .find(
+                    (updatedDrawable) => updatedDrawable.entity.getId() === selected.entity.getId()
+                );
+            if (!updater) return;
+            selected.entity = updater.entity;
+        })
     }
 
     addCanvasEventListeners(
