@@ -121,12 +121,12 @@ class EntityController {
                     command.targetY &&
                     command.targetX
                 ) {
+                    entity.setAttackableTarget(null);
                     this.handleMovingUnit(
                         entity,
                         command.targetX,
                         command.targetY,
                     );
-                    //entity.setAttackableTarget(null);
                 }
                 break;
             case "attack":
