@@ -2,15 +2,19 @@ import {
     UnitData,
     PlayerColor,
     PlayerResources,
+    Tile,
 } from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
+import GameMap from "../GameMap";
 
 class UnitController {
     #units;
-    constructor() {
+    #gameMap;
+    constructor(gameMap: GameMap) {
         this.#units = new Map<string, Unit>();
+        this.#gameMap = gameMap
     }
 
     refreshUnits(deltaTime: number) {
@@ -19,6 +23,13 @@ class UnitController {
                 this.#units.delete(unit.getId());
                 return;
             }
+            const x = Math.round(unit.getX())
+            const y = Math.round(unit.getY())
+            const tileName: Tile = this.#gameMap.getTiles()[y][x];
+            if (tileName.tile === "water1") {
+                return;
+            }
+
             unit.update(deltaTime);
             if (unit.idleTime >= 1) {
                 this.adjustIdleUnitPosition(unit);
@@ -105,8 +116,6 @@ class UnitController {
             }
         });
     }
-
-
     loadUnits(unitsData: UnitData[]) {
         unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
     }
@@ -148,10 +157,21 @@ class UnitController {
     checkForOverlaps() {
         const unitsArray = [...this.#units.values()];
         const minDistance = 0.4;
+        const waterPushForce = 0.2;
 
         for (let i = 0; i < unitsArray.length; i++) {
             const unitA = unitsArray[i];
+            const unitAX = Math.round(unitA.getX());
+            const unitAY = Math.round(unitA.getY());
+            const unitATile = this.#gameMap.getTiles()[unitAY]?.[unitAX]?.tile;
 
+            if (unitATile === "water1") {
+                const angle = Math.random() * Math.PI * 2;
+                unitA.setStatus("moving");
+                unitA.setTarget(
+                    unitA.getX() + Math.cos(angle) * waterPushForce,
+                    unitA.getY() + Math.sin(angle) * waterPushForce)
+            }
             for (let j = i + 1; j < unitsArray.length; j++) {
                 const unitB = unitsArray[j];
 
