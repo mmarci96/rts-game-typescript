@@ -16,7 +16,7 @@ router.get(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { gameId } = req.params;
-            const game = await getGameById(new Types.ObjectId(gameId));
+            const game = await getGameById(gameId);
             res.status(200).send({ data: game });
         } catch (err) {
             next(err);
@@ -58,11 +58,7 @@ router.patch(
         try {
             const { userId, color } = req.body;
             const { gameId } = req.params;
-            const game = await joinGame(
-                userId,
-                color,
-                new Types.ObjectId(gameId),
-            );
+            const game = await joinGame(userId, color, gameId);
             res.status(202).send({ data: game });
         } catch (err) {
             console.error("Join game route:", err);
@@ -77,7 +73,7 @@ router.delete(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { gameId } = req.params;
-            await deleteGame(new Types.ObjectId(gameId));
+            await deleteGame(gameId);
 
             res.status(203).send({
                 data: { messege: "Succesfully deleted game!" },
@@ -93,7 +89,7 @@ router.patch(
     async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { gameId } = req.params;
-            const gameStatus = await startGame(new Types.ObjectId(gameId));
+            const gameStatus = await startGame(gameId);
             res.status(202).send({ data: gameStatus });
         } catch (err) {
             next(err);

@@ -8,21 +8,19 @@ import {
     ResourceModel,
     UnitModel,
 } from "../mongo-db";
-import { GameState, PlayerColor, Position } from "@packages/game-data";
+import {
+    GameState,
+    PlayerColor,
+    Position,
+    BASE_UNIT_CONFIG,
+} from "@packages/game-data";
 
-const UNIT_SIZE = { height: 32, width: 32 };
-
-const BASE_STATS = {
-    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 1.6, attackRange: 1.2 },
-    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 2, attackRange: 1.0 },
-    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 1.2, attackRange: 6 },
-};
 export const deleteUnitById = async (unitId: string) => {
-    const id = new Types.ObjectId(unitId)
+    const id = new Types.ObjectId(unitId);
     await UnitModel.findByIdAndDelete(id);
 };
 
-const createUnitModel = (
+export const createUnitModel = (
     unitType: string,
     position: Position,
     color: PlayerColor,
@@ -31,13 +29,13 @@ const createUnitModel = (
     let stats;
     switch (unitType) {
         case "warrior":
-            stats = BASE_STATS[unitType];
+            stats = BASE_UNIT_CONFIG[unitType];
             break;
         case "worker":
-            stats = BASE_STATS[unitType];
+            stats = BASE_UNIT_CONFIG[unitType];
             break;
         case "archer":
-            stats = BASE_STATS[unitType];
+            stats = BASE_UNIT_CONFIG[unitType];
             break;
         default:
             return;
@@ -48,7 +46,7 @@ const createUnitModel = (
         color,
         gameId: gameIdToSave,
         unitType: unitType,
-        size: UNIT_SIZE,
+        size: { width: stats.radius, height: stats.height },
         ...stats,
     };
     return new UnitModel(unitData);
@@ -62,12 +60,7 @@ export const createUnit = async (
     unitType: string,
 ) => {
     const position: Position = { x: spawnX, y: spawnY };
-    const unit = createUnitModel(
-        unitType,
-        position,
-        color,
-        gameId,
-    );
+    const unit = createUnitModel(unitType, position, color, gameId);
     if (!unit) {
         return;
     }
@@ -76,12 +69,12 @@ export const createUnit = async (
 };
 
 export const deleteBuildingById = async (buildingId: string) => {
-    const id = new Types.ObjectId(buildingId)
+    const id = new Types.ObjectId(buildingId);
     await BuildingModel.findByIdAndDelete(id);
 };
 
 export const deleteResourceById = async (resourceId: string) => {
-    const id = new Types.ObjectId(resourceId)
+    const id = new Types.ObjectId(resourceId);
     await ResourceModel.findByIdAndDelete(id);
 };
 
@@ -139,10 +132,8 @@ export const saveEntitiesToMongo = async (
     }
 };
 
-export const getGameById = async (
-    gameId: string,
-): Promise<IGame | null> => {
-    const id = new Types.ObjectId(gameId)
+export const getGameById = async (gameId: string): Promise<IGame | null> => {
+    const id = new Types.ObjectId(gameId);
     const game = await GameModel.findById(id);
     if (!game) {
         return null;

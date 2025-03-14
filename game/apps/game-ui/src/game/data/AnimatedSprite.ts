@@ -15,6 +15,8 @@ class AnimatedSprite extends Drawable {
     skullFrames: number;
     isAnimationComplete: boolean;
     isDying: boolean;
+    loopAnimation: boolean;
+    isAnimationPlaying: boolean;
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         super(spriteSheet, entity);
@@ -24,26 +26,45 @@ class AnimatedSprite extends Drawable {
         this.frameX = 0;
         this.frameY = 0;
         this.gameFrame = 0;
-        this.staggerFrames = 7;
+        this.staggerFrames = 6;
         this.maxFrame = 5;
         this.skullFrames = 0;
         this.isAnimationComplete = false;
         this.isDying = false;
+        this.loopAnimation = true;
+        this.isAnimationPlaying = false;
     }
 
     updateAnimation() {
-        if (this.isDying && this.maxFrame === 6) {
-            if (this.skullFrames >= 7) {
-                this.frameY = 1;
-                this.isAnimationComplete = true;
-            } else {
-                this.skullFrames++;
-            }
+        if (this.isDying) {
+            this.updateDeathAnimation();
         }
         if (this.gameFrame % this.staggerFrames === 0) {
-            this.frameX < this.maxFrame ? this.frameX++ : (this.frameX = 0);
+            if (this.loopAnimation) {
+                this.frameX = (this.frameX + 1) % (this.maxFrame + 1);
+            } else {
+                if (this.frameX < this.maxFrame) {
+                    this.frameX++;
+                } else {
+                    this.isAnimationComplete = true;
+                    this.isAnimationPlaying = false;
+                    this.loopAnimation = true;
+                    this.setAnimationType("idle");
+                }
+            }
         }
         this.gameFrame++;
+    }
+
+    updateDeathAnimation() {
+        if (this.skullFrames >= 12) {
+            this.isAnimationComplete = true;
+            return;
+        }
+        if (this.skullFrames === 6) {
+            this.frameY = 1;
+        }
+        this.skullFrames++;
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
@@ -116,42 +137,68 @@ class AnimatedSprite extends Drawable {
     }
 
     setAnimationType(state: string) {
+        if (this.isDying) return;
+        if (this.isAnimationPlaying) return;
         switch (state) {
             case "moving":
                 this.frameY = 1;
+                this.maxFrame = 5;
+                this.loopAnimation = true;
                 break;
             case "idle":
                 this.frameY = 0;
+                this.maxFrame = 5;
+                this.loopAnimation = true;
                 break;
             case "cooldown":
                 this.frameY = 0;
+                this.maxFrame = 5;
+                this.loopAnimation = true;
                 break;
             case "attack":
                 this.frameY = 3;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "attackLeft1":
                 this.frameY = 2;
-                break;
-            case "attackLeft2":
-                this.frameY = 3;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "attackDown1":
                 this.frameY = 4;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "attackDown2":
                 this.frameY = 5;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "attackUp1":
                 this.frameY = 6;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "attackUp2":
                 this.frameY = 7;
+                this.maxFrame = 5;
+                this.frameX = 0;
+                this.loopAnimation = false;
+                this.isAnimationPlaying = true;
                 break;
             case "dead":
                 this.frameY = 0;
-                break;
-            case "delete":
-                this.frameY = 1;
                 break;
             case "mining":
                 this.frameY = 3;
@@ -162,7 +209,8 @@ class AnimatedSprite extends Drawable {
         }
     }
     setDeathAnimation(deathSprite: CanvasImageSource) {
-        this.staggerFrames = 12;
+        this.frameY = 0;
+        this.frameX = 0;
         this.skullFrames = 0;
         this.maxFrame = 6;
         this.frameWidth = 896 / 7;

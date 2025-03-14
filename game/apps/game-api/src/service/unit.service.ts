@@ -1,29 +1,21 @@
-import { PlayerColor, Position } from "@packages/game-data/dist/data/types";
+import { PlayerColor } from "@packages/game-data/dist/data/types";
+import { createUnitModel } from "@packages/game-db";
 import { IUnit, UnitModel } from "@packages/game-db/dist/mongo-db/unit.model";
-import { Types } from "mongoose";
-
-const UNIT_SIZE = { height: 32, width: 32 };
-
-const BASE_STATS = {
-    warrior: { health: 20, speed: 8, damage: 4, attackSpeed: 1.6, attackRange: 1.2 },
-    worker: { health: 10, speed: 4, damage: 1, attackSpeed: 2, attackRange: 1.0 },
-    archer: { health: 12, speed: 6, damage: 6, attackSpeed: 1.2, attackRange: 6 },
-};
 
 const getStarterPositionByColor = (color: PlayerColor, mapSize: number) => {
-    const starterPosition = { x: 0, y: 0 };
+    const starterPosition = { x: 16, y: 16 };
     switch (color) {
         case "red":
             break;
         case "blue":
-            starterPosition.x = mapSize - 8;
-            starterPosition.y = mapSize - 8;
+            starterPosition.x = mapSize - 16;
+            starterPosition.y = mapSize - 16;
             break;
         case "yellow":
-            starterPosition.x = mapSize - 8;
+            starterPosition.x = mapSize - 16;
             break;
         case "purple":
-            starterPosition.y = mapSize - 8;
+            starterPosition.y = mapSize - 16;
             break;
         default:
             break;
@@ -32,19 +24,19 @@ const getStarterPositionByColor = (color: PlayerColor, mapSize: number) => {
 };
 
 const getSpawnDirection = (color: PlayerColor) => {
-    const direction = { dx: 1, dy: 1 };
+    const direction = { dx: 2, dy: 2 };
     switch (color) {
         case PlayerColor.RED:
             break;
         case PlayerColor.BLUE:
-            direction.dx = -1;
-            direction.dy = -1;
+            direction.dx = -2;
+            direction.dy = -2;
             break;
         case PlayerColor.YELLOW:
-            direction.dx = -1;
+            direction.dx = -2;
             break;
         case PlayerColor.PURPLE:
-            direction.dy = -1;
+            direction.dy = -2;
             break;
         default:
             break;
@@ -52,43 +44,12 @@ const getSpawnDirection = (color: PlayerColor) => {
     return direction;
 };
 
-const createUnit = (
-    unitType: string,
-    position: Position,
-    color: PlayerColor,
-    gameId: Types.ObjectId,
-) => {
-    let stats;
-    switch (unitType) {
-        case "warrior":
-            stats = BASE_STATS[unitType];
-            break;
-        case "worker":
-            stats = BASE_STATS[unitType];
-            break;
-        case "archer":
-            stats = BASE_STATS[unitType];
-            break;
-        default:
-            return;
-    }
-    const unitData = {
-        position,
-        color,
-        gameId,
-        unitType: unitType,
-        size: UNIT_SIZE,
-        ...stats,
-    };
-    return new UnitModel(unitData);
-};
-
 const createUnits = (
     unitType: string,
     amount: number,
     color: PlayerColor,
     mapSize: number,
-    gameId: Types.ObjectId,
+    gameId: string,
 ) => {
     const starterPosition = getStarterPositionByColor(color, mapSize);
     const direction = getSpawnDirection(color);
@@ -97,7 +58,7 @@ const createUnits = (
         const spawnX = starterPosition.x + i * direction.dx;
         const spawnY = starterPosition.y + i * direction.dy;
         const position = { x: spawnX, y: spawnY };
-        const unit = createUnit(unitType, position, color, gameId);
+        const unit = createUnitModel(unitType, position, color, gameId);
         units.push(unit);
     }
     return units;
@@ -106,11 +67,11 @@ const createUnits = (
 export const generateStarterUnits = async (
     color: PlayerColor,
     mapSize: number,
-    gameId: Types.ObjectId,
+    gameId: string,
 ): Promise<IUnit[] | void> => {
-    const warriorCount = 10;
-    const workerCount = 2;
-    const archerCount = 4;
+    const warriorCount = 2;
+    const workerCount = 4;
+    const archerCount = 2;
 
     try {
         const warriors = createUnits(

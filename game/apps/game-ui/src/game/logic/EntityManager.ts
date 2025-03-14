@@ -45,11 +45,31 @@ class EntityManager {
             existingIds.delete(resourceData.id),
         );
         [...existingIds.keys()].forEach((entityId: string) => {
-            this.#unitController.removeUnit(entityId);
-            this.#drawables.delete(entityId)
-            console.log("Entity removed", entityId);
+            const unit = this.#drawables.get(entityId);
+            if (unit instanceof AnimatedSprite) {
+                this.handleDeath(unit);
+            } else {
+                this.#unitController.removeUnit(entityId);
+                this.#drawables.delete(entityId);
+                console.log("Entity removed", entityId);
+            }
         });
     }
+
+    handleDeath(animatedSprite: AnimatedSprite) {
+        if (animatedSprite.isAnimationComplete) {
+            this.#unitController.removeUnit(animatedSprite.entity.getId());
+            this.#drawables.delete(animatedSprite.entity.getId());
+            return;
+        }
+        if (animatedSprite.entity instanceof Unit && !animatedSprite.isDying) {
+            animatedSprite.isDying = true;
+            const deathSprite = this.#assets.getImage("dead");
+            if (!deathSprite) return;
+            animatedSprite.setDeathAnimation(deathSprite);
+        }
+    }
+
     getUnitsController() {
         return this.#unitController;
     }
@@ -75,7 +95,7 @@ class EntityManager {
                 drawable.entity instanceof Unit &&
                 drawable instanceof AnimatedSprite
             ) {
-                drawable.setAnimationType(drawable.entity.getStatus());
+                drawable.setAnimationType(unit.getStatus());
                 const tx = unit.movable.getTarget().targetX;
                 const ty = unit.movable.getTarget().targetY;
                 if (tx && ty) {
@@ -89,8 +109,6 @@ class EntityManager {
         });
         [...existingKeys].forEach((unitId: string) => {
             const unit = this.#unitController.getUnitById(unitId);
-            console.log(unit);
-
             if (unit) {
                 const animatedSprite = this.loadAnimatedUnit(unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
@@ -98,15 +116,9 @@ class EntityManager {
         });
     }
     loadAnimatedUnit(unit: Unit) {
-        const color = unit.getColor();
-        console.log(`${unit.getType().toLowerCase()}_${color}`);
-
-        const img = this.#assets.getImage(
-            `${unit.getType().toLowerCase()}_${color}`,
-        );
-        if (!img) {
-            throw new Error("not found");
-        }
+        const spriteName = `${unit.getType().toLowerCase()}_${unit.getColor()}`;
+        const img = this.#assets.getImage(spriteName);
+        if (!img) throw new Error("not found");
         const animatedSprite = new AnimatedSprite(img, unit);
         return animatedSprite;
     }
@@ -122,18 +134,14 @@ class EntityManager {
             buildings.forEach((building: Building) => {
                 const color = building.getColor();
                 const img = assets.getImage(`house_${color.toLowerCase()}`);
-                if (!img) {
-                    throw new Error("not found");
-                }
+                if (!img) throw new Error("not found");
                 const drawable = new Drawable(img, building);
                 this.#drawables.set(building.getId(), drawable);
             });
 
             resources.forEach((resource: Resource) => {
                 const img = assets.getImage(resource.getType());
-                if (!img) {
-                    throw new Error("not found");
-                }
+                if (!img) throw new Error("not found");
                 switch (resource.getType()) {
                     case ResourceType.TREE:
                         const tree = new AnimatedTree(img, resource);
@@ -141,7 +149,7 @@ class EntityManager {
                         break;
                     default:
                         const drawable = new Drawable(img, resource);
-                        drawable.setShadow(true)
+                        drawable.setShadow(true);
                         this.#drawables.set(resource.getId(), drawable);
                         break;
                 }
@@ -152,13 +160,10 @@ class EntityManager {
                 const img = assets.getImage(
                     `${unit.getType().toLowerCase()}_${color}`,
                 );
-                if (!img) {
-                    throw new Error("not found");
-                }
+                if (!img) throw new Error("not found");
                 const animatedSprite = new AnimatedSprite(img, unit);
                 this.#drawables.set(unit.getId(), animatedSprite);
             });
-
         } catch (err) {
             console.error(err);
         }

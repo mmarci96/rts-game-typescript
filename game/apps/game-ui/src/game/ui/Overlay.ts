@@ -1,4 +1,4 @@
-import { Building, MainBuilding, Unit } from "@packages/game-data";
+import { Building, GameEntity, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import { Command } from "../../main";
 import StatusBar from "./Statusbar";
@@ -6,6 +6,7 @@ import StatusBar from "./Statusbar";
 class Overlay {
     #overlayDiv;
     #isVisible;
+    #selectedList: Drawable[] = [];
     static statusBar: StatusBar;
 
     constructor() {
@@ -32,10 +33,19 @@ class Overlay {
         return this.#isVisible;
     }
 
+    updateSelection(drawables: Map<string, GameEntity>) {
+        this.#selectedList.forEach((selectedEntity: Drawable) => {
+            const updatedEntity = drawables.get(selectedEntity.entity.getId());
+            if (!updatedEntity) return;
+            selectedEntity.entity = updatedEntity;
+        })
+    }
+
     displayUnitSelection(
         selectedList: Drawable[],
         createTrainUnitCommand: (commands: Command[]) => void,
     ) {
+        this.#selectedList = selectedList;
         console.log(selectedList);
         if (!this.#overlayDiv) {
             return;
@@ -48,7 +58,7 @@ class Overlay {
         selectionDetails.id = "selectionList";
         selectionDetails.style.display = "flex";
         this.#overlayDiv.appendChild(selectionDetails);
-        selectedList.forEach((selectedEntity) => {
+        this.#selectedList.forEach((selectedEntity) => {
             if (selectedEntity.entity instanceof Unit) {
                 units.add(selectedEntity);
             } else if (selectedEntity.entity instanceof Building) {

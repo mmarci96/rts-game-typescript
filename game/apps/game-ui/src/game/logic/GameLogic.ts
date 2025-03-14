@@ -65,16 +65,11 @@ class GameLogic {
 
     startGameLoop(createCommand: (commands: Command[]) => void) {
         this.running = true;
-        const ctx: CanvasRenderingContext2D | null =
-            this.#gameCanvas.getContext();
-        if (!ctx) {
-            throw new Error("Fuck my like");
-        }
+        const context = this.#gameCanvas.getContext();
+        const ctx: CanvasRenderingContext2D | null = context;
+        if (!ctx) throw new Error("No canvas");
         this.#entityManager.loadDrawableEntities(ctx, this.#assets);
-
-        this.#mouseEventHandler.addCanvasEventListeners(
-            createCommand,
-        );
+        this.#mouseEventHandler.addCanvasEventListeners(createCommand);
 
         let lastTime = Date.now();
         const animate = () => {
