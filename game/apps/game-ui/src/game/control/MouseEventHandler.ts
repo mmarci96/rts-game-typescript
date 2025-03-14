@@ -3,9 +3,9 @@ import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
-import { Command } from "../../main";
 import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
+import { Command } from "../../types";
 
 class MouseEventHandler {
     #player: Player;

@@ -3,15 +3,7 @@ import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
 import { GameState, PlayerColor } from "@packages/game-data";
 import Overlay from "../game/ui/Overlay";
-
-export interface Command {
-    action: string;
-    entityId: string;
-    targetX?: number;
-    targetY?: number;
-    targetId?: string;
-    unitType?: string;
-}
+import { Command } from "../types";
 
 export class ConnectionHandler {
     private socket: Socket;

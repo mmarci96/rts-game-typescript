@@ -1,7 +1,7 @@
 import { Building, GameEntity, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
-import { Command } from "../../main";
 import StatusBar from "./Statusbar";
+import { Command } from "../../types";
 
 class Overlay {
     #overlayDiv;
