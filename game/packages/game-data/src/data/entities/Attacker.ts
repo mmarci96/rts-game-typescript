@@ -2,26 +2,34 @@ import { IAttacker, IAttackable } from "../types";
 
 class Attacker implements IAttacker {
     #attackDamage: number;
-    #targetId: string | null;
     #attackSpeed: number;
     #attackRange: number;
     #coolDown: number;
+    #attackableTarget: IAttackable | null = null;
 
     constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
         this.#attackDamage = attackDamage;
         this.#attackSpeed = attackSpeed;
         this.#attackRange = attackRange;
         this.#coolDown = 0;
-        this.#targetId = null;
     }
 
-    attack(target: IAttackable) {
+    attack() {
+        if (!this.#attackableTarget) {
+            return "idle";
+        }
         if (this.canAttack()) {
             this.startCoolDown();
-            target.takeDamage(this.#attackDamage);
+            this.#attackableTarget.takeDamage(this.#attackDamage);
             return "attack";
         }
         return "cooldown";
+    }
+    setAttackableTarget(attackable: IAttackable | null) {
+        this.#attackableTarget = attackable;
+    }
+    getAttackableTarget() {
+        return this.#attackableTarget;
     }
 
     getAttackRange() {
@@ -36,16 +44,8 @@ class Attacker implements IAttacker {
         return this.#attackDamage;
     }
 
-    setTargetId(targetId: string | null) {
-        this.#targetId = targetId;
-    }
-
     resetTarget() {
-        this.#targetId = null;
-    }
-
-    getTargetId() {
-        return this.#targetId;
+        this.#attackableTarget = null;
     }
 
     startCoolDown() {

@@ -21,11 +21,20 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
             parameters.attackRange
         );
         this.#movable.setTarget(parameters.target.x, parameters.target.y);
-        if (parameters.target.id) {
-            this.#attacker.setTargetId(parameters.target.id);
-        }
     }
 
+    getAttackableTarget(): IAttackable | null {
+        return this.#attacker.getAttackableTarget()
+    }
+    setAttackableTarget(target: IAttackable | null): void {
+        this.#attacker.setAttackableTarget(target)
+    }
+    getAttackSpeed(): number {
+        return this.#attacker.getAttackSpeed()
+    }
+    getAttackDamage(): number {
+        return this.#attacker.getAttackDamage()
+    }
     getHealth(): number {
         return this.#attackable.getHealth()
     }
@@ -38,18 +47,15 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
     setHealth(health: number) {
         this.#attackable.setHealth(health);
     }
-    attack(target: IAttackable): string {
-        return this.#attacker.attack(target);
-    }
-    setTargetId(targetId: string | null): void {
-        this.#attacker.setTargetId(targetId);
-    }
-    getTargetId(): string | null {
-        return this.#attacker.getTargetId();
+    attack(): string {
+        return this.#attacker.attack();
     }
 
     resetTarget(): void {
         this.#attacker.resetTarget();
+    }
+    getTarget(): { targetX: number | null; targetY: number | null; } {
+        return this.#movable.getTarget();
     }
 
     getAttackRange(): number {
@@ -65,10 +71,13 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
     canAttack(): boolean {
         return this.#attacker.canAttack()
     }
+    updateCooldown(deltaTime: number) {
+        this.#attacker.updateCooldown(deltaTime)
+    }
 
     update(deltaTime: number) {
-        this.#attacker.updateCooldown(deltaTime);
-        this.updatePosition(deltaTime);
+        //this.#attacker.updateCooldown(deltaTime);
+        //this.updatePosition(deltaTime);
     }
     updatePosition(deltaTime: number) {
         const { newX, newY, progress } = this.#movable.move(
@@ -88,7 +97,7 @@ class Unit extends ControlledEntity implements IAttackable, IAttacker, IMovable 
             return;
         }
 
-        if (this.#attacker.getTargetId() !== null) {
+        if (this.#attacker.getAttackableTarget() !== null) {
             this.idleTime = 0;
             this.setStatus("attack");
             return;

@@ -20,7 +20,7 @@ class Worker extends Unit {
 
             this.setTarget(targetX, targetY);
             const distance = calculateDistance(this.getPosition(), targetResource.getPosition());
-            if (distance > 1) {
+            if (distance > 1.2) {
                 this.setStatus("moving");
                 this.setTarget(targetX, targetY);
                 this.updatePosition(deltaTime);
@@ -28,31 +28,9 @@ class Worker extends Unit {
                 this.setStatus("mining")
                 this.collector.updateCollect(deltaTime)
             }
+            return;
         }
     }
-    //updatePosition(deltaTime: number): void {
-    //    const targetResource = this.collector.getTarget();
-    //    if (targetResource) {
-    //        const targetX = targetResource.getX();
-    //        const targetY = targetResource.getY();
-    //        const currentTarget = this.movable.getTarget();
-    //        if (currentTarget.targetX !== targetX || currentTarget.targetY !== targetY) {
-    //            this.movable.setTarget(targetX, targetY);
-    //        }
-    //        const { newX, newY, progress } = this.movable.move(this.getX(), this.getY(), deltaTime);
-    //        this.setPosition({ x: newX, y: newY });
-    //
-    //        if (progress === "completed") {
-    //            this.setStatus("mining");
-    //            this.collector.collectResource(targetResource);
-    //            this.movable.setTarget(null, null); // Clear target after arriving
-    //        } else {
-    //            this.setStatus("moving");
-    //        }
-    //    } else {
-    //        super.updatePosition(deltaTime);
-    //    }
-    //}
 
     getType(): string {
         return "worker";

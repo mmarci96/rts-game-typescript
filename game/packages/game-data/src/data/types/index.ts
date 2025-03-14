@@ -163,17 +163,20 @@ export interface IAttackable {
 
 export interface IAttacker {
     attack(target: IAttackable): string;
-    setTargetId(targetId: string | null): void;
+    getAttackableTarget(): IAttackable | null;
+    setAttackableTarget(target: IAttackable | null): void;
     getAttackRange(): number;
-    getTargetId(): string | null;
     canAttack(): boolean;
     resetTarget(): void;
+    getAttackDamage(): number;
+    getAttackSpeed(): number;
 }
 
 
 
 export interface IMovable {
     move(startX: number, startY: number, deltaTime: number): { newX: number; newY: number; progress: string };
+    getTarget(): { targetX: number | null; targetY: number | null };
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;
 }

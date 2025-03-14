@@ -1,11 +1,10 @@
 import {
     UnitData,
-    UnitUpdateData,
     PlayerColor,
     PlayerResources,
 } from "../types";
 import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior } from "../entities";
+import { Unit, Archer, Worker, Warrior, GameEntity } from "../entities";
 import Player from "../Player";
 
 class UnitController {
@@ -29,10 +28,10 @@ class UnitController {
                     this.handleAttack(unit);
                     break;
                 case "moving":
-                    unit.update(deltaTime);
+                    unit.updatePosition(deltaTime);
                     break;
                 case "cooldown":
-                    unit.update(deltaTime);
+                    unit.updateCooldown(deltaTime);
                     break;
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
@@ -129,13 +128,8 @@ class UnitController {
     }
 
     handleAttack(unit: Unit) {
-        const targetId = unit.getTargetId();
-        if (!targetId) {
-            unit.setStatus("idle");
-            return;
-        }
-        const targetUnit = this.getUnitById(targetId);
-        if (!targetUnit) {
+        const targetUnit = unit.getAttackableTarget();
+        if (!targetUnit || !(targetUnit instanceof GameEntity)) {
             unit.setStatus("idle");
             unit.resetTarget();
             return;
@@ -147,7 +141,7 @@ class UnitController {
         const distance = Math.sqrt(dx * dx + dy * dy);
         const attackRange = unit.getAttackRange();
         if (distance <= attackRange) {
-            const status = unit.attack(targetUnit);
+            const status = unit.attack();
             unit.setStatus(status);
         } else {
             const directionX = dx / distance;
@@ -161,12 +155,6 @@ class UnitController {
 
     loadUnits(unitsData: UnitData[]) {
         unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
-    }
-
-    updateUnits(unitUpdatesData: UnitUpdateData[]) {
-        unitUpdatesData.forEach((unitUpdateData: UnitUpdateData) =>
-            this.updateUnit(unitUpdateData),
-        );
     }
 
     getUnitsByColor(color: PlayerColor) {
@@ -201,23 +189,6 @@ class UnitController {
         const unit = this.#units.get(id);
         if (!unit) return null;
         return unit;
-    }
-
-    updateUnit(unitUpdateData: UnitUpdateData) {
-        const unit = this.getUnitById(unitUpdateData.id);
-        if (!unit) {
-            return;
-        }
-        unit.setStatus(unitUpdateData.state);
-        unit.setTarget(
-            unitUpdateData.target.x,
-            unitUpdateData.target.y,
-        );
-        unit.setHealth(unitUpdateData.health);
-        const targetId = unitUpdateData.target.id?.toString();
-        if (targetId) {
-            unit.setTargetId(targetId);
-        }
     }
 
     checkForOverlaps() {
