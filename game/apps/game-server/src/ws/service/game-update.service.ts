@@ -10,7 +10,7 @@ import {
 } from "../../redis";
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
-import { UnitData } from "@packages/game-data";
+import { deleteBuildingById, deleteResourceById, deleteUnitById } from "@packages/game-db";
 
 export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
@@ -40,15 +40,11 @@ export class GameUpdateService {
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
         await logic.saveGameState(this.getRedisSavers());
-
         if (game.isGameOver()) {
             this.stopGameUpdates();
             io.to(gameId).emit("game_over", { winner: logic.winnerColor });
         }
-
         const gameData = await getGameState(gameId);
-        console.log(gameData.units.filter((unitData: UnitData) => unitData.state !== "idle"));
-
         io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(async ([socketId, connectionData]) => {
             const minedRes = logic.loadMinedResources(connectionData.player);
