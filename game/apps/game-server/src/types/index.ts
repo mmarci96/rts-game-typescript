@@ -1,5 +1,8 @@
 import { Building, Player, Resource, Unit } from "@packages/game-data";
-
+export interface LoadRequest {
+    gameId: string;
+    playerId: string;
+}
 export interface ConnectionData {
     gameId: string;
     playerId: string;

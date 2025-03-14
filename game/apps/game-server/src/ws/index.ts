@@ -3,6 +3,7 @@ import { ConnectionService } from "./service/connection.service";
 import { GameStateService } from "./service/game-state.service";
 import { GameUpdateService } from "./service/game-update.service";
 import { GameCommandService } from "../game/service/GameCommandService";
+import { LoadRequest } from "../types";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
@@ -12,18 +13,16 @@ export const websocketController = (io: Server) => {
     io.on("connection", (socket: Socket) => {
         console.log("New connection: ", socket.id);
 
-        socket.on(
-            "load_game",
-            async (data: { playerId: string; gameId: string }) => {
-                const { playerId, gameId } = data;
-                ConnectionService.handlePlayerJoin(socket.id, playerId, gameId);
-                await gameStateService.initializeGame(gameId);
-                const game = gameStateService.getGame(gameId);
-                if (game) {
-                    gameUpdateService.addGame(gameId, game);
-                }
-                socket.join(gameId);
-            },
+        socket.on("load_game", async (data: LoadRequest) => {
+            const { playerId, gameId } = data;
+            ConnectionService.handlePlayerJoin(socket.id, playerId, gameId);
+            await gameStateService.initializeGame(gameId);
+            const game = gameStateService.getGame(gameId);
+            if (game) {
+                gameUpdateService.addGame(gameId, game);
+            }
+            socket.join(gameId);
+        },
         );
 
         socket.on("pendingCommands", (data) => {

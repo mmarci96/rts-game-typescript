@@ -1,9 +1,11 @@
 import {
+    Attackable,
     Building,
     BuildingController,
     ControlledEntity,
     GameEntity,
     GameState,
+    IAttackable,
     MainBuilding,
     Player,
     PlayerColor,
@@ -124,7 +126,7 @@ class EntityController {
                         command.targetX,
                         command.targetY,
                     );
-                    entity.attacker.resetTarget();
+                    //entity.setAttackableTarget(null);
                 }
                 break;
             case "attack":
@@ -143,27 +145,39 @@ class EntityController {
     }
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
-        unit.movable.setTarget(targetX, targetY);
+        unit.setStatus("moving");
+        unit.setTarget(targetX, targetY);
     }
 
     handleAttackEntity(unit: Unit, targetId: string) {
-        unit.attacker.setTargetId(targetId);
-        this.#unitController
-            .getUnitById(unit.getId())
-            ?.attacker.setTargetId(targetId);
+        let targetEntity: Attackable | null | undefined = this.#unitController.getUnitById(targetId);
+        if (!targetEntity) {
+            targetEntity = this.#buildingController.getBuildingById(targetId);
+        }
+        if (!targetEntity) {
+            return;
+        }
+        console.log(targetEntity);
+        unit.setAttackableTarget(targetEntity);
+        this.#unitController.getUnitById(unit.getId())?.setAttackableTarget(targetEntity)
     }
 
     refreshEntities(deltaTime: number) {
         this.#unitController.refreshUnits(deltaTime);
         this.#buildingController.refreshBuilding(deltaTime);
-
     }
+
     loadMinedResources(player: Player) {
         const mining = this.#unitController.getMinedResources(player);
         return mining;
     }
+
     checkWinner(): PlayerColor | undefined {
-        return this.#unitController.checkWinner();
+        const winner = this.#unitController.checkWinner()
+        if (winner) {
+            return this.#buildingController.checkWinner();
+        }
+        return undefined;
     }
 }
 

@@ -10,6 +10,7 @@ import {
 } from "../../redis";
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
+import { UnitData } from "@packages/game-data";
 
 export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
@@ -46,6 +47,8 @@ export class GameUpdateService {
         }
 
         const gameData = await getGameState(gameId);
+        console.log(gameData.units.filter((unitData: UnitData) => unitData.state !== "idle"));
+
         io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(async ([socketId, connectionData]) => {
             const minedRes = logic.loadMinedResources(connectionData.player);
