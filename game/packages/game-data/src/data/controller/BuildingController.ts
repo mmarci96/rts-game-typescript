@@ -31,7 +31,7 @@ class BuildingController {
 
     refreshBuilding(deltaTime: number) {
         [...this.#buildings.values()].forEach((building: Building) => {
-            if (building.attackable.getHealth() <= 0) {
+            if (building.getHealth() <= 0) {
                 this.#deleted.add(building.getId());
                 this.#buildings.delete(building.getId());
                 return;
@@ -55,7 +55,7 @@ class BuildingController {
     checkWinner(): PlayerColor | undefined {
         const colorPresence = new Set<PlayerColor>();
         for (const building of this.#buildings.values()) {
-            if (building.attackable.getHealth() > 0) {
+            if (building.getHealth() > 0) {
                 colorPresence.add(building.getColor());
             }
         }

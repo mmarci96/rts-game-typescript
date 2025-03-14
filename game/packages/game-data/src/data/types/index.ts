@@ -154,3 +154,26 @@ export interface PlayerResources {
     wood: number;
     food: number;
 }
+
+export interface IAttackable {
+    getHealth(): number;
+    getMaxHealth(): number;
+    takeDamage(damage: number): void;
+}
+
+export interface IAttacker {
+    attack(target: IAttackable): string;
+    setTargetId(targetId: string | null): void;
+    getAttackRange(): number;
+    getTargetId(): string | null;
+    canAttack(): boolean;
+    resetTarget(): void;
+}
+
+
+
+export interface IMovable {
+    move(startX: number, startY: number, deltaTime: number): { newX: number; newY: number; progress: string };
+    setTarget(x: number | null, y: number | null): void;
+    getSpeed(): number;
+}

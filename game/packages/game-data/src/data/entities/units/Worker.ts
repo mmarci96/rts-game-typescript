@@ -18,11 +18,11 @@ class Worker extends Unit {
             const targetX = targetResource.getX();
             const targetY = targetResource.getY();
 
-            this.movable.setTarget(targetX, targetY);
+            this.setTarget(targetX, targetY);
             const distance = calculateDistance(this.getPosition(), targetResource.getPosition());
             if (distance > 1) {
                 this.setStatus("moving");
-                this.movable.setTarget(targetX, targetY);
+                this.setTarget(targetX, targetY);
                 this.updatePosition(deltaTime);
             } else {
                 this.setStatus("mining")

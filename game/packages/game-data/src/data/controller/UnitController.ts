@@ -18,7 +18,7 @@ class UnitController {
 
     refreshUnits(deltaTime: number) {
         [...this.#units.values()].forEach((unit: Unit) => {
-            if (unit.attackable.getHealth() <= 0) {
+            if (unit.getHealth() <= 0) {
                 this.#deleted.add(unit.getId());
                 this.#units.delete(unit.getId());
                 return;
@@ -29,10 +29,10 @@ class UnitController {
                     this.handleAttack(unit);
                     break;
                 case "moving":
-                    unit.updatePosition(deltaTime);
+                    unit.update(deltaTime);
                     break;
                 case "cooldown":
-                    this.handleCooldown(deltaTime, unit);
+                    unit.update(deltaTime);
                     break;
                 case "idle":
                     this.adjustIdleUnitPosition(unit);
@@ -54,7 +54,7 @@ class UnitController {
     checkWinner(): PlayerColor | undefined {
         const colorPresence = new Set<PlayerColor>();
         for (const unit of this.#units.values()) {
-            if (unit.attackable.getHealth() > 0) {
+            if (unit.getHealth() > 0) {
                 colorPresence.add(unit.getColor());
             }
         }
@@ -129,7 +129,7 @@ class UnitController {
     }
 
     handleAttack(unit: Unit) {
-        const targetId = unit.attacker.getTargetId();
+        const targetId = unit.getTargetId();
         if (!targetId) {
             unit.setStatus("idle");
             return;
@@ -137,7 +137,7 @@ class UnitController {
         const targetUnit = this.getUnitById(targetId);
         if (!targetUnit) {
             unit.setStatus("idle");
-            unit.attacker.resetTarget();
+            unit.resetTarget();
             return;
         }
         const tx = targetUnit.getX();
@@ -145,25 +145,18 @@ class UnitController {
         const dx = tx - unit.getX();
         const dy = ty - unit.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = unit.attacker.getAttackRange();
+        const attackRange = unit.getAttackRange();
         if (distance <= attackRange) {
-            const status = unit.attacker.attackUnit(targetUnit);
+            const status = unit.attack(targetUnit);
             unit.setStatus(status);
         } else {
             const directionX = dx / distance;
             const directionY = dy / distance;
             const targetX = tx - directionX * (attackRange - 0.2);
             const targetY = ty - directionY * (attackRange - 0.2);
-            unit.movable.setTarget(targetX, targetY);
+            unit.setTarget(targetX, targetY);
             unit.setStatus("moving");
         }
-    }
-    handleCooldown(deltaTime: number, unit: Unit) {
-        if (unit.attacker.canAttack()) {
-            unit.setStatus("attack");
-            return;
-        }
-        unit.attacker.updateCooldown(deltaTime);
     }
 
     loadUnits(unitsData: UnitData[]) {
@@ -216,14 +209,14 @@ class UnitController {
             return;
         }
         unit.setStatus(unitUpdateData.state);
-        unit.movable.setTarget(
+        unit.#movable.setTarget(
             unitUpdateData.target.x,
             unitUpdateData.target.y,
         );
-        unit.attackable.setHealth(unitUpdateData.health);
+        unit.#attackable.setHealth(unitUpdateData.health);
         const targetId = unitUpdateData.target.id?.toString();
         if (targetId) {
-            unit.attacker.setTargetId(targetId);
+            unit.#attacker.setTargetId(targetId);
         }
     }
 
@@ -245,11 +238,11 @@ class UnitController {
                     const angleA = Math.random() * Math.PI * 2;
                     const angleB = Math.random() * Math.PI * 2;
 
-                    unitA.movable.setTarget(
+                    unitA.#movable.setTarget(
                         unitA.getX() + Math.cos(angleA) * minDistance,
                         unitA.getY() + Math.sin(angleA) * minDistance,
                     );
-                    unitB.movable.setTarget(
+                    unitB.#movable.setTarget(
                         unitB.getX() + Math.cos(angleB) * minDistance,
                         unitB.getY() + Math.sin(angleB) * minDistance,
                     );

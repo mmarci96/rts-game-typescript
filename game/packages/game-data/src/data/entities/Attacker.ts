@@ -1,22 +1,27 @@
-import { Unit } from "./units";
+import { IAttacker, IAttackable } from "../types";
 
-class Attacker {
+class Attacker implements IAttacker {
     #attackDamage: number;
     #targetId: string | null;
     #attackSpeed: number;
     #attackRange: number;
     #coolDown: number;
 
-    constructor(
-        attackDamage: number,
-        attackSpeed: number,
-        attackRange: number,
-    ) {
+    constructor(attackDamage: number, attackSpeed: number, attackRange: number) {
         this.#attackDamage = attackDamage;
         this.#attackSpeed = attackSpeed;
         this.#attackRange = attackRange;
         this.#coolDown = 0;
         this.#targetId = null;
+    }
+
+    attack(target: IAttackable) {
+        if (this.canAttack()) {
+            this.startCoolDown();
+            target.takeDamage(this.#attackDamage);
+            return "attack";
+        }
+        return "cooldown";
     }
 
     getAttackRange() {
@@ -49,16 +54,6 @@ class Attacker {
 
     updateCooldown(deltaTime: number) {
         this.#coolDown = Math.max(0, this.#coolDown - deltaTime);
-    }
-
-    attackUnit(targetUnit: Unit) {
-        if (this.canAttack()) {
-            this.startCoolDown();
-            const damage = this.getAttackDamage();
-            targetUnit.attackable.getAttacked(damage);
-            return "attack";
-        }
-        return "cooldown";
     }
 
     canAttack() {
