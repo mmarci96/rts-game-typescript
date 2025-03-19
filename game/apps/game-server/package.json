@@ -14,6 +14,8 @@
     "license": "ISC",
     "packageManager": "pnpm@10.6.0",
     "dependencies": {
+        "@packages/game-data": "link:../../packages/game-data",
+        "@packages/game-db": "link:../../packages/game-db",
         "cors": "^2.8.5",
         "dotenv": "^16.4.7",
         "express": "^4.21.2",
