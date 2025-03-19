@@ -1,14 +1,17 @@
 import { IMovable } from "../types";
+import { AStar } from "../utils/pathfinding";
 
 class Movable implements IMovable {
     #speed: number;
     #targetX: number | null;
     #targetY: number | null;
+    #aStar: AStar | null;
 
-    constructor(speed: number) {
+    constructor(speed: number, aStar: AStar | null) {
         this.#speed = speed;
         this.#targetX = null;
         this.#targetY = null;
+        this.#aStar = aStar;
     }
 
     setTarget(targetX: number | null, targetY: number | null) {
@@ -24,6 +27,11 @@ class Movable implements IMovable {
     }
 
     move(startX: number, startY: number, deltaTime: number) {
+        if (this.#aStar) {
+            console.log(this.#aStar.getTile(startX, startY));
+
+        }
+
         if (!this.#targetX || !this.#targetY) {
             return { newX: startX, newY: startY, progress: "completed" };
         }

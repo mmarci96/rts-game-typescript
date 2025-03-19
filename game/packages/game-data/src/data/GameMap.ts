@@ -1,3 +1,4 @@
+import { Building } from "./entities";
 import { Tile } from "./types";
 
 class GameMap {
@@ -18,10 +19,21 @@ class GameMap {
                 const tile: Tile = row[x];
                 tile.x = x;
                 tile.y = y;
-
+                if (tile.tileName === "water1") {
+                    tile.isPassable = () => false;
+                } else {
+                    tile.isPassable = () => true;
+                }
             }
-
         }
+    }
+
+    addBuildingObsacle(building: Building) {
+        const buildingPos = building.getPosition();
+        const x = Math.floor(buildingPos.x);
+        const y = Math.floor(buildingPos.y);
+        const tile = this.#tiles[y][x];
+        tile.isPassable = () => false;
     }
 
     getTiles() {

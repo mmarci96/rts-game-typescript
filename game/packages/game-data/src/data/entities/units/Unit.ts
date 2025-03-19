@@ -3,15 +3,16 @@ import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
 import { IAttacker, IMovable } from "../../types";
+import { AStar } from "../../utils/pathfinding";
 
 class Unit extends Attackable implements IAttacker, IMovable {
     idleTime: number = 0;
     #movable: Movable;
     #attacker: Attacker;
 
-    constructor(parameters: UnitParams) {
+    constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters.controlledParams);
-        this.#movable = new Movable(parameters.speed);
+        this.#movable = new Movable(parameters.speed, aStar);
         this.#attacker = new Attacker(
             parameters.damage,
             parameters.attackSpeed,

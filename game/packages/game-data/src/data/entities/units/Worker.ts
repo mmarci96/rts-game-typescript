@@ -2,12 +2,13 @@ import Unit from "./Unit";
 import { UnitParams } from "../../types";
 import Collector from "../Collector";
 import { calculateDistance } from "../../utils";
+import { AStar } from "../../utils/pathfinding";
 
 class Worker extends Unit {
     collector: Collector;
 
-    constructor(parameters: UnitParams) {
-        super(parameters);
+    constructor(parameters: UnitParams, aStar: AStar | null) {
+        super(parameters, aStar);
         this.collector = new Collector(5);
     }
 

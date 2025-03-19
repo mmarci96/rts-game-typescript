@@ -129,6 +129,13 @@ export class AStar {
         return neighbors;
     }
 
+    public getTile(x: number, y: number) {
+        if (y < 0 || y >= this.grid.length || x < 0 || x >= this.grid[y].length) {
+            return null;
+        }
+        return this.grid[y][x];
+    }
+
     public search(start: Tile, end: Tile, diagonals = false, heuristic = AStar.manhattan): Tile[] {
         this.init();
         const openHeap = new BinaryHeap<Tile>(node => node.f);
@@ -153,7 +160,7 @@ export class AStar {
             const neighbors = this.getNeighbors(currentNode, diagonals);
 
             for (const neighbor of neighbors) {
-                if (neighbor.closed || neighbor.isWall()) continue;
+                if (neighbor.closed || !neighbor.isPassable()) continue;
 
                 const gScore = currentNode.g + neighbor.cost;
                 const beenVisited = neighbor.visited;

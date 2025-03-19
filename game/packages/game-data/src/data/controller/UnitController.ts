@@ -8,13 +8,17 @@ import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
 import GameMap from "../GameMap";
+import { AStar } from "../utils/pathfinding";
 
 class UnitController {
     #units;
     #gameMap;
+    #aStar;
+
     constructor(gameMap: GameMap) {
         this.#units = new Map<string, Unit>();
         this.#gameMap = gameMap
+        this.#aStar = new AStar(this.#gameMap.getTiles());
     }
 
     refreshUnits(deltaTime: number) {
@@ -162,15 +166,15 @@ class UnitController {
         const unitParam = mapUnitToUnitParams(unitData);
         switch (unitData.unitType) {
             case "archer":
-                const archer = new Archer(unitParam);
+                const archer = new Archer(unitParam, this.#aStar);
                 this.#units.set(archer.getId(), archer);
                 break;
             case "worker":
-                const worker = new Worker(unitParam);
+                const worker = new Worker(unitParam, this.#aStar);
                 this.#units.set(worker.getId(), worker);
                 break;
             case "warrior":
-                const warrior = new Warrior(unitParam);
+                const warrior = new Warrior(unitParam, this.#aStar);
                 this.#units.set(warrior.getId(), warrior);
                 break;
             default:

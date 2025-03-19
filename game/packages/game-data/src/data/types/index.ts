@@ -135,7 +135,7 @@ export interface Tile {
     parent: Tile | null;
     type: number;
     pos: { x: number; y: number };
-    isWall: () => boolean;
+    isPassable: () => boolean;
 }
 
 export enum UnitType {
