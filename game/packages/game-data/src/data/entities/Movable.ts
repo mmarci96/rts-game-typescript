@@ -34,7 +34,6 @@ class Movable implements IMovable {
         const targetTile = this.#aStar.getTile(targetX, targetY);
         const path = this.#aStar.search(currentTile, targetTile);
         this.#path = path;
-        //console.log(path);
         return path;
     }
 
@@ -50,28 +49,26 @@ class Movable implements IMovable {
             return { newX: this.#currentX, newY: this.#currentY, progress: "completed" };
         }
 
-        // Get the next tile in the path
         const nextTile = this.#path[0];
         const deltaX = nextTile.x - this.#currentX;
         const deltaY = nextTile.y - this.#currentY;
         const distanceToNextTile = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-        // Movement logic
         const speed = this.#speed / 4;
         const stepDistance = speed * deltaTime;
 
         if (distanceToNextTile <= stepDistance) {
-            // If we reach the next tile, move to it and remove it from the path
             this.#currentX = nextTile.x;
             this.#currentY = nextTile.y;
             this.#path.shift();
         } else {
-            // Move towards the next tile
             const directionX = deltaX / distanceToNextTile;
             const directionY = deltaY / distanceToNextTile;
             this.#currentX += directionX * stepDistance;
             this.#currentY += directionY * stepDistance;
         }
+        this.#targetX = this.#currentX;
+        this.#targetY = this.#currentY;
 
         return {
             newX: this.#currentX,
@@ -79,30 +76,6 @@ class Movable implements IMovable {
             progress: this.#path.length === 0 ? "completed" : "progressing"
         };
     }
-    //move(startX: number, startY: number, deltaTime: number) {
-    //    if (!this.#targetX || !this.#targetY) {
-    //        return { newX: startX, newY: startY, progress: "completed" };
-    //    }
-    //    const deltaX = this.#targetX - startX;
-    //    const deltaY = this.#targetY - startY;
-    //    const distanceToTarget = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-    //
-    //    const speed = this.#speed / 4;
-    //    const stepDistance = speed * deltaTime;
-    //    if (distanceToTarget <= stepDistance) {
-    //        this.#targetX = null;
-    //        this.#targetY = null;
-    //        return { newX: startX, newY: startY, progress: "completed" };
-    //    }
-    //
-    //    const directionX = deltaX / distanceToTarget;
-    //    const directionY = deltaY / distanceToTarget;
-    //
-    //    const newX = startX + directionX * stepDistance;
-    //    const newY = startY + directionY * stepDistance;
-    //
-    //    return { newX, newY, progress: "progressing" };
-    //}
 
     getSpeed() {
         return this.#speed;
