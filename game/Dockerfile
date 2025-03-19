@@ -1,35 +1,23 @@
-# Base image with pnpm setup
 FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-
-# Build stage
 FROM base AS build
 WORKDIR /usr/src/app
-
-# Copy all files and install dependencies
 COPY . . 
-
-# Cache dependencies for faster builds
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
-# Ensure shared packages are built
 RUN pnpm run update-packages
 
-# Build backend apps (API & Server)
 RUN pnpm --filter=game-api build
 RUN pnpm --filter=game-server build
 
-# Build frontend apps (UI & Client)
 RUN pnpm --filter=game-ui build
 RUN pnpm --filter=game-client build
 
-# Deploy backend apps
 RUN pnpm deploy --filter=game-api --prod /prod/game-api
 RUN pnpm deploy --filter=game-server --prod /prod/game-server
 
-# Move frontend builds to a common directory
 RUN mkdir -p /prod/nginx
 RUN cp -r apps/game-ui/dist /prod/nginx/game-ui
 RUN cp -r apps/game-client/dist /prod/nginx/game-client
@@ -56,12 +44,11 @@ CMD [ "pnpm", "start" ]
 
 # Nginx for serving frontend
 FROM nginx:latest AS game-frontend
-WORKDIR /usr/share/nginx/html
 
-RUN rm -rf ./*
+COPY --from=build /prod/nginx/game-ui /usr/share/nginx/html
 
-COPY --from=build /prod/nginx/game-ui ./game-ui
-COPY --from=build /prod/nginx/game-client ./game-client
+COPY --from=build /prod/nginx/game-client /usr/share/nginx/html2
+
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80
