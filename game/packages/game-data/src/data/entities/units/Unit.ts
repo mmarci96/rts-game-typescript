@@ -12,7 +12,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
     constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters.controlledParams);
-        this.#movable = new Movable(parameters.speed, aStar);
+        this.#movable = new Movable(parameters.speed, this.getX(), this.getY(), aStar);
         this.#attacker = new Attacker(
             parameters.damage,
             parameters.attackSpeed,
@@ -21,51 +21,29 @@ class Unit extends Attackable implements IAttacker, IMovable {
         this.#movable.setTarget(parameters.target.x, parameters.target.y);
     }
 
-    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[] {
-        return this.#movable.setupPathfinder(startX, startY, targetX, targetY)
-    }
-    getAttackableTarget(): Attackable | null {
-        return this.#attacker.getAttackableTarget()
-    }
-    setAttackableTarget(target: Attackable | null): void {
-        this.setStatus("attack")
-        this.#attacker.setAttackableTarget(target)
-    }
-    getAttackSpeed(): number {
-        return this.#attacker.getAttackSpeed()
-    }
-    getAttackDamage(): number {
-        return this.#attacker.getAttackDamage()
-    }
-    attack(): string {
-        return this.#attacker.attack();
-    }
-
-    resetTarget(): void {
-        //this.setStatus("idle")
-        this.#attacker.resetTarget();
-    }
-    getTarget(): { targetX: number | null; targetY: number | null; } {
-        return this.#movable.getTarget();
-    }
-
-    getAttackRange(): number {
-        return this.#attacker.getAttackRange();
-    }
-
-    setTarget(x: number | null, y: number | null): void {
-        this.#movable.setTarget(x, y);
-    }
-    canAttack(): boolean {
-        return this.#attacker.canAttack()
-    }
-    updateCooldown(deltaTime: number) {
-        if (this.canAttack()) {
-            this.setStatus('attack');
-            return;
+    update(deltaTime: number) {
+        let state = this.getStatus();
+        switch (state) {
+            case "attack":
+                this.attackHandler();
+                break;
+            case "moving":
+                this.updatePosition(deltaTime);
+                break;
+            case "cooldown":
+                this.updateCooldown(deltaTime);
+                break;
+            case "idle":
+                this.idleTime += deltaTime;
+                break;
+            case "mining":
+                this.mining(deltaTime);
+                break;
+            default:
+                break;
         }
-        this.#attacker.updateCooldown(deltaTime)
     }
+
     attackHandler() {
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit) {
@@ -96,36 +74,6 @@ class Unit extends Attackable implements IAttacker, IMovable {
         }
     }
 
-    update(deltaTime: number) {
-        let state = this.getStatus();
-        switch (state) {
-            case "attack":
-                this.attackHandler();
-                break;
-            case "moving":
-                this.updatePosition(deltaTime);
-                break;
-            case "cooldown":
-                this.updateCooldown(deltaTime);
-                break;
-            case "idle":
-                this.idleTime += deltaTime;
-                break;
-            case "mining":
-                this.mining(deltaTime);
-                break;
-            default:
-                break;
-        }
-
-        //this.#attacker.updateCooldown(deltaTime);
-        //this.updatePosition(deltaTime);
-    }
-    mining(deltaTime: number) {
-        if (deltaTime) {
-            this.setStatus("idle");
-        }
-    };
     updatePosition(deltaTime: number) {
         const { newX, newY, progress } = this.#movable.move(
             this.getX(),
@@ -152,6 +100,64 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
         this.setStatus("idle");
         return;
+    }
+
+    mining(deltaTime: number) {
+        if (deltaTime) {
+            this.setStatus("idle");
+        }
+    };
+
+    updateCooldown(deltaTime: number) {
+        if (this.canAttack()) {
+            this.setStatus('attack');
+            return;
+        }
+        this.#attacker.updateCooldown(deltaTime)
+    }
+
+    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[] {
+        return this.#movable.setupPathfinder(startX, startY, targetX, targetY)
+    }
+
+    getAttackableTarget(): Attackable | null {
+        return this.#attacker.getAttackableTarget()
+    }
+
+    setAttackableTarget(target: Attackable | null): void {
+        this.setStatus("attack")
+        this.#attacker.setAttackableTarget(target)
+    }
+
+    getAttackSpeed(): number {
+        return this.#attacker.getAttackSpeed()
+    }
+
+    getAttackDamage(): number {
+        return this.#attacker.getAttackDamage()
+    }
+
+    attack(): string {
+        return this.#attacker.attack();
+    }
+
+    resetTarget(): void {
+        this.#attacker.resetTarget();
+    }
+
+    getTarget(): { targetX: number | null; targetY: number | null; } {
+        return this.#movable.getTarget();
+    }
+
+    getAttackRange(): number {
+        return this.#attacker.getAttackRange();
+    }
+
+    setTarget(x: number | null, y: number | null): void {
+        this.#movable.setTarget(x, y);
+    }
+    canAttack(): boolean {
+        return this.#attacker.canAttack()
     }
 
     getSpeed() {

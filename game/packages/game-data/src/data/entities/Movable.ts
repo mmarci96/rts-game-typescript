@@ -5,13 +5,17 @@ class Movable implements IMovable {
     #speed: number;
     #targetX: number | null;
     #targetY: number | null;
+    #currentX: number;
+    #currentY: number;
     #aStar: AStar | null;
     #path: Tile[]
 
-    constructor(speed: number, aStar: AStar | null) {
+    constructor(speed: number, currentX: number, currentY: number, aStar: AStar | null) {
         this.#speed = speed;
         this.#targetX = null;
         this.#targetY = null;
+        this.#currentX = currentX;
+        this.#currentY = currentY
         this.#aStar = aStar;
         this.#path = [];
     }
