@@ -7,19 +7,19 @@ class Movable implements IMovable {
     #targetY: number | null;
     #currentX: number;
     #currentY: number;
-    #aStar: AStar | null;
     #finalX: number;
     #finalY: number;
+    #aStar: AStar | null;
     #path: Tile[]
 
     constructor(speed: number, currentX: number, currentY: number, aStar: AStar | null) {
         this.#speed = speed;
         this.#targetX = null;
         this.#targetY = null;
+        this.#currentX = currentX;
+        this.#currentY = currentY;
         this.#finalX = currentX;
         this.#finalY = currentY;
-        this.#currentX = currentX;
-        this.#currentY = currentY
         this.#aStar = aStar;
         this.#path = [];
     }
@@ -34,11 +34,11 @@ class Movable implements IMovable {
             console.error("Pathfinder not initialized!");
             return [];
         }
-        this.#finalX = targetX;
-        this.#finalY = targetY;
         const currentTile = this.#aStar.getTile(startX, startY);
         const targetTile = this.#aStar.getTile(targetX, targetY);
         const path = this.#aStar.search(currentTile, targetTile);
+        this.#finalX = targetX;
+        this.#finalY = targetY;
         this.#path = path;
         return path;
     }
@@ -52,6 +52,8 @@ class Movable implements IMovable {
 
     move(deltaTime: number) {
         if (this.#path.length === 0) {
+            this.#currentX = this.#finalX;
+            this.#currentY = this.#finalY;
             return { newX: this.#currentX, newY: this.#currentY, progress: "completed" };
         }
 
@@ -68,8 +70,8 @@ class Movable implements IMovable {
             this.#currentY = (this.#currentY + nextTile.y) / 2;
 
             if (Math.abs(this.#currentX - nextTile.x) < 0.01 && Math.abs(this.#currentY - nextTile.y) < 0.01) {
-                this.#currentX = this.#finalX;
-                this.#currentY = this.#finalY;
+                this.#currentX = nextTile.x;
+                this.#currentY = nextTile.y;
                 this.#path.shift();
             }
         } else {
@@ -77,10 +79,14 @@ class Movable implements IMovable {
             const directionY = deltaY / distanceToNextTile;
             this.#currentX += directionX * stepDistance;
             this.#currentY += directionY * stepDistance;
-            this.#targetX = nextTile.x;
-            this.#targetY = nextTile.y;
         }
-
+        if (this.#path.length >= 2) {
+            this.#targetX = this.#path[1].x;
+            this.#targetY = this.#path[1].y;
+        } else {
+            this.#targetX = this.#finalX;
+            this.#targetY = this.#finalY;
+        }
         return {
             newX: this.#currentX,
             newY: this.#currentY,
