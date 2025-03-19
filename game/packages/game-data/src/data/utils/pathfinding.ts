@@ -121,9 +121,10 @@ export class AStar {
         }
 
         for (const [dx, dy] of directions) {
-            if (this.grid[dx] && this.grid[dx][dy]) {
-                neighbors.push(this.grid[dx][dy]);
+            if (this.grid[dy] && this.grid[dy][dx]) {
+                neighbors.push(this.grid[dy][dx]);
             }
+
         }
 
         return neighbors;

@@ -30,7 +30,7 @@ class Movable implements IMovable {
         const targetTile = this.#aStar.getTile(targetX, targetY);
         const path = this.#aStar.search(currentTile, targetTile);
         this.#path = path;
-        console.log(path);
+        //console.log(path);
         return path;
     }
 
