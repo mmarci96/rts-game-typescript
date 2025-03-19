@@ -20,7 +20,7 @@ class GameMap {
                 tile.x = x;
                 tile.y = y;
                 tile.pos = { x, y };
-                if (tile.tileName === "water1") {
+                if (tile.tile === "water1") {
                     tile.isPassable = () => false;
                 } else {
                     tile.isPassable = () => true;
