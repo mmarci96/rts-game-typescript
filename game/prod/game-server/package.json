@@ -1,0 +1,37 @@
+{
+    "name": "game-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "./src/index.ts",
+    "scripts": {
+        "test": "jest --detectOpenHandles --forceExit",
+        "start": "node dist/index.js",
+        "build": "tsc",
+        "dev": "nodemon --watch 'src/**/*' --exec 'ts-node -r dotenv/config' src/index.ts"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "packageManager": "pnpm@10.6.0",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.7",
+        "express": "^4.21.2",
+        "http": "0.0.1-security",
+        "ioredis": "^5.6.0",
+        "mongoose": "^8.12.1",
+        "socket.io": "^4.8.1"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.17",
+        "@types/dotenv": "^8.2.3",
+        "@types/express": "^5.0.0",
+        "@types/ioredis": "^5.0.0",
+        "@types/mongoose": "^5.11.97",
+        "@types/node": "^22.13.9",
+        "@types/socket.io": "^3.0.2",
+        "nodemon": "^3.1.9",
+        "ts-node": "^10.9.2",
+        "typescript": "~5.7.3"
+    }
+}
