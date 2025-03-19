@@ -122,8 +122,8 @@ export enum TileName {
 }
 
 export interface Tile {
-    x?: number;
-    y?: number;
+    x: number;
+    y: number;
     z: number;
     tile: TileName;
 }
