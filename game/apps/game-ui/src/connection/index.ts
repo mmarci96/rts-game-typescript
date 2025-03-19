@@ -78,8 +78,8 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(data: { winner: PlayerColor }) {
-        if (this.game.getLogic().getPlayerColor() === data.winner) {
+    private handleGameOver(winner: PlayerColor) {
+        if (this.game.getLogic().getPlayerColor() === winner) {
             console.log("Winner is you!");
         } else {
             console.log("You lost!");
