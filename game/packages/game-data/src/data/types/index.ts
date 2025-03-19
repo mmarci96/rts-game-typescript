@@ -125,7 +125,7 @@ export interface Tile {
     x: number;
     y: number;
     z: number;
-    tileName: TileName;
+    tile: TileName;
     f: number;
     g: number;
     h: number;
