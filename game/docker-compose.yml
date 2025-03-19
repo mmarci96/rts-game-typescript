@@ -46,6 +46,19 @@ services:
       - redis
     ports:
       - "8080:8080"
+  
+  game-frontend:
+    image: game-frontend:latest
+    container_name: game-frontend
+    build:
+        context: .
+        dockerfile: Dockerfile
+        target: game-frontend
+    depends_on:
+      - game-server
+      - game-api
+    ports:
+      - "80:80"
 
 volumes:
   redis_data:
