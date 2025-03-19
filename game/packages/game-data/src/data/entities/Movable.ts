@@ -1,4 +1,4 @@
-import { IMovable } from "../types";
+import { IMovable, Tile } from "../types";
 import { AStar } from "../utils/pathfinding";
 
 class Movable implements IMovable {
@@ -6,17 +6,32 @@ class Movable implements IMovable {
     #targetX: number | null;
     #targetY: number | null;
     #aStar: AStar | null;
+    #path: Tile[]
 
     constructor(speed: number, aStar: AStar | null) {
         this.#speed = speed;
         this.#targetX = null;
         this.#targetY = null;
         this.#aStar = aStar;
+        this.#path = [];
     }
 
     setTarget(targetX: number | null, targetY: number | null) {
         this.#targetY = targetY;
         this.#targetX = targetX;
+    }
+
+    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number) {
+        if (!this.#aStar) {
+            console.error("Pathfinder not initialized!");
+            return [];
+        }
+        const currentTile = this.#aStar.getTile(startX, startY);
+        const targetTile = this.#aStar.getTile(targetX, targetY);
+        const path = this.#aStar.search(currentTile, targetTile);
+        this.#path = path;
+        console.log(path);
+        return path;
     }
 
     getTarget() {
@@ -27,11 +42,6 @@ class Movable implements IMovable {
     }
 
     move(startX: number, startY: number, deltaTime: number) {
-        if (this.#aStar) {
-            console.log(this.#aStar.getTile(startX, startY));
-
-        }
-
         if (!this.#targetX || !this.#targetY) {
             return { newX: startX, newY: startY, progress: "completed" };
         }

@@ -19,6 +19,7 @@ class GameMap {
                 const tile: Tile = row[x];
                 tile.x = x;
                 tile.y = y;
+                tile.pos = { x, y };
                 if (tile.tileName === "water1") {
                     tile.isPassable = () => false;
                 } else {

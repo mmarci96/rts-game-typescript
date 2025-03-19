@@ -1,4 +1,4 @@
-import { UnitParams } from "../../types";
+import { Tile, UnitParams } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
@@ -21,6 +21,9 @@ class Unit extends Attackable implements IAttacker, IMovable {
         this.#movable.setTarget(parameters.target.x, parameters.target.y);
     }
 
+    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[] {
+        return this.#movable.setupPathfinder(startX, startY, targetX, targetY)
+    }
     getAttackableTarget(): Attackable | null {
         return this.#attacker.getAttackableTarget()
     }

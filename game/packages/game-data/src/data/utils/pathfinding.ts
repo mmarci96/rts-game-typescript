@@ -92,7 +92,7 @@ export class AStar {
                 node.f = 0;
                 node.g = 0;
                 node.h = 0;
-                node.cost = node.type;
+                node.cost = node.type ?? 1;
                 node.visited = false;
                 node.closed = false;
                 node.parent = null;
@@ -129,14 +129,11 @@ export class AStar {
         return neighbors;
     }
 
-    public getTile(x: number, y: number) {
-        if (y < 0 || y >= this.grid.length || x < 0 || x >= this.grid[y].length) {
-            return null;
-        }
-        return this.grid[y][x];
+    public getTile(x: number, y: number): Tile {
+        return this.grid[Math.floor(y)][Math.floor(x)];
     }
 
-    public search(start: Tile, end: Tile, diagonals = false, heuristic = AStar.manhattan): Tile[] {
+    public search(start: Tile, end: Tile, diagonals = true, heuristic = AStar.manhattan): Tile[] {
         this.init();
         const openHeap = new BinaryHeap<Tile>(node => node.f);
         openHeap.push(start);
