@@ -31,6 +31,38 @@ class EntityManager {
         this.#drawables = new Map<string, Drawable>();
     }
 
+    refreshEntities(deltaTime: number) {
+        const existingKeys: Set<string> = new Set(
+            this.#unitManager.getUnitIds(),
+        );
+        this.#unitManager.getUnits().forEach((unit: Unit) => {
+            const drawable = this.#drawables.get(unit.getId());
+            if (
+                drawable &&
+                drawable.entity instanceof Unit &&
+                drawable instanceof AnimatedSprite
+            ) {
+                drawable.setAnimationType(unit.getStatus());
+                const tx = unit.getTarget().targetX;
+                const ty = unit.getTarget().targetY;
+                if (tx && ty) {
+                    const { x, y } = drawable.move(tx, ty, deltaTime);
+                    unit.setX(x);
+                    unit.setY(y);
+                }
+                drawable.entity = unit;
+                existingKeys.delete(drawable.entity.getId());
+            }
+        });
+        [...existingKeys].forEach((unitId: string) => {
+            const unit = this.#unitManager.getUnitById(unitId);
+            if (unit) {
+                const animatedSprite = this.loadAnimatedUnit(unit);
+                this.#drawables.set(unit.getId(), animatedSprite);
+            }
+        });
+    }
+
     loadGameState(gameState: GameState) {
         const { buildings, units, resources } = gameState;
         const existingIds = new Set(this.#drawables.keys());
@@ -73,48 +105,19 @@ class EntityManager {
     getUnitsController() {
         return this.#unitManager;
     }
+
     getBuildingController() {
         return this.#buildingController;
     }
+
     getResourceController() {
         return this.#resourceController;
     }
+
     getDrawables() {
         return this.#drawables;
     }
 
-    refreshEntities(deltaTime: number) {
-        const existingKeys: Set<string> = new Set(
-            this.#unitManager.getUnitIds(),
-        );
-
-        this.#unitManager.getUnits().forEach((unit: Unit) => {
-            const drawable = this.#drawables.get(unit.getId());
-            if (
-                drawable &&
-                drawable.entity instanceof Unit &&
-                drawable instanceof AnimatedSprite
-            ) {
-                drawable.setAnimationType(unit.getStatus());
-                const tx = unit.getTarget().targetX;
-                const ty = unit.getTarget().targetY;
-                if (tx && ty) {
-                    const { x, y } = drawable.move(tx, ty, deltaTime);
-                    unit.setX(x);
-                    unit.setY(y);
-                }
-                drawable.entity = unit;
-                existingKeys.delete(drawable.entity.getId());
-            }
-        });
-        [...existingKeys].forEach((unitId: string) => {
-            const unit = this.#unitManager.getUnitById(unitId);
-            if (unit) {
-                const animatedSprite = this.loadAnimatedUnit(unit);
-                this.#drawables.set(unit.getId(), animatedSprite);
-            }
-        });
-    }
     loadAnimatedUnit(unit: Unit) {
         const spriteName = `${unit.getType().toLowerCase()}_${unit.getColor()}`;
         const img = this.#assets.getImage(spriteName);
