@@ -125,7 +125,17 @@ export interface Tile {
     x: number;
     y: number;
     z: number;
-    tile: TileName;
+    tileName: TileName;
+    f: number;
+    g: number;
+    h: number;
+    cost: number;
+    visited: boolean;
+    closed: boolean;
+    parent: Tile | null;
+    type: number;
+    pos: { x: number; y: number };
+    isWall: () => boolean;
 }
 
 export enum UnitType {
@@ -175,10 +185,9 @@ export interface IAttacker {
     getAttackSpeed(): number;
 }
 
-
-
 export interface IMovable {
     getTarget(): { targetX: number | null; targetY: number | null };
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;
 }
+
