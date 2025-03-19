@@ -147,12 +147,7 @@ class EntityController {
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
         unit.setStatus("moving");
-        unit.setTarget(targetX, targetY);
-        const path = unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
-        console.log("Unit starter pos: x", unit.getX(), "y", unit.getY());
-        console.log("Unit Target pos: x", targetX, "y", targetY);
-        console.log("Path for unit:", path);
-
+        unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
     }
 
     handleAttackEntity(unit: Unit, targetId: string) {
