@@ -1,19 +1,46 @@
-import { IMovable } from "../types";
+import { IMovable, Tile } from "../types";
+import { AStar } from "../utils/pathfinding";
 
 class Movable implements IMovable {
     #speed: number;
     #targetX: number | null;
     #targetY: number | null;
+    #currentX: number;
+    #currentY: number;
+    #aStar: AStar | null;
+    #finalX: number;
+    #finalY: number;
+    #path: Tile[]
 
-    constructor(speed: number) {
+    constructor(speed: number, currentX: number, currentY: number, aStar: AStar | null) {
         this.#speed = speed;
         this.#targetX = null;
         this.#targetY = null;
+        this.#finalX = currentX;
+        this.#finalY = currentY;
+        this.#currentX = currentX;
+        this.#currentY = currentY
+        this.#aStar = aStar;
+        this.#path = [];
     }
 
     setTarget(targetX: number | null, targetY: number | null) {
         this.#targetY = targetY;
         this.#targetX = targetX;
+    }
+
+    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number) {
+        if (!this.#aStar) {
+            console.error("Pathfinder not initialized!");
+            return [];
+        }
+        this.#finalX = targetX;
+        this.#finalY = targetY;
+        const currentTile = this.#aStar.getTile(startX, startY);
+        const targetTile = this.#aStar.getTile(targetX, targetY);
+        const path = this.#aStar.search(currentTile, targetTile);
+        this.#path = path;
+        return path;
     }
 
     getTarget() {
@@ -23,30 +50,44 @@ class Movable implements IMovable {
         };
     }
 
-    move(startX: number, startY: number, deltaTime: number) {
-        if (!this.#targetX || !this.#targetY) {
-            return { newX: startX, newY: startY, progress: "completed" };
+    move(deltaTime: number) {
+        if (this.#path.length === 0) {
+            return { newX: this.#currentX, newY: this.#currentY, progress: "completed" };
         }
-        const deltaX = this.#targetX - startX;
-        const deltaY = this.#targetY - startY;
-        const distanceToTarget = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+
+        const nextTile = this.#path[0];
+        const deltaX = nextTile.x - this.#currentX;
+        const deltaY = nextTile.y - this.#currentY;
+        const distanceToNextTile = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
         const speed = this.#speed / 4;
         const stepDistance = speed * deltaTime;
-        if (distanceToTarget <= stepDistance) {
-            this.#targetX = null;
-            this.#targetY = null;
-            return { newX: startX, newY: startY, progress: "completed" };
+
+        if (distanceToNextTile <= stepDistance) {
+            this.#currentX = (this.#currentX + nextTile.x) / 2;
+            this.#currentY = (this.#currentY + nextTile.y) / 2;
+
+            if (Math.abs(this.#currentX - nextTile.x) < 0.01 && Math.abs(this.#currentY - nextTile.y) < 0.01) {
+                this.#currentX = this.#finalX;
+                this.#currentY = this.#finalY;
+                this.#path.shift();
+            }
+        } else {
+            const directionX = deltaX / distanceToNextTile;
+            const directionY = deltaY / distanceToNextTile;
+            this.#currentX += directionX * stepDistance;
+            this.#currentY += directionY * stepDistance;
+            this.#targetX = nextTile.x;
+            this.#targetY = nextTile.y;
         }
 
-        const directionX = deltaX / distanceToTarget;
-        const directionY = deltaY / distanceToTarget;
-
-        const newX = startX + directionX * stepDistance;
-        const newY = startY + directionY * stepDistance;
-
-        return { newX, newY, progress: "progressing" };
+        return {
+            newX: this.#currentX,
+            newY: this.#currentY,
+            progress: this.#path.length === 0 ? "completed" : "progressing"
+        };
     }
+
     getSpeed() {
         return this.#speed;
     }

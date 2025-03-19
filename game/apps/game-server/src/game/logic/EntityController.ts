@@ -147,7 +147,7 @@ class EntityController {
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
         unit.setStatus("moving");
-        unit.setTarget(targetX, targetY);
+        unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
     }
 
     handleAttackEntity(unit: Unit, targetId: string) {

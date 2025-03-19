@@ -1,5 +1,4 @@
 import {
-    UnitController,
     BuildingController,
     ResourceController,
     GameState,
@@ -15,9 +14,10 @@ import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
 import AnimatedSprite from "../data/AnimatedSprite";
 import AnimatedTree from "../data/AnimatedTree";
+import UnitManager from "./UnitManager";
 
 class EntityManager {
-    #unitController: UnitController;
+    #unitManager: UnitManager;
     #buildingController: BuildingController;
     #resourceController: ResourceController;
     #drawables: Map<string, Drawable>;
@@ -25,7 +25,7 @@ class EntityManager {
 
     constructor(assets: AssetManager) {
         this.#assets = assets;
-        this.#unitController = new UnitController();
+        this.#unitManager = new UnitManager();
         this.#resourceController = new ResourceController();
         this.#buildingController = new BuildingController();
         this.#drawables = new Map<string, Drawable>();
@@ -34,7 +34,7 @@ class EntityManager {
     loadGameState(gameState: GameState) {
         const { buildings, units, resources } = gameState;
         const existingIds = new Set(this.#drawables.keys());
-        this.#unitController.loadUnits(units);
+        this.#unitManager.loadUnits(units);
         this.#buildingController.loadBuildings(buildings);
         this.#resourceController.loadResources(resources);
         units.forEach((unitData: UnitData) => existingIds.delete(unitData.id));
@@ -49,7 +49,7 @@ class EntityManager {
             if (unit instanceof AnimatedSprite) {
                 this.handleDeath(unit);
             } else {
-                this.#unitController.removeUnit(entityId);
+                this.#unitManager.removeUnit(entityId);
                 this.#drawables.delete(entityId);
                 console.log("Entity removed", entityId);
             }
@@ -58,7 +58,7 @@ class EntityManager {
 
     handleDeath(animatedSprite: AnimatedSprite) {
         if (animatedSprite.isAnimationComplete) {
-            this.#unitController.removeUnit(animatedSprite.entity.getId());
+            this.#unitManager.removeUnit(animatedSprite.entity.getId());
             this.#drawables.delete(animatedSprite.entity.getId());
             return;
         }
@@ -71,7 +71,7 @@ class EntityManager {
     }
 
     getUnitsController() {
-        return this.#unitController;
+        return this.#unitManager;
     }
     getBuildingController() {
         return this.#buildingController;
@@ -85,10 +85,10 @@ class EntityManager {
 
     refreshEntities(deltaTime: number) {
         const existingKeys: Set<string> = new Set(
-            this.#unitController.getUnitIds(),
+            this.#unitManager.getUnitIds(),
         );
 
-        this.#unitController.getUnits().forEach((unit: Unit) => {
+        this.#unitManager.getUnits().forEach((unit: Unit) => {
             const drawable = this.#drawables.get(unit.getId());
             if (
                 drawable &&
@@ -108,7 +108,7 @@ class EntityManager {
             }
         });
         [...existingKeys].forEach((unitId: string) => {
-            const unit = this.#unitController.getUnitById(unitId);
+            const unit = this.#unitManager.getUnitById(unitId);
             if (unit) {
                 const animatedSprite = this.loadAnimatedUnit(unit);
                 this.#drawables.set(unit.getId(), animatedSprite);

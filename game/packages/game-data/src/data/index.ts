@@ -4,4 +4,5 @@ export * from "./types";
 export * from "./entities";
 export * from "./utils";
 export * from "./controller";
+export * from "./utils/pathfinding"
 export { Player, GameMap };

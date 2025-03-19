@@ -10,7 +10,6 @@ import {
 } from "../../redis";
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
-import { deleteBuildingById, deleteResourceById, deleteUnitById } from "@packages/game-db";
 
 export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
@@ -30,7 +29,7 @@ export class GameUpdateService {
             this.activeGames.forEach((game, gameId) => {
                 this.updateGame(io, gameId, game, now);
             });
-        }, 100);
+        }, 50);
     }
 
     private async updateGame(io: Server, gameId: string, game: Game, now: number): Promise<void> {
