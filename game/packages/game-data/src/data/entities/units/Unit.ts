@@ -69,7 +69,6 @@ class Unit extends Attackable implements IAttacker, IMovable {
             const directionY = dy / distance;
             const targetX = tx - directionX * (attackRange - 0.2);
             const targetY = ty - directionY * (attackRange - 0.2);
-            //this.setTarget(targetX, targetY);
             this.setupPathfinder(this.getX(), this.getY(), targetX, targetY);
             this.setStatus("moving");
         }
