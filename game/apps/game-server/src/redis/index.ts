@@ -25,6 +25,8 @@ if (config.REDIS_PASSWORD) {
 if (config.REDIS_TLS) {
     redisOptions.tls = {};
 }
+console.log(redisOptions);
+
 
 export const redis = new Redis(redisOptions);
 export const deletePlayerCache = async (playerId: string, gameId: string) => {
