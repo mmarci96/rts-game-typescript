@@ -4,7 +4,7 @@ window.addEventListener("load", async () => {
         await ConnectionHandler.initialize();
     } catch (error) {
         console.error("Failed to initialize game:", error);
-        window.location.href = "http://localhost/home/"
+        //window.location.href = "http://localhost/home/"
     }
 });
 
