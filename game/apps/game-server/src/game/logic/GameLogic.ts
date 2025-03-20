@@ -6,8 +6,8 @@ import {
     BuildingController,
     PlayerColor,
     Player,
-} from "@packages/game-data";
-import { IMap } from "@packages/game-db";
+} from "@packages/game-data/dist";
+import { IMap } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
 import { PlayerCommand, SaveGameStateParams } from "../../types";
 

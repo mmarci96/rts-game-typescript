@@ -1,4 +1,4 @@
-import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db";
+import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db/dist";
 import {
     BuildingData,
     ResourceData,
@@ -8,7 +8,7 @@ import {
     Building,
     Resource,
     Player,
-} from "@packages/game-data";
+} from "@packages/game-data/dist";
 
 import Redis, { ChainableCommander } from "ioredis";
 import { config } from "../config";

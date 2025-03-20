@@ -1,4 +1,4 @@
-import { GameEntity } from "@packages/game-data";
+import { GameEntity } from "@packages/game-data/dist";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 

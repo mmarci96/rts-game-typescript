@@ -1,4 +1,4 @@
-import { PlayerResources } from "@packages/game-data";
+import { PlayerResources } from "@packages/game-data/dist";
 
 class StatusBar {
     element: HTMLDivElement;

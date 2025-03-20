@@ -13,9 +13,9 @@ import {
     Unit,
     UnitController,
     Worker,
-} from "@packages/game-data";
+} from "@packages/game-data/dist";
 import { PlayerCommand } from "../../types";
-import { createUnit } from "@packages/game-db";
+import { createUnit } from "@packages/game-db/dist";
 import { mapMongoUnitToData } from "../../utils/parseData";
 
 const UNIT_CONSTRUCTION_COST = {

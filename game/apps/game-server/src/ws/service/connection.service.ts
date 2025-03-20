@@ -1,6 +1,6 @@
-import { Player } from "@packages/game-data";
+import { Player } from "@packages/game-data/dist";
 import { ConnectionData } from "../../types";
-import { getPlayerById, saveEntitiesToMongo, updatePlayerResources } from "@packages/game-db";
+import { getPlayerById, saveEntitiesToMongo, updatePlayerResources } from "@packages/game-db/dist";
 import { cachePlayer, deletePlayerCache, getGameState, getPlayerCache } from "../../redis";
 
 export class ConnectionService {

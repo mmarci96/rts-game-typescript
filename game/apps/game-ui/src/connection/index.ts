@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, PlayerColor } from "@packages/game-data";
+import { GameState, PlayerColor } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
