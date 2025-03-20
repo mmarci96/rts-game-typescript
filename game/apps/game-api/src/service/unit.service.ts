@@ -1,5 +1,5 @@
 import { PlayerColor } from "@packages/game-data/dist/data/types";
-import { createUnitModel } from "@packages/game-db";
+import { createUnitModel } from "@packages/game-db/dist";
 import { IUnit, UnitModel } from "@packages/game-db/dist/mongo-db/unit.model";
 
 const getStarterPositionByColor = (color: PlayerColor, mapSize: number) => {

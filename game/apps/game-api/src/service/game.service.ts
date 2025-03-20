@@ -4,7 +4,7 @@ import {
     MapModel,
     PlayerModel,
     UserModel,
-} from "@packages/game-db";
+} from "@packages/game-db/dist";
 import { Types } from "mongoose";
 import { PlayerColor } from "@packages/game-data/dist/data/types";
 import { generateStarterUnits } from "./unit.service";

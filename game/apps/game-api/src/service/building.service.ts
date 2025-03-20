@@ -1,5 +1,5 @@
 import { PlayerColor } from "@packages/game-data/dist/data/types";
-import { BuildingModel } from "@packages/game-db";
+import { BuildingModel } from "@packages/game-db/dist";
 import { Types } from "mongoose";
 
 export const createMainBuilding = async (

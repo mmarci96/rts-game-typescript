@@ -1,4 +1,4 @@
-import { IResource, ResourceModel } from "@packages/game-db";
+import { IResource, ResourceModel } from "@packages/game-db/dist";
 import { Types } from "mongoose";
 
 export const generateResources = async (
