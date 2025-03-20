@@ -43,13 +43,13 @@ EXPOSE 8080
 CMD [ "pnpm", "start" ]
 
 # Nginx for serving frontend
-FROM nginx:latest AS game-frontend
+FROM nginx:alpine AS game-frontend
 
-COPY --from=build /prod/nginx/game-ui /usr/share/nginx/html
+# COPY --from=build /prod/nginx/game-ui /usr/share/nginx/html
 
-COPY --from=build /prod/nginx/game-client /usr/share/nginx/html2
+COPY --from=build /prod/nginx/game-client /usr/share/nginx/html
 
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
