@@ -1,4 +1,4 @@
-import { Tile } from "@packages/game-data/dist";
+import { Tile } from "@packages/game-data";
 import Camera from "./ui/Camera";
 import VectorTransformer from "./utils/VectorTransformer";
 import AssetManager from "./data/AssetManager";

@@ -1,4 +1,4 @@
-import { GameEntity } from "@packages/game-data/dist";
+import { GameEntity } from "@packages/game-data";
 import AnimatedSprite from "./AnimatedSprite";
 
 class AnimatedTree extends AnimatedSprite {

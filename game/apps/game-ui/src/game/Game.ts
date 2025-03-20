@@ -1,4 +1,4 @@
-import { Player, Tile } from "@packages/game-data/dist";
+import { Player, Tile } from "@packages/game-data";
 import AssetManager from "./data/AssetManager";
 import GameLogic from "./logic/GameLogic";
 import { PlayerData } from "../types";

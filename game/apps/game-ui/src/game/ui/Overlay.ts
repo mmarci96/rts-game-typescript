@@ -1,4 +1,4 @@
-import { Building, MainBuilding, Unit } from "@packages/game-data/dist";
+import { Building, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import StatusBar from "./Statusbar";
 import { Command } from "../../types";

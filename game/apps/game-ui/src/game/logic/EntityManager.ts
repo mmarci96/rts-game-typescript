@@ -9,7 +9,7 @@ import {
     UnitData,
     BuildingData,
     ResourceData,
-} from "@packages/game-data/dist";
+} from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
 import AnimatedSprite from "../data/AnimatedSprite";

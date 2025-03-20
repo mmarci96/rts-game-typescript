@@ -5,7 +5,7 @@ import {
     Warrior,
     Worker,
     mapUnitToUnitParams
-} from "@packages/game-data/dist";
+} from "@packages/game-data";
 
 class UnitManager {
     #units;

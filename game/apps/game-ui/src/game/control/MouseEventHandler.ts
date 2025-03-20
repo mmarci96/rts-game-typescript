@@ -1,4 +1,4 @@
-import { ControlledEntity, Player, PlayerColor, Resource } from "@packages/game-data/dist";
+import { ControlledEntity, Player, PlayerColor, Resource } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";

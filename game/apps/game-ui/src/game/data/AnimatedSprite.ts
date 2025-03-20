@@ -1,4 +1,4 @@
-import { GameEntity, Unit } from "@packages/game-data/dist";
+import { GameEntity, Unit } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";

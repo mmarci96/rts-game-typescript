@@ -1,4 +1,4 @@
-import { PlayerColor, Tile } from "@packages/game-data/dist";
+import { PlayerColor, Tile } from "@packages/game-data";
 
 export interface Command {
     action: string;
