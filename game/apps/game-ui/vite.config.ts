@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import path from "path";
 
 export default defineConfig({
+    base: "/game-ui/",
     plugins: [],
     server: {
         host: "0.0.0.0",
