@@ -10,7 +10,7 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <BrowserRouter basename="/home">
+        <BrowserRouter basename="/game-client">
             <App />
         </BrowserRouter>
     </StrictMode>,
