@@ -4,6 +4,7 @@ class AssetManager {
         this.#images = new Map<string, HTMLImageElement>();
     }
     loadImage(key: string, src: string) {
+        const BASE = import.meta.env.BASE_URL;
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => {
@@ -14,7 +15,7 @@ class AssetManager {
                 console.error(err);
                 reject(err);
             };
-            img.src = src;
+            img.src = `${BASE}${src}`;
         });
     }
     getImage(key: string) {
