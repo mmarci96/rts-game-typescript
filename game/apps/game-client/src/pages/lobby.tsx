@@ -38,7 +38,9 @@ const Lobby = () => {
                 if (timeLeft < 0) {
                     clearInterval(countdownInterval);
                     //const gameUrl = `http://localhost:3000/${gameId}/${player._id}`;
-                    const gameUrl = `http://localhost/${gameId}/${player._id}`;
+                    //const gameUrl = `http://localhost/${gameId}/${player._id}`;
+                    const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
+                    const gameUrl = `${baseGameUrl}/game-ui/${gameId}/${player._id}`;
                     window.location.href = gameUrl;
                 }
             }, 1000);
