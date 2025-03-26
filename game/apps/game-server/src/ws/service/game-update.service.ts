@@ -7,6 +7,7 @@ import {
     updateResourceFieldsCache,
     cachePlayerResources,
     getPlayerCache,
+    flushGameCache,
 } from "../../redis";
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
@@ -56,6 +57,7 @@ export class GameUpdateService {
         if (game.isGameOver()) {
             this.removeGame(gameId);
             io.to(gameId).emit("game_over", { winner: logic.winnerColor });
+            await flushGameCache(gameId);
         }
     }
 
