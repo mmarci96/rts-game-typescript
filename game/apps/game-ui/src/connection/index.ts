@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, PlayerColor } from "@packages/game-data";
+import { GameState, PlayerColor } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
@@ -78,8 +78,8 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(data: { winner: PlayerColor }) {
-        if (this.game.getLogic().getPlayerColor() === data.winner) {
+    private handleGameOver(winner: PlayerColor) {
+        if (this.game.getLogic().getPlayerColor() === winner) {
             console.log("Winner is you!");
         } else {
             console.log("You lost!");

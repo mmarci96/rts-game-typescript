@@ -1,4 +1,4 @@
-import { Building, Player, Resource, Unit } from "@packages/game-data";
+import { Building, Player, Resource, Unit } from "@packages/game-data/dist";
 export interface LoadRequest {
     gameId: string;
     playerId: string;

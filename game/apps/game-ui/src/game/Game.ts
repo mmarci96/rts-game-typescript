@@ -1,7 +1,7 @@
 import { Player, Tile } from "@packages/game-data";
 import AssetManager from "./data/AssetManager";
 import GameLogic from "./logic/GameLogic";
-import { IPlayer } from "@packages/game-db";
+import { PlayerData } from "../types";
 
 class Game {
     static WIDTH = window.innerWidth;
@@ -11,11 +11,11 @@ class Game {
     constructor(
         assets: AssetManager,
         tiles: Tile[][],
-        player: IPlayer,
+        player: PlayerData,
         gameId: string,
     ) {
         const currentPlayer = new Player(
-            player._id.toString(),
+            player.id,
             player.color,
             gameId,
         );

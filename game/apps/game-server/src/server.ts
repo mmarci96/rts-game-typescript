@@ -1,11 +1,11 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import { websocketController } from "./ws";
 const app = express();
 
-app.get("/health", (req, res) => {
+app.get("/health", (req: Request, res: Response) => {
     res.status(200).send({ health: "ok" });
 });
 

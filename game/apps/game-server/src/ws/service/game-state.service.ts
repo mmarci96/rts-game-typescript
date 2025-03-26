@@ -10,7 +10,7 @@ import {
     getEntitiesByGameId,
     getGameById,
     getMapById,
-} from "@packages/game-db";
+} from "@packages/game-db/dist";
 
 export class GameStateService {
     #games = new Map<string, Game>();

@@ -7,7 +7,6 @@ import {
     joinGame,
     startGame,
 } from "../../service/game.service";
-import { Types } from "mongoose";
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-import { MapModel } from "@packages/game-db";
+import { MapModel } from "@packages/game-db/dist";
 import { Types } from "mongoose";
 
 export const getMaps = async () => {

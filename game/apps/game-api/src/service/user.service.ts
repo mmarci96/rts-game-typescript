@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { UserModel } from "@packages/game-db";
+import { UserModel } from "@packages/game-db/dist";
 
 export const createUser = async (email: string, username: string, password: string) => {
     const existingEmail = await UserModel.findOne({ email });

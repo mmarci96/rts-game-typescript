@@ -1,5 +1,4 @@
-import Redis, { ChainableCommander } from "ioredis";
-import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db";
+import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db/dist";
 import {
     BuildingData,
     ResourceData,
@@ -9,11 +8,27 @@ import {
     Building,
     Resource,
     Player,
-    GameEntity,
-} from "@packages/game-data";
+} from "@packages/game-data/dist";
 
-const redis = new Redis();
+import Redis, { ChainableCommander } from "ioredis";
+import { config } from "../config";
 
+const redisOptions: Record<string, any> = {
+    host: config.REDIS_HOST,
+    port: config.REDIS_PORT,
+};
+
+if (config.REDIS_PASSWORD) {
+    redisOptions.password = config.REDIS_PASSWORD;
+}
+
+if (config.REDIS_TLS) {
+    redisOptions.tls = {};
+}
+console.log(redisOptions);
+
+
+export const redis = new Redis(redisOptions);
 export const deletePlayerCache = async (playerId: string, gameId: string) => {
     const key = gameKey(gameId, "player", playerId);
     await redis.del(key);

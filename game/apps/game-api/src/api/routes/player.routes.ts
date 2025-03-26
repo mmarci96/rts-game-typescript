@@ -4,7 +4,7 @@ import {
     getPlayerById,
 } from "../../service/player.service";
 import { Types } from "mongoose";
-import { setPlayerReadyStatus } from "@packages/game-db";
+import { setPlayerReadyStatus } from "@packages/game-db/dist";
 const router = express.Router();
 
 router.get(

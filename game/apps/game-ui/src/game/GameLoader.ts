@@ -1,19 +1,19 @@
 import { Tile } from "@packages/game-data";
-import { IMap, IPlayer } from "@packages/game-db";
 import Game from "./Game";
 import AssetManager from "./data/AssetManager";
+import { MapData, PlayerData } from "../types";
 
 class GameLoader {
     static async fetchMapByGameId(gameId: string) {
         const res = await fetch("/api/maps/by-game-id/" + gameId);
         const { data } = await res.json();
-        const gameMap: IMap = data;
+        const gameMap: MapData = data;
         return gameMap.tiles;
     }
     static async fetchPlayerById(id: string) {
         const res = await fetch("/api/players/" + id);
         const { data } = await res.json();
-        const player: IPlayer = data;
+        const player: PlayerData = data;
         return player;
     }
     static async loadAssets() {

@@ -1,4 +1,12 @@
-import { UnitData, Unit, PlayerColor, Archer, Warrior, Worker, mapUnitToUnitParams } from "@packages/game-data";
+import {
+    UnitData,
+    Unit, PlayerColor,
+    Archer,
+    Warrior,
+    Worker,
+    mapUnitToUnitParams
+} from "@packages/game-data";
+
 class UnitManager {
     #units;
 

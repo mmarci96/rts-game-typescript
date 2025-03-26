@@ -1,5 +1,5 @@
-import { GameState } from "@packages/game-data";
-import { IMap } from "@packages/game-db";
+import { GameState } from "@packages/game-data/dist";
+import { IMap } from "@packages/game-db/dist";
 import GameLogic from "./logic/GameLogic";
 
 class Game {

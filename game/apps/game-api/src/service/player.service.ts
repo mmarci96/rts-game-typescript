@@ -1,4 +1,4 @@
-import { PlayerModel } from "@packages/game-db";
+import { PlayerModel } from "@packages/game-db/dist";
 import { Types } from "mongoose";
 
 export const getPlayerById = async (id: Types.ObjectId) => {

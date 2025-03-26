@@ -9,7 +9,6 @@ import {
     Position,
     AttackableParams,
 } from "../types";
-import { AStar } from "./pathfinding";
 
 export const mapUnitToUnitParams = (unit: UnitData): UnitParams => {
     const params: ControlledEntityParams = {

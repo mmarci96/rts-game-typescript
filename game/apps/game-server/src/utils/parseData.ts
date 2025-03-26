@@ -1,4 +1,4 @@
-import { UnitData, Target } from "@packages/game-data";
+import { UnitData, Target } from "@packages/game-data/dist";
 import { IUnit } from "@packages/game-db";
 
 export const mapMongoUnitToData = (mongoUnit: IUnit): UnitData => {

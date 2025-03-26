@@ -10,6 +10,8 @@ const main = async () => {
         redis.on("connect", () => console.log("Connected to Redis"));
         redis.on("error", (err) => console.error("Redis Error:", err));
         await mongoose.connect(MONGO_URI);
+        console.log("Connected to mongo: ", MONGO_URI);
+
 
         server.listen(Number(PORT), HOST, () => {
             console.log(`Server is running on http://${HOST}:${PORT}`);
