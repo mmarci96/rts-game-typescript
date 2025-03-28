@@ -7,7 +7,7 @@ import {
     PlayerColor,
     Player,
 } from "@packages/game-data/dist";
-import { IMap } from "@packages/game-db/dist";
+import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
 import { PlayerCommand, SaveGameStateParams } from "../../types";
 
@@ -15,9 +15,15 @@ class GameLogic {
     #entityController: EntityController;
     #gameId: string;
     #gameMap;
+    #players;
     winnerColor: PlayerColor | undefined;
 
-    constructor(id: string, gameData: GameState, gameMap: IMap) {
+    constructor(
+        id: string,
+        gameData: GameState,
+        gameMap: IMap,
+        players: IPlayer[],
+    ) {
         this.#gameMap = new GameMap(gameMap.tiles);
         this.#gameId = id;
         const unitController = new UnitController(this.#gameMap);
@@ -42,7 +48,7 @@ class GameLogic {
     }
 
     loadMinedResources(player: Player) {
-        return this.#entityController.loadMinedResources(player)
+        return this.#entityController.loadMinedResources(player);
     }
 
     handlePlayerCommands(commands: PlayerCommand[], player: Player) {

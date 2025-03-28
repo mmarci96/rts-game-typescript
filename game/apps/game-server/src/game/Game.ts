@@ -1,5 +1,5 @@
 import { GameState } from "@packages/game-data/dist";
-import { IMap } from "@packages/game-db/dist";
+import { IMap, IPlayer } from "@packages/game-db/dist";
 import GameLogic from "./logic/GameLogic";
 
 class Game {
@@ -7,9 +7,14 @@ class Game {
     #gameLogic;
     lastUpdateTime: number = 0;
 
-    constructor(gameId: string, map: IMap, gameData: GameState) {
+    constructor(
+        gameId: string,
+        map: IMap,
+        gameData: GameState,
+        players: IPlayer[],
+    ) {
         this.#id = gameId;
-        this.#gameLogic = new GameLogic(gameId, gameData, map);
+        this.#gameLogic = new GameLogic(gameId, gameData, map, players);
     }
     getId() {
         return this.#id;
