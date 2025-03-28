@@ -1,4 +1,11 @@
-import { deleteBuildingById, deleteResourceById, deleteUnitById, IBuilding, IPlayer, IResource, IUnit } from "@packages/game-db/dist";
+import {
+    deleteBuildingById,
+    deleteResourceById,
+    deleteUnitById,
+    IBuilding,
+    IResource,
+    IUnit,
+} from "@packages/game-db/dist";
 import {
     BuildingData,
     ResourceData,
@@ -27,7 +34,6 @@ if (config.REDIS_TLS) {
 }
 console.log(redisOptions);
 
-
 export const redis = new Redis(redisOptions);
 export const deletePlayerCache = async (playerId: string, gameId: string) => {
     const key = gameKey(gameId, "player", playerId);
@@ -45,18 +51,14 @@ export const getPlayerCache = async (gameId: string, playerId: string) => {
     };
 };
 
-export const cachePlayer = async (player: IPlayer, ttl: number = 3600) => {
-    const key = gameKey(
-        player.gameId.toString(),
-        "player",
-        player._id.toString(),
-    );
+export const cachePlayer = async (player: Player, ttl: number = 3600) => {
+    const key = gameKey(player.getGameId(), "player", player.getId());
     await redis.hmset(key, {
-        id: player._id.toString(),
-        color: player.color,
-        gameId: player.gameId.toString(),
-        playerResources: JSON.stringify(player.playerResources),
-        name: player.name,
+        id: player.getId(),
+        color: player.getColor(),
+        gameId: player.getGameId(),
+        playerResources: JSON.stringify(player.getResources()),
+        name: player.getName(),
     });
     if (ttl > 0) await redis.expire(key, ttl);
 };
@@ -125,7 +127,9 @@ export const updateBuildingsCache = async (
     buildings: Building[],
 ) => {
     const pipeline = redis.pipeline();
-    const activeBuildingIds = new Set(buildings.map((building) => building.getId()));
+    const activeBuildingIds = new Set(
+        buildings.map((building) => building.getId()),
+    );
     const pattern = gameKey(gameId, "building", "*");
     const existingKeys = await scanKeys(pattern);
     for (const building of buildings) {
@@ -144,8 +148,11 @@ export const updateBuildingsCache = async (
         if (!activeBuildingIds.has(buildingIdFromKey)) {
             pipeline.del(key);
             console.log("Deleting stale building key:", key);
-            await deleteBuildingById(buildingIdFromKey)
-            console.log("Deleting stale building from mongo db:", buildingIdFromKey);
+            await deleteBuildingById(buildingIdFromKey);
+            console.log(
+                "Deleting stale building from mongo db:",
+                buildingIdFromKey,
+            );
         }
     }
     await pipeline.exec();
@@ -156,7 +163,9 @@ export const updateResourceFieldsCache = async (
     resources: Resource[],
 ) => {
     const pipeline = redis.pipeline();
-    const activeResourceIds = new Set(resources.map((resource) => resource.getId()));
+    const activeResourceIds = new Set(
+        resources.map((resource) => resource.getId()),
+    );
     const pattern = gameKey(gameId, "resource", "*");
     const existingKeys = await scanKeys(pattern);
     for (const resource of resources) {
@@ -243,10 +252,10 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
             parsed[key] = ["position", "target", "size"].includes(key)
                 ? JSON.parse(value)
                 : ["health", "speed", "damage", "availableResource"].includes(
-                    key,
-                )
-                    ? Number(value || 0)
-                    : value;
+                        key,
+                    )
+                  ? Number(value || 0)
+                  : value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);
             parsed[key] = value;

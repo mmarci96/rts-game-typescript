@@ -2,6 +2,12 @@ import { Types } from "mongoose";
 import { IPlayer, PlayerModel } from "../mongo-db";
 import { PlayerResources } from "@packages/game-data";
 
+export const getPlayersByGameId = async (
+    gameId: string,
+): Promise<IPlayer[]> => {
+    return await PlayerModel.find({ gameId });
+};
+
 export const getPlayerById = async (
     playerId: string,
 ): Promise<IPlayer | null> => {

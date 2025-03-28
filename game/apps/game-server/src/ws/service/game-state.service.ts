@@ -10,6 +10,7 @@ import {
     getEntitiesByGameId,
     getGameById,
     getMapById,
+    getPlayersByGameId,
 } from "@packages/game-db/dist";
 
 export class GameStateService {
@@ -52,8 +53,9 @@ export class GameStateService {
 
             await cacheGameEntities(gameEntities);
             const gameState = await getGameState(gameId);
+            const players = await getPlayersByGameId(gameId);
 
-            const game = new Game(gameId, map, gameState);
+            const game = new Game(gameId, map, gameState, players);
             this.#games.set(gameId, game);
         } catch (error) {
             this.#games.delete(gameId);

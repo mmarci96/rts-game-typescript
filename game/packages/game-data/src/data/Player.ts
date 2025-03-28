@@ -5,17 +5,29 @@ class Player {
     #color;
     #resources: PlayerResources;
     #gameId: string;
+    #name: string;
 
     /**
      * @param { string } playerId
      * @param { string } color
      */
-    constructor(playerId: string, color: PlayerColor, gameId: string) {
+    constructor(
+        playerId: string,
+        color: PlayerColor,
+        gameId: string,
+        name: string,
+    ) {
         this.#gameId = gameId;
         this.#playerId = playerId;
         this.#color = color;
+        this.#name = name;
         this.#resources = { wood: 0, food: 0 };
     }
+
+    getName() {
+        return this.#name;
+    }
+
     getGameId() {
         return this.#gameId;
     }

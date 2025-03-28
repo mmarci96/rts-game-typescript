@@ -1,22 +1,28 @@
 import { Player } from "@packages/game-data/dist";
 import { ConnectionData } from "../../types";
-import { getPlayerById, saveEntitiesToMongo, updatePlayerResources } from "@packages/game-db/dist";
-import { cachePlayer, deletePlayerCache, getGameState, getPlayerCache } from "../../redis";
+import {
+    saveEntitiesToMongo,
+    updatePlayerResources,
+} from "@packages/game-db/dist";
+import {
+    cachePlayer,
+    deletePlayerCache,
+    getGameState,
+    getPlayerCache,
+} from "../../redis";
 
 export class ConnectionService {
     static connections: Record<string, ConnectionData> = {};
 
-    static async handlePlayerJoin(socketId: string, playerId: string, gameId: string) {
-        const playerData = await getPlayerById(playerId);
-        if (!playerData) {
-            return;
-        }
-        await cachePlayer(playerData);
-        const player = new Player(playerId, playerData.color, gameId);
-        player.setResources(playerData.playerResources);
+    static async handlePlayerJoin(socketId: string, player: Player) {
+        await cachePlayer(player);
+        const gameId = player.getGameId();
+        const playerId = player.getId();
         ConnectionService.connections[socketId] = {
-            playerId, gameId, player
-        }
+            gameId,
+            playerId,
+            player,
+        };
     }
     static async handleDisconnect(socketId: string) {
         const { gameId, playerId } = ConnectionService.connections[socketId];
@@ -25,7 +31,7 @@ export class ConnectionService {
         const playerCache = await getPlayerCache(gameId, playerId);
         await updatePlayerResources(playerId, playerCache?.playerResources);
         await deletePlayerCache(playerId, gameId);
-        delete ConnectionService.connections[socketId]
+        delete ConnectionService.connections[socketId];
     }
     static getConnectionData(socketId: string) {
         return ConnectionService.connections[socketId];

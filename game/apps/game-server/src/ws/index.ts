@@ -15,15 +15,23 @@ export const websocketController = (io: Server) => {
 
         socket.on("load_game", async (data: LoadRequest) => {
             const { playerId, gameId } = data;
-            ConnectionService.handlePlayerJoin(socket.id, playerId, gameId);
             await gameStateService.initializeGame(gameId);
             const game = gameStateService.getGame(gameId);
-            if (game) {
-                gameUpdateService.addGame(gameId, game);
+            if (!game) {
+                console.error("Game not exist");
+                return;
             }
+            gameUpdateService.addGame(gameId, game);
+            const playerConnecting = game.getLogic().getPlayerById(playerId);
+            if (!playerConnecting) {
+                console.error("Player not in game?");
+                return;
+            }
+            ConnectionService.handlePlayerJoin(socket.id, playerConnecting);
+            console.log("Player connected: ", playerConnecting);
+
             socket.join(gameId);
-        },
-        );
+        });
 
         socket.on("pendingCommands", (data) => {
             const connection = ConnectionService.getConnectionData(socket.id);
