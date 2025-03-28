@@ -26,7 +26,9 @@ export class ConnectionHandler {
 
     public static async initialize() {
         document.addEventListener("contextmenu", (e) => e.preventDefault());
-        const { gameId, playerId } = this.getIdFromUrl(window.location.pathname);
+        const { gameId, playerId } = this.getIdFromUrl(
+            window.location.pathname,
+        );
         const game = await GameLoader.loadGame(gameId, playerId);
         const socket = io();
 
@@ -44,9 +46,15 @@ export class ConnectionHandler {
 
     private initializeSocketHandlers() {
         this.socket.on("connect", () => this.handleConnect());
-        this.socket.on("game_state", (data: GameState) => this.handleGameState(data));
-        this.socket.on("player_state", (playerState) => this.handlePlayerState(playerState));
-        this.socket.on("game_over", (winnerColor: PlayerColor) => this.handleGameOver(winnerColor));
+        this.socket.on("game_state", (data: GameState) =>
+            this.handleGameState(data),
+        );
+        this.socket.on("player_state", (playerState) =>
+            this.handlePlayerState(playerState),
+        );
+        this.socket.on("game_over", (data) =>
+            this.handleGameOver(data),
+        );
     }
 
     private handleConnect() {
@@ -55,7 +63,7 @@ export class ConnectionHandler {
         this.socket.emit("load_game", {
             playerId: this.playerId,
             gameId: this.gameId,
-            playerColor
+            playerColor,
         });
     }
 
@@ -78,12 +86,44 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(winner: PlayerColor) {
-        if (this.game.getLogic().getPlayerColor() === winner) {
-            console.log("Winner is you!");
-        } else {
-            console.log("You lost!");
+    private handleGameOver(data: { name: string, id: string, color: PlayerColor }) {
+        function displayGameOverScreen(winnerName: string, afterGameUrl: string): void {
+            const root = document.getElementById("root");
+
+            if (!root) {
+                console.error("Root element not found.");
+                return;
+            }
+
+            root.innerHTML = "";
+
+            const message = document.createElement("h1");
+            message.textContent = `🏆 ${winnerName} wins the game!`;
+            message.style.textAlign = "center";
+            message.style.marginBottom = "20px";
+
+            const statsButton = document.createElement("button");
+            statsButton.textContent = "View After-Game Statistics";
+            statsButton.onclick = () => {
+                window.location.href = afterGameUrl;
+            };
+            statsButton.style.padding = "10px 20px";
+            statsButton.style.fontSize = "16px";
+            statsButton.style.cursor = "pointer";
+            statsButton.style.display = "block";
+            statsButton.style.margin = "0 auto";
+            statsButton.style.borderRadius = "0px"
+
+            root.appendChild(message);
+            root.appendChild(statsButton);
         }
+
+        console.log("Winner is", data);
+        const clientBaseUrl = import.meta.env.VITE_CLIENT_BASE_URL;
+        console.log(clientBaseUrl);
+        this.dispose();
+        const afterGameUrl = `${clientBaseUrl}/game-client/game-over/${data.id}`;
+        displayGameOverScreen(data.name, afterGameUrl);
     }
 
     private createCommand(commands: Command[]) {
@@ -96,7 +136,7 @@ export class ConnectionHandler {
             if (this.pendingCommands.length > 0) {
                 const commands = {
                     playerId: this.playerId,
-                    pendingCommands: this.pendingCommands
+                    pendingCommands: this.pendingCommands,
                 };
                 this.socket.emit("pendingCommands", commands);
                 console.log("Sent commands:", this.pendingCommands);
@@ -114,5 +154,3 @@ export class ConnectionHandler {
         this.socket.disconnect();
     }
 }
-
-

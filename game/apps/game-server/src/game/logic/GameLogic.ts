@@ -4,8 +4,8 @@ import {
     ResourceController,
     GameState,
     BuildingController,
-    PlayerColor,
     Player,
+    PlayerColor,
 } from "@packages/game-data/dist";
 import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
@@ -16,7 +16,7 @@ class GameLogic {
     #gameId: string;
     #gameMap;
     #players: Map<string, Player>;
-    winnerColor: PlayerColor | undefined;
+    #winner: Player | null = null;
 
     constructor(
         id: string,
@@ -90,16 +90,28 @@ class GameLogic {
             this.#entityController.getResources(),
         );
     }
+
     isGameOver() {
-        const winnerColor = this.#entityController.checkWinner();
-        if (winnerColor) {
-            this.winnerColor = winnerColor;
+        let winner = null;
+        const colorPresence = new Set<PlayerColor>();
+        const buildings = this.#entityController.getBuildings();
+        for (const building of buildings) {
+            colorPresence.add(building.getColor());
+        }
+        if (colorPresence.size === 1) {
+            winner = [...this.#players.values()].find((player: Player) =>
+                player.getColor() === colorPresence.values().next().value
+            );
+        }
+        if (winner) {
+            this.#winner = winner;
             return true;
         }
         return false;
     }
+
     getWinner() {
-        return this.winnerColor;
+        return this.#winner;
     }
 }
 

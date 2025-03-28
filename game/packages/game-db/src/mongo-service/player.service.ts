@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { IPlayer, PlayerModel } from "../mongo-db";
 import { PlayerResources } from "@packages/game-data";
 
@@ -11,8 +10,7 @@ export const getPlayersByGameId = async (
 export const getPlayerById = async (
     playerId: string,
 ): Promise<IPlayer | null> => {
-    const id = new Types.ObjectId(playerId);
-    const player = await PlayerModel.findById(id);
+    const player = await PlayerModel.findById(playerId);
     if (!player) {
         return null;
     }
@@ -23,8 +21,7 @@ export const setPlayerReadyStatus = async (
     playerId: string,
     readyStatus: boolean,
 ) => {
-    const id = new Types.ObjectId(playerId);
-    const player = await PlayerModel.findByIdAndUpdate(id, {
+    const player = await PlayerModel.findByIdAndUpdate(playerId, {
         isReady: readyStatus,
     });
     if (!player) {
@@ -37,9 +34,8 @@ export const updatePlayerResources = async (
     playerId: string,
     playerResources: PlayerResources,
 ) => {
-    const id = new Types.ObjectId(playerId);
     const player = await PlayerModel.findByIdAndUpdate(
-        id,
+        playerId,
         { $set: { playerResources } },
         { upsert: true, new: true },
     );

@@ -80,11 +80,13 @@ class EntityController {
                 if (!command.targetId) {
                     break;
                 }
-                const worker = this.#unitController.getUnitById(command.entityId);
-                const targetResource = this.#resourceController.getResourceById(command.targetId);
-                if (worker &&
-                    worker instanceof Worker &&
-                    targetResource) {
+                const worker = this.#unitController.getUnitById(
+                    command.entityId,
+                );
+                const targetResource = this.#resourceController.getResourceById(
+                    command.targetId,
+                );
+                if (worker && worker instanceof Worker && targetResource) {
                     worker.collector.collectResource(targetResource);
                 }
                 break;
@@ -151,7 +153,8 @@ class EntityController {
     }
 
     handleAttackEntity(unit: Unit, targetId: string) {
-        let targetEntity: Attackable | null | undefined = this.#unitController.getUnitById(targetId);
+        let targetEntity: Attackable | null | undefined =
+            this.#unitController.getUnitById(targetId);
         if (!targetEntity) {
             targetEntity = this.#buildingController.getBuildingById(targetId);
         }
@@ -159,8 +162,12 @@ class EntityController {
             return;
         }
         console.log(targetEntity);
+        console.log("Target health: ", targetEntity.getHealth());
+
         unit.setAttackableTarget(targetEntity);
-        this.#unitController.getUnitById(unit.getId())?.setAttackableTarget(targetEntity)
+        this.#unitController
+            .getUnitById(unit.getId())
+            ?.setAttackableTarget(targetEntity);
     }
 
     refreshEntities(deltaTime: number) {
@@ -172,14 +179,6 @@ class EntityController {
     loadMinedResources(player: Player) {
         const mining = this.#unitController.getMinedResources(player);
         return mining;
-    }
-
-    checkWinner(): PlayerColor | undefined {
-        const winner = this.#unitController.checkWinner()
-        if (winner) {
-            return this.#buildingController.checkWinner();
-        }
-        return undefined;
     }
 }
 

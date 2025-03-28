@@ -1,9 +1,4 @@
-import {
-    UnitData,
-    PlayerColor,
-    PlayerResources,
-    Tile,
-} from "../types";
+import { UnitData, PlayerColor, PlayerResources } from "../types";
 import { mapUnitToUnitParams } from "../utils";
 import { Unit, Archer, Worker, Warrior } from "../entities";
 import Player from "../Player";
@@ -17,7 +12,7 @@ class UnitController {
 
     constructor(gameMap: GameMap) {
         this.#units = new Map<string, Unit>();
-        this.#gameMap = gameMap
+        this.#gameMap = gameMap;
         this.#aStar = new AStar(this.#gameMap.getTiles());
     }
 
@@ -32,21 +27,6 @@ class UnitController {
                 this.adjustIdleUnitPosition(unit);
             }
         });
-    }
-
-    checkWinner(): PlayerColor | undefined {
-        const colorPresence = new Set<PlayerColor>();
-        for (const unit of this.#units.values()) {
-            if (unit.getHealth() > 0) {
-                colorPresence.add(unit.getColor());
-            }
-        }
-
-        if (colorPresence.size === 1) {
-            return colorPresence.values().next().value;
-        }
-
-        return undefined;
     }
 
     groupUnitsByColor(): Record<PlayerColor, Unit[]> {
@@ -112,6 +92,7 @@ class UnitController {
             }
         });
     }
+
     loadUnits(unitsData: UnitData[]) {
         unitsData.forEach((unitData: UnitData) => this.loadUnit(unitData));
     }
