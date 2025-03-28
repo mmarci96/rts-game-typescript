@@ -88,6 +88,7 @@ export class ConnectionHandler {
 
     private handleGameOver(winner: Player) {
         console.log(winner);
+        console.log("Method calls work?", winner.getId(), winner.getColor());
     }
 
     private createCommand(commands: Command[]) {
