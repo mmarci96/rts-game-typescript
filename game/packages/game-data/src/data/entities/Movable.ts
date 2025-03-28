@@ -66,20 +66,16 @@ class Movable implements IMovable {
         const stepDistance = speed * deltaTime;
 
         if (distanceToNextTile <= stepDistance) {
-            this.#currentX = (this.#currentX + nextTile.x) / 2;
-            this.#currentY = (this.#currentY + nextTile.y) / 2;
-
-            if (Math.abs(this.#currentX - nextTile.x) < 0.01 && Math.abs(this.#currentY - nextTile.y) < 0.01) {
-                this.#currentX = nextTile.x;
-                this.#currentY = nextTile.y;
-                this.#path.shift();
-            }
+            this.#currentX = nextTile.x;
+            this.#currentY = nextTile.y;
+            this.#path.shift();
         } else {
             const directionX = deltaX / distanceToNextTile;
             const directionY = deltaY / distanceToNextTile;
             this.#currentX += directionX * stepDistance;
             this.#currentY += directionY * stepDistance;
         }
+
         if (this.#path.length >= 2) {
             this.#targetX = this.#path[1].x;
             this.#targetY = this.#path[1].y;
