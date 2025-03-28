@@ -87,10 +87,43 @@ export class ConnectionHandler {
     }
 
     private handleGameOver(data: { name: string, id: string, color: PlayerColor }) {
+        function displayGameOverScreen(winnerName: string, afterGameUrl: string): void {
+            const root = document.getElementById("root");
+
+            if (!root) {
+                console.error("Root element not found.");
+                return;
+            }
+
+            root.innerHTML = "";
+
+            const message = document.createElement("h1");
+            message.textContent = `🏆 ${winnerName} wins the game!`;
+            message.style.textAlign = "center";
+            message.style.marginBottom = "20px";
+
+            const statsButton = document.createElement("button");
+            statsButton.textContent = "View After-Game Statistics";
+            statsButton.onclick = () => {
+                window.location.href = afterGameUrl;
+            };
+            statsButton.style.padding = "10px 20px";
+            statsButton.style.fontSize = "16px";
+            statsButton.style.cursor = "pointer";
+            statsButton.style.display = "block";
+            statsButton.style.margin = "0 auto";
+            statsButton.style.borderRadius = "0px"
+
+            root.appendChild(message);
+            root.appendChild(statsButton);
+        }
+
         console.log("Winner is", data);
-        const clientBaseUrl = import.meta.env.VITE_CLIENT_BASE_URL
+        const clientBaseUrl = import.meta.env.VITE_CLIENT_BASE_URL;
         console.log(clientBaseUrl);
         this.dispose();
+        const afterGameUrl = `${clientBaseUrl}/game-client/game-over/${data.id}`;
+        displayGameOverScreen(data.name, afterGameUrl);
     }
 
     private createCommand(commands: Command[]) {
