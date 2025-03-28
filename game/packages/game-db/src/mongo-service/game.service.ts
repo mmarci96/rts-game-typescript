@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 import { GameEntityData } from "../types";
 import {
     BuildingModel,
@@ -30,8 +29,7 @@ export const setWinnerOnGameOver = async (gameId: string, playerId: string) => {
 };
 
 export const deleteUnitById = async (unitId: string) => {
-    const id = new Types.ObjectId(unitId);
-    await UnitModel.findByIdAndDelete(id);
+    await UnitModel.findByIdAndDelete(unitId);
 };
 
 export const createUnitModel = (
@@ -54,11 +52,10 @@ export const createUnitModel = (
         default:
             return;
     }
-    const gameIdToSave = new Types.ObjectId(gameId);
     const unitData = {
         position,
         color,
-        gameId: gameIdToSave,
+        gameId,
         unitType: unitType,
         size: { width: stats.radius, height: stats.height },
         ...stats,
@@ -83,13 +80,11 @@ export const createUnit = async (
 };
 
 export const deleteBuildingById = async (buildingId: string) => {
-    const id = new Types.ObjectId(buildingId);
-    await BuildingModel.findByIdAndDelete(id);
+    await BuildingModel.findByIdAndDelete(buildingId);
 };
 
 export const deleteResourceById = async (resourceId: string) => {
-    const id = new Types.ObjectId(resourceId);
-    await ResourceModel.findByIdAndDelete(id);
+    await ResourceModel.findByIdAndDelete(resourceId);
 };
 
 export const saveEntitiesToMongo = async (
@@ -120,6 +115,11 @@ export const saveEntitiesToMongo = async (
     if (gameState.buildings.length > 0) {
         await Promise.all(
             gameState.buildings.map(async (building) => {
+                if (!building.id) {
+                    console.warn("Skipping building with no id", building);
+                    return;
+                }
+
                 await BuildingModel.findOneAndUpdate(
                     { _id: building.id, gameId },
                     building,
@@ -147,8 +147,7 @@ export const saveEntitiesToMongo = async (
 };
 
 export const getGameById = async (gameId: string): Promise<IGame | null> => {
-    const id = new Types.ObjectId(gameId);
-    const game = await GameModel.findById(id);
+    const game = await GameModel.findById(gameId);
     if (!game) {
         return null;
     }
@@ -156,9 +155,8 @@ export const getGameById = async (gameId: string): Promise<IGame | null> => {
 };
 
 export const getEntitiesByGameId = async (
-    id: string,
+    gameId: string,
 ): Promise<GameEntityData> => {
-    const gameId = new Types.ObjectId(id);
     const gameEntityData: GameEntityData = {
         units: [],
         resources: [],

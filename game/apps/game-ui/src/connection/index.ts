@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, Player, PlayerColor } from "@packages/game-data/dist";
+import { GameState, PlayerColor } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
@@ -52,8 +52,8 @@ export class ConnectionHandler {
         this.socket.on("player_state", (playerState) =>
             this.handlePlayerState(playerState),
         );
-        this.socket.on("game_over", (winnerColor: PlayerColor) =>
-            this.handleGameOver(winnerColor),
+        this.socket.on("game_over", (data) =>
+            this.handleGameOver(data),
         );
     }
 
@@ -86,9 +86,11 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(winner: Player) {
-        console.log(winner);
-        console.log("Method calls work?", winner.getId(), winner.getColor());
+    private handleGameOver(data: { name: string, id: string, color: PlayerColor }) {
+        console.log("Winner is", data);
+        const clientBaseUrl = import.meta.env.VITE_CLIENT_BASE_URL
+        console.log(clientBaseUrl);
+        this.dispose();
     }
 
     private createCommand(commands: Command[]) {

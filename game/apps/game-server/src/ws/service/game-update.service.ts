@@ -27,7 +27,7 @@ export class GameUpdateService {
         if (this.updateInterval) {
             return;
         }
-
+        console.log("Updating start");
         this.updateInterval = setInterval(() => {
             const now = Date.now();
             this.activeGames.forEach((game, gameId) => {
@@ -46,9 +46,9 @@ export class GameUpdateService {
 
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
+        const gameData = await getGameState(gameId);
         await logic.saveGameState(this.getRedisSavers());
 
-        const gameData = await getGameState(gameId);
         this.io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(
             async ([socketId, connectionData]) => {
@@ -77,10 +77,12 @@ export class GameUpdateService {
                 console.error("No winner found");
                 return;
             }
-            this.removeGame(gameId);
-            this.io.to(gameId).emit("game_over", { winner });
+            console.log("Game ended and winner is: ", winner.getName());
+            const winningPlayerData = { name: winner.getName(), id: winner.getId(), color: winner.getColor() }
+            this.io.to(gameId).emit("game_over", winningPlayerData);
             await setWinnerOnGameOver(gameId, winner.getId());
             await flushGameCache(gameId);
+            this.removeGame(gameId);
         }
     }
 
@@ -88,6 +90,7 @@ export class GameUpdateService {
         if (this.updateInterval) {
             clearInterval(this.updateInterval);
             this.updateInterval = null;
+            console.log("Updating stopped");
         }
     }
 

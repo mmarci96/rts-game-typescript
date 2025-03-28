@@ -96,14 +96,12 @@ class GameLogic {
         const colorPresence = new Set<PlayerColor>();
         const buildings = this.#entityController.getBuildings();
         for (const building of buildings) {
-            if (building.getHealth() > 0) {
-                colorPresence.add(building.getColor());
-            }
+            colorPresence.add(building.getColor());
         }
         if (colorPresence.size === 1) {
-            winner = [...this.#players.values()].find((player: Player) => {
-                player.getColor() === colorPresence.values().next().value;
-            });
+            winner = [...this.#players.values()].find((player: Player) =>
+                player.getColor() === colorPresence.values().next().value
+            );
         }
         if (winner) {
             this.#winner = winner;

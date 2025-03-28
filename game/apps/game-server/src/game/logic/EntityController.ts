@@ -162,6 +162,8 @@ class EntityController {
             return;
         }
         console.log(targetEntity);
+        console.log("Target health: ", targetEntity.getHealth());
+
         unit.setAttackableTarget(targetEntity);
         this.#unitController
             .getUnitById(unit.getId())
