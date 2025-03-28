@@ -42,19 +42,6 @@ class BuildingController {
     getBuildingById(buildingId: string) {
         return this.#buildings.get(buildingId);
     }
-
-    checkWinner(): PlayerColor | undefined {
-        const colorPresence = new Set<PlayerColor>();
-        for (const building of this.#buildings.values()) {
-            if (building.getHealth() > 0) {
-                colorPresence.add(building.getColor());
-            }
-        }
-        if (colorPresence.size === 1) {
-            return colorPresence.values().next().value;
-        }
-        return undefined;
-    }
 }
 
 export default BuildingController;
