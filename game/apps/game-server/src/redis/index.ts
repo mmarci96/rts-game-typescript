@@ -32,7 +32,6 @@ if (config.REDIS_PASSWORD) {
 if (config.REDIS_TLS) {
     redisOptions.tls = {};
 }
-console.log(redisOptions);
 
 export const redis = new Redis(redisOptions);
 export const deletePlayerCache = async (playerId: string, gameId: string) => {
@@ -252,10 +251,10 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
             parsed[key] = ["position", "target", "size"].includes(key)
                 ? JSON.parse(value)
                 : ["health", "speed", "damage", "availableResource"].includes(
-                        key,
-                    )
-                  ? Number(value || 0)
-                  : value;
+                    key,
+                )
+                    ? Number(value || 0)
+                    : value;
         } catch (e) {
             console.error(`Error parsing ${key}:`, e);
             parsed[key] = value;
