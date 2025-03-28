@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, PlayerColor } from "@packages/game-data/dist";
+import { GameState, Player, PlayerColor } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
@@ -26,7 +26,9 @@ export class ConnectionHandler {
 
     public static async initialize() {
         document.addEventListener("contextmenu", (e) => e.preventDefault());
-        const { gameId, playerId } = this.getIdFromUrl(window.location.pathname);
+        const { gameId, playerId } = this.getIdFromUrl(
+            window.location.pathname,
+        );
         const game = await GameLoader.loadGame(gameId, playerId);
         const socket = io();
 
@@ -44,9 +46,15 @@ export class ConnectionHandler {
 
     private initializeSocketHandlers() {
         this.socket.on("connect", () => this.handleConnect());
-        this.socket.on("game_state", (data: GameState) => this.handleGameState(data));
-        this.socket.on("player_state", (playerState) => this.handlePlayerState(playerState));
-        this.socket.on("game_over", (winnerColor: PlayerColor) => this.handleGameOver(winnerColor));
+        this.socket.on("game_state", (data: GameState) =>
+            this.handleGameState(data),
+        );
+        this.socket.on("player_state", (playerState) =>
+            this.handlePlayerState(playerState),
+        );
+        this.socket.on("game_over", (winnerColor: PlayerColor) =>
+            this.handleGameOver(winnerColor),
+        );
     }
 
     private handleConnect() {
@@ -55,7 +63,7 @@ export class ConnectionHandler {
         this.socket.emit("load_game", {
             playerId: this.playerId,
             gameId: this.gameId,
-            playerColor
+            playerColor,
         });
     }
 
@@ -78,12 +86,8 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(winner: PlayerColor) {
-        if (this.game.getLogic().getPlayerColor() === winner) {
-            console.log("Winner is you!");
-        } else {
-            console.log("You lost!");
-        }
+    private handleGameOver(winner: Player) {
+        console.log(winner);
     }
 
     private createCommand(commands: Command[]) {
@@ -96,7 +100,7 @@ export class ConnectionHandler {
             if (this.pendingCommands.length > 0) {
                 const commands = {
                     playerId: this.playerId,
-                    pendingCommands: this.pendingCommands
+                    pendingCommands: this.pendingCommands,
                 };
                 this.socket.emit("pendingCommands", commands);
                 console.log("Sent commands:", this.pendingCommands);
@@ -114,5 +118,3 @@ export class ConnectionHandler {
         this.socket.disconnect();
     }
 }
-
-
