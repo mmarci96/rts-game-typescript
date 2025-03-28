@@ -3,8 +3,10 @@ import { GameEntityData } from "../types";
 import {
     BuildingModel,
     GameModel,
+    GameStatus,
     IGame,
     IUnit,
+    PlayerModel,
     ResourceModel,
     UnitModel,
 } from "../mongo-db";
@@ -14,6 +16,18 @@ import {
     Position,
     BASE_UNIT_CONFIG,
 } from "@packages/game-data";
+
+export const setWinnerOnGameOver = async (gameId: string, playerId: string) => {
+    const winnerPlayer = await PlayerModel.findById(playerId);
+    if (!winnerPlayer) {
+        throw new Error("No winner found");
+    }
+    const game = await GameModel.findByIdAndUpdate(gameId, {
+        winner: winnerPlayer.userId,
+        status: GameStatus.OVER,
+    });
+    return game;
+};
 
 export const deleteUnitById = async (unitId: string) => {
     const id = new Types.ObjectId(unitId);
