@@ -7,7 +7,7 @@ import {
     PlayerColor,
     Player,
 } from "@packages/game-data/dist";
-import { IMap } from "@packages/game-db/dist";
+import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
 import { PlayerCommand, SaveGameStateParams } from "../../types";
 
@@ -15,9 +15,16 @@ class GameLogic {
     #entityController: EntityController;
     #gameId: string;
     #gameMap;
+    #players: Map<string, Player>;
     winnerColor: PlayerColor | undefined;
 
-    constructor(id: string, gameData: GameState, gameMap: IMap) {
+    constructor(
+        id: string,
+        gameData: GameState,
+        gameMap: IMap,
+        players: IPlayer[],
+    ) {
+        this.#players = new Map<string, Player>();
         this.#gameMap = new GameMap(gameMap.tiles);
         this.#gameId = id;
         const unitController = new UnitController(this.#gameMap);
@@ -31,10 +38,28 @@ class GameLogic {
         );
 
         this.loadData(gameData);
+        this.loadPlayers(players);
     }
 
     loadData(data: GameState) {
         this.#entityController.loadEntities(data);
+    }
+
+    loadPlayers(players: IPlayer[]) {
+        players.forEach((player: IPlayer) => {
+            const addedPlayer = new Player(
+                player.id,
+                player.color,
+                player.gameId.toString(),
+                player.name,
+            );
+            addedPlayer.setResources(player.playerResources);
+            this.#players.set(player.id, addedPlayer);
+        });
+    }
+
+    getPlayerById(playerId: string) {
+        return this.#players.get(playerId);
     }
 
     updateGameState(deltaTime: number) {
@@ -42,7 +67,7 @@ class GameLogic {
     }
 
     loadMinedResources(player: Player) {
-        return this.#entityController.loadMinedResources(player)
+        return this.#entityController.loadMinedResources(player);
     }
 
     handlePlayerCommands(commands: PlayerCommand[], player: Player) {
