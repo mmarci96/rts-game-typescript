@@ -18,6 +18,7 @@ class Game {
             player.id,
             player.color,
             gameId,
+            player.name,
         );
         this.#gameLogic = new GameLogic(assets, tiles, currentPlayer);
     }
