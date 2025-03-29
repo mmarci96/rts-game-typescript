@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/socket.io-client": "^3.0.0",
     "typescript": "~5.7.3",
     "vite": "^6.2.1"
   },
   "dependencies": {
     "@packages/game-data": "link:../../packages/game-data",
+    "npm": "^11.2.0",
     "socket.io-client": "^4.8.1"
   }
 }
