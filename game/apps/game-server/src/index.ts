@@ -12,7 +12,6 @@ const main = async () => {
         await mongoose.connect(MONGO_URI);
         console.log("Connected to mongo: ", MONGO_URI);
 
-
         server.listen(Number(PORT), HOST, () => {
             console.log(`Server is running on http://${HOST}:${PORT}`);
         });
