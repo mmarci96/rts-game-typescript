@@ -77,9 +77,14 @@ class Unit extends Attackable implements IAttacker, IMovable {
             this.setStatus("moving");
         }
     }
+    move(deltaTime: number) {
+        return this.#movable.move(deltaTime);
+    }
 
     updatePosition(deltaTime: number) {
-        const { newX, newY, progress } = this.#movable.move(deltaTime);
+        const { newX, newY, progress } = this.move(
+            deltaTime,
+        );
         if (progress === "completed") {
             this.#movable.setTarget(null, null);
             if (!this.#attacker.getAttackableTarget()) {

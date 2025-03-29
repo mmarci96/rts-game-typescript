@@ -25,8 +25,7 @@ class Worker extends Unit {
             const distance = calculateDistance(this.getPosition(), targetResource.getPosition());
             if (distance > 1.6) {
                 this.setStatus("moving");
-                this.setTarget(targetX, targetY);
-                this.updatePosition(deltaTime);
+                this.setupPathfinder(this.getX(), this.getY(), targetX, targetY);
             } else {
                 this.setStatus("mining")
                 this.collector.updateCollect(deltaTime)
@@ -34,6 +33,38 @@ class Worker extends Unit {
             return;
         }
     }
+
+
+    updatePosition(deltaTime: number) {
+        const { newX, newY, progress } = this.move(
+            deltaTime,
+        );
+        if (progress === "completed") {
+            this.setTarget(null, null);
+        }
+
+        if (progress !== "completed") {
+            this.idleTime = 0;
+            this.setX(newX);
+            this.setY(newY);
+            this.setStatus("moving");
+            return;
+        }
+
+        if (this.getAttackableTarget()) {
+            this.idleTime = 0;
+            this.setStatus("attack");
+            return;
+        }
+        if (this.collector.getTarget()) {
+            this.setStatus("mining")
+            return;
+        }
+
+        this.setStatus("idle");
+        return;
+    }
+
 
     getType(): string {
         return "worker";
