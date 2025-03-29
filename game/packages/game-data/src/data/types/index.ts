@@ -31,7 +31,7 @@ export interface UnitData {
 export interface UnitUpdateData {
     id: string;
     position: Position;
-    target: Target | null;
+    target: { targetX: number | null; targetY: number | null };
     health: number;
     state: string;
 }
