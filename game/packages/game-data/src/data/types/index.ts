@@ -202,3 +202,7 @@ export interface ICollector {
     resetTargetResource(): void;
 }
 
+export interface ActionProvider {
+    getAvailableActions(): Set<string>;
+}
+
