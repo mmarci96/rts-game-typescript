@@ -206,7 +206,7 @@ class MouseEventHandler {
                         commands.push(mineCommand)
                     }
                 } else {
-                    const { targetX, targetY } = this.createCheapGrid(
+                    let { targetX, targetY } = this.createCheapGrid(
                         unit.entity.getX(),
                         unit.entity.getY(),
                         worldX,
@@ -214,6 +214,12 @@ class MouseEventHandler {
                         entityArrSize,
                         index,
                     );
+                    if (targetX < 0) {
+                        targetX = 0.01
+                    }
+                    if (targetY < 0) {
+                        targetY = 0.01;
+                    }
                     const moveCommand = this.createMoveUnitCommand(
                         targetX,
                         targetY,
