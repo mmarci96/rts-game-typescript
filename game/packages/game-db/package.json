@@ -4,10 +4,9 @@
     "types": "dist/index.d.ts",
     "version": "1.0.0",
     "description": "",
-    "files": ["dist"],
     "scripts": {
-        "build": "tsc --outDir dist",
-        "prepack": "pnpm build"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc"
     },
     "keywords": [],
     "author": "",
