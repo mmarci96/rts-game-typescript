@@ -23,6 +23,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
     update(deltaTime: number) {
         let state = this.getStatus();
+        if (state !== 'idle') this.idleTime = 0;
         switch (state) {
             case "attack":
                 this.attackHandler();

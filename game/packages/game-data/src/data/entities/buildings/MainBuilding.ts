@@ -1,7 +1,7 @@
-import { BuildingParams } from "../../types";
+import { ActionProvider, BuildingParams } from "../../types";
 import Building from "./Building";
 
-class MainBuilding extends Building {
+class MainBuilding extends Building implements ActionProvider {
     #currentTimer: number = 0;
     constructor(parameters: BuildingParams) {
         super(parameters);
@@ -22,8 +22,11 @@ class MainBuilding extends Building {
         return { spawnX, spawnY, unitType, color };
     }
 
-    getActions(): string[] {
-        const actions = ["create_warrior", "create_worker", "create_archer"];
+    getAvailableActions() {
+        const actions = new Set<string>();
+        actions.add("create_warrior")
+        actions.add("create_worker")
+        actions.add("create_archer")
         return actions;
     }
 

@@ -23,7 +23,7 @@ class UnitController {
                 return;
             }
             unit.update(deltaTime);
-            if (unit.idleTime >= 2 && unit.idleTime < 3) {
+            if (unit.idleTime >= 1 && unit.idleTime < 2) {
                 this.adjustIdleUnitPosition(unit);
             }
         });

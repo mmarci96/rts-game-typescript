@@ -123,7 +123,7 @@ class Overlay {
         if (!(entity.entity instanceof MainBuilding)) {
             return;
         }
-        const actions = entity.entity.getActions();
+        const actions = [...entity.entity.getAvailableActions().values()];
         console.log(actions);
 
         actions.forEach((action: string) => {
