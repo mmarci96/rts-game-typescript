@@ -34,6 +34,7 @@ if (config.REDIS_TLS) {
 }
 
 export const redis = new Redis(redisOptions);
+
 export const deletePlayerCache = async (playerId: string, gameId: string) => {
     const key = gameKey(gameId, "player", playerId);
     await redis.del(key);
@@ -136,7 +137,7 @@ export const updateBuildingsCache = async (
         const key = gameKey(gameId, "building", buildingId);
 
         pipeline.hmset(key, {
-            health: building.getHealth().toString(),
+            health: building.getHealth(),
             state: building.getStatus(),
             updatedAt: new Date().toISOString(),
         });
