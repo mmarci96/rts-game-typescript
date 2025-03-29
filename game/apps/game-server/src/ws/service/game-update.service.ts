@@ -51,8 +51,6 @@ export class GameUpdateService {
         if (this.lastSaved <= this.staggerSave) {
             await logic.saveGameState(this.getRedisSavers());
         }
-        // const gameData = await getGameState(gameId);
-        // this.io.to(gameId).emit("game_state", gameData);
         const gameUpdates = logic.getUpdates();
         this.io.to(gameId).emit("game_updates", gameUpdates);
         Object.entries(ConnectionService.connections).forEach(
