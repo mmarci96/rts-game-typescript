@@ -8,6 +8,9 @@ COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run update-packages
 
+COPY .env.vite apps/game-ui/.env
+COPY .env.vite apps/game-client/.env
+
 # Build and prepare production packages
 RUN pnpm --filter=game-api build && \
     pnpm --filter=game-server build && \
@@ -26,7 +29,9 @@ RUN mkdir -p /prod && \
 FROM node:20-alpine AS game-api
 WORKDIR /app
 COPY --from=build /prod/game-api .
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init python3 make g++ && \
+    npm rebuild bcrypt --build-from-source && \
+    apk del python3 make g++
 EXPOSE 5000
 CMD ["dumb-init", "node", "dist/index.js"]
 
