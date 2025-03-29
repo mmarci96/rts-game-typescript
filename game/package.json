@@ -19,6 +19,7 @@
   "dependencies": {
     "@packages/game-data": "link:packages/game-data",
     "@packages/game-db": "link:packages/game-db",
+    "dist": "link:packages/game-db/dist",
     "game-data": "link:game-data",
     "ts-node": "^10.9.2"
   },
