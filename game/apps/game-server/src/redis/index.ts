@@ -250,7 +250,7 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
         try {
             parsed[key] = ["position", "target", "size"].includes(key)
                 ? JSON.parse(value)
-                : ["health", "speed", "damage", "availableResource"].includes(
+                : ["health", "speed", "damage", "availableResource", "attackRange", "attackSpeed"].includes(
                     key,
                 )
                     ? Number(value || 0)
