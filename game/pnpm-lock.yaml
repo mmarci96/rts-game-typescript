@@ -15,6 +15,9 @@ importers:
       '@packages/game-db':
         specifier: link:packages/game-db
         version: link:packages/game-db
+      game-data:
+        specifier: link:game-data
+        version: link:game-data
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@swc/core@1.11.7)(@types/node@22.13.9)(typescript@5.8.2)
