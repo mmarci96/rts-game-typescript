@@ -51,20 +51,24 @@ class Unit extends Attackable implements IAttacker, IMovable {
             this.setAttackableTarget(null);
             return;
         }
+
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
         const dx = tx - this.getX();
         const dy = ty - this.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
         const attackRange = Number(this.getAttackRange());
-        const buffer = 0.1;
-        if (distance <= Number(attackRange + buffer)) {
+        const attackBuffer = 0.3;
+        const attackRangeWithBuffer = attackRange + attackBuffer;
+        const epsilon = 0.000001;
+
+        if (distance <= attackRangeWithBuffer + epsilon) {
             const status = this.attack();
             this.setStatus(status);
         } else {
-            const dynamicOffset = Math.min(attackRange - buffer, distance - 0.2);
             const directionX = dx / distance;
             const directionY = dy / distance;
+            const dynamicOffset = distance - attackRangeWithBuffer;
 
             const targetX = tx - directionX * dynamicOffset;
             const targetY = ty - directionY * dynamicOffset;
@@ -82,7 +86,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
                 this.setStatus("idle");
             }
             else if (this.#attacker.getAttackableTarget()) {
-                this.setStatus("attack");
+                this.attackHandler();
             }
         } else {
             this.idleTime = 0;
@@ -102,7 +106,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
     updateCooldown(deltaTime: number) {
         if (this.canAttack()) {
-            this.setStatus('attack');
+            this.attackHandler();
             return;
         }
         this.#attacker.updateCooldown(deltaTime)
@@ -147,6 +151,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
     setTarget(x: number | null, y: number | null): void {
         this.#movable.setTarget(x, y);
     }
+
     canAttack(): boolean {
         return this.#attacker.canAttack()
     }
