@@ -14,12 +14,12 @@ services:
       - redis_data:/data
 
   game-api:
-    image: game-api:latest  # Use the image built from your Dockerfile
+    image: game-api:latest  
     container_name: game-api
     build:
       context: .
       dockerfile: Dockerfile
-      target: game-api  # Use the correct build target
+      target: game-api
     environment:
       - PORT=5000
       - MONGO_URI=mongodb://game-mongodb:27017/game-db-2
@@ -33,7 +33,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: game-server  # Use the correct build target
+      target: game-server
     environment:
       - PORT=8080
       - HOST=0.0.0.0
