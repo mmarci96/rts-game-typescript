@@ -12,6 +12,9 @@ RUN pnpm run update-packages
 RUN pnpm --filter=game-api build
 RUN pnpm --filter=game-server build
 
+COPY .env.vite /usr/src/app/apps/game-ui/.env
+COPY .env.vite /usr/src/app/apps/game-client/.env
+
 RUN pnpm --filter=game-ui build
 RUN pnpm --filter=game-client build
 

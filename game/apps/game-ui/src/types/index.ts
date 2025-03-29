@@ -13,6 +13,7 @@ export interface PlayerData {
     id: string;
     color: PlayerColor;
     gameId: string;
+    name: string;
 }
 
 export interface MapData {
