@@ -18,9 +18,11 @@ class Attackable extends ControlledEntity implements IAttackable {
     takeDamage(damage: number) {
         this.#health = Math.max(0, this.#health - damage);
     }
+
     setHealth(hp: number) {
         this.#health = hp;
     }
+
     getHealth() {
         return this.#health;
     }

@@ -23,7 +23,7 @@ class UnitController {
                 return;
             }
             unit.update(deltaTime);
-            if (unit.idleTime >= 1) {
+            if (unit.idleTime >= 2 && unit.idleTime < 3) {
                 this.adjustIdleUnitPosition(unit);
             }
         });
@@ -71,7 +71,7 @@ class UnitController {
 
     adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.#units.values()];
-        const bufferDistance = 1;
+        const bufferDistance = 1.4;
 
         unitsArray.forEach((otherUnit) => {
             if (idleUnit === otherUnit || otherUnit.getStatus() !== "idle")
@@ -87,8 +87,9 @@ class UnitController {
                 const directionX = dx / distance || Math.random() - 0.5;
                 const directionY = dy / distance || Math.random() - 0.5;
 
-                idleUnit.setX(idleUnit.getX() - directionX * overlap);
-                idleUnit.setY(idleUnit.getY() - directionY * overlap);
+                const targetX = (idleUnit.getX() - directionX * overlap);
+                const targetY = (idleUnit.getY() - directionY * overlap);
+                idleUnit.setupPathfinder(idleUnit.getX(), idleUnit.getY(), targetX, targetY);
             }
         });
     }

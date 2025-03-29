@@ -80,14 +80,11 @@ class EntityController {
                 if (!command.targetId) {
                     break;
                 }
-                const worker = this.#unitController.getUnitById(
-                    command.entityId,
-                );
                 const targetResource = this.#resourceController.getResourceById(
                     command.targetId,
                 );
-                if (worker && worker instanceof Worker && targetResource) {
-                    worker.collector.collectResource(targetResource);
+                if (entity instanceof Worker && targetResource) {
+                    entity.collector.collectResource(targetResource);
                 }
                 break;
             case "train":
@@ -138,7 +135,7 @@ class EntityController {
                 }
                 break;
             default:
-                console.log("Invalid command", command);
+                console.error("Invalid command", command);
                 break;
         }
     }
@@ -161,13 +158,7 @@ class EntityController {
         if (!targetEntity) {
             return;
         }
-        console.log(targetEntity);
-        console.log("Target health: ", targetEntity.getHealth());
-
         unit.setAttackableTarget(targetEntity);
-        this.#unitController
-            .getUnitById(unit.getId())
-            ?.setAttackableTarget(targetEntity);
     }
 
     refreshEntities(deltaTime: number) {
