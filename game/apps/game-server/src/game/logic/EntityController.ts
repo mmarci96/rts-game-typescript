@@ -121,7 +121,6 @@ class EntityController {
                     command.targetY &&
                     command.targetX
                 ) {
-                    entity.setAttackableTarget(null);
                     this.handleMovingUnit(
                         entity,
                         command.targetX,
@@ -145,6 +144,10 @@ class EntityController {
     }
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
+        if (unit instanceof Worker) {
+            unit.resetTargetResource()
+        }
+        unit.setAttackableTarget(null)
         unit.setStatus("moving");
         unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
     }
