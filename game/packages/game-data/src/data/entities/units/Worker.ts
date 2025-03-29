@@ -1,10 +1,11 @@
 import Unit from "./Unit";
-import { UnitParams } from "../../types";
+import { ICollector, UnitParams } from "../../types";
 import Collector from "../Collector";
 import { calculateDistance } from "../../utils";
 import { AStar } from "../../utils/pathfinding";
+import { Resource } from "../resources";
 
-class Worker extends Unit {
+class Worker extends Unit implements ICollector {
     collector: Collector;
 
     constructor(parameters: UnitParams, aStar: AStar | null) {
@@ -12,12 +13,8 @@ class Worker extends Unit {
         this.collector = new Collector(5);
     }
 
-    getCollector() {
-        return this.collector
-    }
-
     mining(deltaTime: number): void {
-        const targetResource = this.collector.getTarget();
+        const targetResource = this.getTargetResource();
         if (targetResource) {
             const targetX = targetResource.getX();
             const targetY = targetResource.getY();
@@ -28,12 +25,11 @@ class Worker extends Unit {
                 this.setupPathfinder(this.getX(), this.getY(), targetX, targetY);
             } else {
                 this.setStatus("mining")
-                this.collector.updateCollect(deltaTime)
+                this.updateCollect(deltaTime)
             }
             return;
         }
     }
-
 
     updatePosition(deltaTime: number) {
         const { newX, newY, progress } = this.move(
@@ -56,7 +52,7 @@ class Worker extends Unit {
             this.setStatus("attack");
             return;
         }
-        if (this.collector.getTarget()) {
+        if (this.getTargetResource()) {
             this.setStatus("mining")
             return;
         }
@@ -69,6 +65,27 @@ class Worker extends Unit {
     getType(): string {
         return "worker";
     }
+
+    updateCollect(deltaTime: number): number {
+        return this.collector.updateCollect(deltaTime)
+    }
+
+    collectResource(resource: Resource): void {
+        return this.collector.collectResource(resource)
+    }
+
+    getCollected(): number {
+        return this.collector.getCollected()
+    }
+
+    getTargetResource(): Resource | null {
+        return this.collector.getTargetResource()
+    }
+
+    resetTargetResource(): void {
+        this.collector.resetTargetResource()
+    }
+
 }
 
 export default Worker;

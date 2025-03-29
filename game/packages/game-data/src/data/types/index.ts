@@ -1,3 +1,5 @@
+import { Resource } from "../entities";
+
 export interface Position {
     x: number;
     y: number;
@@ -190,5 +192,13 @@ export interface IMovable {
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;
     setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[]
+}
+
+export interface ICollector {
+    collectResource(resource: Resource): void;
+    updateCollect(deltaTime: number): number;
+    getCollected(): number;
+    getTargetResource(): Resource | null;
+    resetTargetResource(): void;
 }
 
