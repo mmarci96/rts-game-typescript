@@ -66,6 +66,10 @@ class GameLogic {
         this.#entityController.refreshEntities(deltaTime);
     }
 
+    getUpdates() {
+        return this.#entityController.getEntityUpdateData();
+    }
+
     loadMinedResources(player: Player) {
         return this.#entityController.loadMinedResources(player);
     }

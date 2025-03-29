@@ -2,16 +2,20 @@ import {
     Attackable,
     Building,
     BuildingController,
+    BuildingUpdateData,
     ControlledEntity,
     GameEntity,
     GameState,
+    GameUpdateData,
     MainBuilding,
     Player,
     PlayerColor,
     Resource,
     ResourceController,
+    ResourceUpdateData,
     Unit,
     UnitController,
+    UnitUpdateData,
     Worker,
 } from "@packages/game-data/dist";
 import { PlayerCommand } from "../../types";
@@ -47,6 +51,42 @@ class EntityController {
         this.#buildingController.loadBuildings(data.buildings);
         this.#resourceController.loadResources(data.resources);
         this.#unitController.loadUnits(data.units);
+    }
+
+    getEntityUpdateData(): GameUpdateData {
+        const unitUpdateData: UnitUpdateData[] = this.#unitController
+            .getUnits()
+            .flatMap(
+                (unit: Unit): UnitUpdateData => ({
+                    id: unit.getId(),
+                    position: unit.getPosition(),
+                    health: unit.getHealth(),
+                    target: unit.getTarget(),
+                    state: unit.getStatus(),
+                }),
+            );
+        const buildingUpdateData: BuildingUpdateData[] =
+            this.#buildingController.getBuildings().flatMap(
+                (building: Building): BuildingUpdateData => ({
+                    id: building.getId(),
+                    health: building.getHealth(),
+                    gameId: this.#gameId,
+                }),
+            );
+        const resourceUpdateData: ResourceUpdateData[] =
+            this.#resourceController.getResources().flatMap(
+                (resource: Resource): ResourceUpdateData => ({
+                    id: resource.getId(),
+                    availableResource: resource.getAvailableResource(),
+                    gameId: this.#gameId,
+                }),
+            );
+
+        return {
+            unitUpdateData,
+            buildingUpdateData,
+            resourceUpdateData,
+        };
     }
 
     getUnits(): Unit[] {
@@ -145,9 +185,9 @@ class EntityController {
 
     handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
         if (unit instanceof Worker) {
-            unit.resetTargetResource()
+            unit.resetTargetResource();
         }
-        unit.setAttackableTarget(null)
+        unit.setAttackableTarget(null);
         unit.setStatus("moving");
         unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
     }

@@ -4,6 +4,12 @@ import { GameStateService } from "./service/game-state.service";
 import { GameUpdateService } from "./service/game-update.service";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { LoadRequest } from "../types";
+import {
+    getGameState,
+    updateBuildingsCache,
+    updateResourceFieldsCache,
+    updateUnitsCache,
+} from "../redis";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
@@ -29,7 +35,13 @@ export const websocketController = (io: Server) => {
             }
             ConnectionService.handlePlayerJoin(socket.id, playerConnecting);
             console.log("Player connected: ", playerConnecting);
-
+            await game.getLogic().saveGameState({
+                cacheUnits: updateUnitsCache,
+                cacheBuildings: updateBuildingsCache,
+                cacheResources: updateResourceFieldsCache,
+            });
+            const gameData = await getGameState(gameId);
+            socket.emit("game_state", gameData);
             socket.join(gameId);
         });
 

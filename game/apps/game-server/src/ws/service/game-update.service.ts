@@ -17,6 +17,8 @@ export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
     private updateInterval: NodeJS.Timeout | null = null;
     private io: Server;
+    private staggerSave: number = 2000;
+    private lastSaved: number = 0;
 
     constructor(io: Server) {
         this.io = io;
@@ -46,9 +48,13 @@ export class GameUpdateService {
 
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
-        await logic.saveGameState(this.getRedisSavers());
-        const gameData = await getGameState(gameId);
-        this.io.to(gameId).emit("game_state", gameData);
+        if (this.lastSaved <= this.staggerSave) {
+            await logic.saveGameState(this.getRedisSavers());
+        }
+        // const gameData = await getGameState(gameId);
+        // this.io.to(gameId).emit("game_state", gameData);
+        const gameUpdates = logic.getUpdates();
+        this.io.to(gameId).emit("game_updates", gameUpdates);
         Object.entries(ConnectionService.connections).forEach(
             async ([socketId, connectionData]) => {
                 const minedRes = logic.loadMinedResources(
@@ -77,7 +83,11 @@ export class GameUpdateService {
                 return;
             }
             console.log("Game ended and winner is: ", winner.getName());
-            const winningPlayerData = { name: winner.getName(), id: winner.getId(), color: winner.getColor() }
+            const winningPlayerData = {
+                name: winner.getName(),
+                id: winner.getId(),
+                color: winner.getColor(),
+            };
             this.io.to(gameId).emit("game_over", winningPlayerData);
             await setWinnerOnGameOver(gameId, winner.getId());
             await flushGameCache(gameId);
