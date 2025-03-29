@@ -1,7 +1,11 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, PlayerColor } from "@packages/game-data/dist";
+import {
+    GameState,
+    GameUpdateData,
+    PlayerColor,
+} from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
@@ -49,12 +53,16 @@ export class ConnectionHandler {
         this.socket.on("game_state", (data: GameState) =>
             this.handleGameState(data),
         );
+        this.socket.on("game_updates", (data: GameUpdateData) =>
+            this.handleGameUpdates(data),
+        );
         this.socket.on("player_state", (playerState) =>
             this.handlePlayerState(playerState),
         );
-        this.socket.on("game_over", (data) =>
-            this.handleGameOver(data),
-        );
+        this.socket.on("game_over", (data) => this.handleGameOver(data));
+    }
+    private handleGameUpdates(gameUpdates: GameUpdateData) {
+        console.log(gameUpdates);
     }
 
     private handleConnect() {
@@ -86,8 +94,15 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(data: { name: string, id: string, color: PlayerColor }) {
-        function displayGameOverScreen(winnerName: string, afterGameUrl: string): void {
+    private handleGameOver(data: {
+        name: string;
+        id: string;
+        color: PlayerColor;
+    }) {
+        function displayGameOverScreen(
+            winnerName: string,
+            afterGameUrl: string,
+        ): void {
             const root = document.getElementById("root");
 
             if (!root) {
@@ -112,7 +127,7 @@ export class ConnectionHandler {
             statsButton.style.cursor = "pointer";
             statsButton.style.display = "block";
             statsButton.style.margin = "0 auto";
-            statsButton.style.borderRadius = "0px"
+            statsButton.style.borderRadius = "0px";
 
             root.appendChild(message);
             root.appendChild(statsButton);
