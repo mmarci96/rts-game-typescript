@@ -32,7 +32,6 @@ COPY --from=build /prod/game-api .
 RUN apk add --no-cache dumb-init python3 make g++ && \
     npm rebuild bcrypt --build-from-source && \
     apk del python3 make g++
-EXPOSE 5000
 CMD ["dumb-init", "node", "dist/index.js"]
 
 # Optimized Game Server Service
@@ -40,7 +39,6 @@ FROM node:20-alpine AS game-server
 WORKDIR /app
 COPY --from=build /prod/game-server .
 RUN apk add --no-cache dumb-init
-EXPOSE 8080
 CMD ["dumb-init", "node", "dist/index.js"]
 
 # Frontend remains unchanged

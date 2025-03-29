@@ -26,8 +26,6 @@ services:
       - NODE_ENV=production
     depends_on:
       - mongodb
-    ports:
-      - "5000:5000"
 
   game-server:
     image: game-server:latest
@@ -45,8 +43,6 @@ services:
     depends_on:
       - mongodb
       - redis
-    ports:
-      - "8080:8080"
   
   game-frontend:
     image: game-frontend:latest
