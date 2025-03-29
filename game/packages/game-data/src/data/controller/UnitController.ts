@@ -55,7 +55,7 @@ class UnitController {
         ) as Worker[];
 
         workers.forEach((worker) => {
-            const resType = worker.collector.getTarget()?.getType();
+            const resType = worker.getTargetResource()?.getType();
             switch (resType) {
                 case "tree":
                     wood += worker.collector.getCollected();
@@ -89,7 +89,7 @@ class UnitController {
 
                 const targetX = (idleUnit.getX() - directionX * overlap);
                 const targetY = (idleUnit.getY() - directionY * overlap);
-                idleUnit.setupPathfinder(idleUnit.getX(), idleUnit.getY(), targetX, targetY);
+                idleUnit.setPosition({ x: targetX, y: targetY });
             }
         });
     }

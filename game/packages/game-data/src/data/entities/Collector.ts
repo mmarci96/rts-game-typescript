@@ -1,5 +1,7 @@
+import { ICollector } from "../types";
 import { Resource } from "./resources";
-class Collector {
+
+class Collector implements ICollector {
     #capacity: number;
     #collected: number = 0;
     #collectingResource: Resource | null = null;
@@ -18,7 +20,7 @@ class Collector {
             this.#timePassed = 0;
             return 0;
         }
-        if (this.#timePassed > 1) {
+        if (this.#timePassed > 5) {
             this.#timePassed = 0;
             this.#collected += this.#capacity;
             return this.#collected;
@@ -33,9 +35,12 @@ class Collector {
         return amount
     }
 
-
-    getTarget() {
+    getTargetResource() {
         return this.#collectingResource;
+    }
+
+    resetTargetResource(): void {
+        this.#collectingResource = null;
     }
 }
 
