@@ -99,8 +99,9 @@ class GameLogic {
             colorPresence.add(building.getColor());
         }
         if (colorPresence.size === 1) {
-            winner = [...this.#players.values()].find((player: Player) =>
-                player.getColor() === colorPresence.values().next().value
+            winner = [...this.#players.values()].find(
+                (player: Player) =>
+                    player.getColor() === colorPresence.values().next().value,
             );
         }
         if (winner) {
