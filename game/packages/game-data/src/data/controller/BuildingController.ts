@@ -1,5 +1,5 @@
 import { Building, MainBuilding } from "../entities";
-import { BuildingData, PlayerColor } from "../types";
+import { BuildingData } from "../types";
 import { mapBuildingToBuildingParams } from "../utils";
 
 class BuildingController {
@@ -11,6 +11,12 @@ class BuildingController {
 
     loadBuildings(buildingsData: BuildingData[]) {
         buildingsData.forEach((buildingData: BuildingData) => {
+            const existing = this.#buildings.get(buildingData.id);
+            if (existing) {
+                existing.setHealth(buildingData.health);
+                existing.setStatus(buildingData.state);
+                return;
+            }
             const buildingParams = mapBuildingToBuildingParams(buildingData);
             switch (buildingData.buildingType) {
                 case "main":

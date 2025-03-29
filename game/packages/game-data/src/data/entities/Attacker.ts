@@ -26,9 +26,11 @@ class Attacker implements IAttacker {
         }
         return "cooldown";
     }
+
     setAttackableTarget(attackable: Attackable | null) {
         this.#attackableTarget = attackable;
     }
+
     getAttackableTarget() {
         return this.#attackableTarget;
     }
@@ -56,6 +58,7 @@ class Attacker implements IAttacker {
     updateCooldown(deltaTime: number) {
         this.#coolDown = Math.max(0, this.#coolDown - deltaTime);
     }
+
     getCooldown() {
         return this.#coolDown;
     }

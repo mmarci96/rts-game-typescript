@@ -46,9 +46,8 @@ export class GameUpdateService {
 
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
-        const gameData = await getGameState(gameId);
         await logic.saveGameState(this.getRedisSavers());
-
+        const gameData = await getGameState(gameId);
         this.io.to(gameId).emit("game_state", gameData);
         Object.entries(ConnectionService.connections).forEach(
             async ([socketId, connectionData]) => {
