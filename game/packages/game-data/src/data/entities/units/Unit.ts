@@ -46,11 +46,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
     attackHandler() {
         const targetUnit = this.getAttackableTarget();
-        if (!targetUnit) {
-            this.setStatus("idle");
-            return;
-        }
-        if (targetUnit.getHealth() <= 0) {
+        if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
             this.setAttackableTarget(null);
             return;
@@ -60,44 +56,42 @@ class Unit extends Attackable implements IAttacker, IMovable {
         const dx = tx - this.getX();
         const dy = ty - this.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const attackRange = this.getAttackRange();
-        if (distance <= attackRange) {
+        const attackRange = Number(this.getAttackRange());
+        const buffer = 0.1;
+        if (distance <= Number(attackRange + buffer)) {
             const status = this.attack();
             this.setStatus(status);
         } else {
+            const dynamicOffset = Math.min(attackRange - buffer, distance - 0.2);
             const directionX = dx / distance;
             const directionY = dy / distance;
-            const targetX = tx - directionX * (attackRange - 0.2);
-            const targetY = ty - directionY * (attackRange - 0.2);
+
+            const targetX = tx - directionX * dynamicOffset;
+            const targetY = ty - directionY * dynamicOffset;
+
             this.setupPathfinder(this.getX(), this.getY(), targetX, targetY);
             this.setStatus("moving");
         }
     }
 
     updatePosition(deltaTime: number) {
-        const { newX, newY, progress } = this.#movable.move(
-            deltaTime,
-        );
+        const { newX, newY, progress } = this.#movable.move(deltaTime);
         if (progress === "completed") {
             this.#movable.setTarget(null, null);
-        }
-
-        if (progress !== "completed") {
+            if (!this.#attacker.getAttackableTarget()) {
+                this.setStatus("idle");
+            }
+            else if (this.#attacker.getAttackableTarget()) {
+                this.setStatus("attack");
+            }
+        } else {
             this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
-            this.setStatus("moving");
-            return;
+            if (this.getStatus() !== "moving") {
+                this.setStatus("moving");
+            }
         }
-
-        if (this.#attacker.getAttackableTarget()) {
-            this.idleTime = 0;
-            this.setStatus("attack");
-            return;
-        }
-
-        this.setStatus("idle");
-        return;
     }
 
     mining(deltaTime: number) {
@@ -123,7 +117,6 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     setAttackableTarget(target: Attackable | null): void {
-        this.setStatus("attack")
         this.#attacker.setAttackableTarget(target)
     }
 
