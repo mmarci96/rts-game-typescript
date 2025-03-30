@@ -1,4 +1,11 @@
-import { Tile, GameState, Player, PlayerResources } from "@packages/game-data";
+import {
+    Tile,
+    GameState,
+    Player,
+    PlayerResources,
+    GameUpdateData,
+    UnitData,
+} from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
@@ -33,11 +40,7 @@ class GameLogic {
             GameLogic.CAMERA_SIZE,
         );
         this.assets = assets;
-        this.gameMapDrawer = new GameMapDrawer(
-            tiles,
-            this.camera,
-            this.assets,
-        );
+        this.gameMapDrawer = new GameMapDrawer(tiles, this.camera, this.assets);
         this.gameCanvas = new GameCanvas();
 
         this.gameMapDrawer.drawMap();
@@ -54,8 +57,14 @@ class GameLogic {
 
         this.entityManager = new EntityManager(this.assets);
     }
-    updateGameState(data: GameState) {
-        this.entityManager.loadGameState(data);
+    loadGameState(data: GameState) {
+        this.entityManager.loadEntities(data);
+    }
+    updateEntities(data: GameUpdateData) {
+        this.entityManager.updateEntities(data);
+    }
+    handleUnitCreated(data: UnitData) {
+        this.entityManager.loadUnit(data);
     }
     updatePlayerState(playerResources: PlayerResources) {
         this.player.setResources(playerResources);
@@ -68,7 +77,6 @@ class GameLogic {
         const context = this.gameCanvas.getContext();
         const ctx: CanvasRenderingContext2D | null = context;
         if (!ctx) throw new Error("No canvas");
-        this.entityManager.loadDrawableEntities(ctx, this.assets);
         this.mouseEventHandler.addCanvasEventListeners(createCommand);
 
         let lastTime = Date.now();
@@ -78,22 +86,24 @@ class GameLogic {
             lastTime = now;
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
-            this.entityManager.refreshEntities(deltaTime);
-            this.mouseEventHandler.updateDrawables(this.entityManager.getDrawables().values());
 
-            [...this.entityManager.getDrawables().values()].forEach(
-                (drawable: Drawable) => {
-                    drawable.draw(ctx, this.camera);
-                },
+            this.mouseEventHandler.updateDrawables(
+                this.entityManager.getDrawableEntities(),
             );
+
+            this.entityManager
+                .getDrawableEntities()
+                .forEach((drawable: Drawable) => {
+                    drawable.draw(ctx, this.camera);
+                });
             Overlay.statusBar.setFps(deltaTime * 1000);
             requestAnimationFrame(animate);
         };
-
         animate();
     }
+
     getPlayerColor() {
-        return this.player.getColor()
+        return this.player.getColor();
     }
 }
 
