@@ -2,25 +2,25 @@ import { ResourceParams } from "../../types";
 import Neutral from "../Neutral";
 
 class Resource extends Neutral {
-    #availableResource;
+    private availableResource;
 
     constructor(params: ResourceParams) {
         super(params.id, params.position, params.description, params.size);
-        this.#availableResource = params.availableResource;
+        this.availableResource = params.availableResource;
     }
 
     collectResource(amount: number) {
-        if (this.#availableResource < amount) {
-            const remaining = this.#availableResource;
-            this.#availableResource = 0;
+        if (this.availableResource < amount) {
+            const remaining = this.availableResource;
+            this.availableResource = 0;
             return remaining;
         }
-        this.#availableResource = this.#availableResource - amount;
+        this.availableResource = this.availableResource - amount;
         return amount;
     }
 
     getAvailableResource() {
-        return this.#availableResource;
+        return this.availableResource;
     }
 
     getType(): string {

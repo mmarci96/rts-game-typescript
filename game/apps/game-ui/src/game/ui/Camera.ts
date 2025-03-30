@@ -1,8 +1,8 @@
 class Camera {
-    #x
-    #y
-    #width
-    #height
+    private x
+    private y
+    private width
+    private height
 
     /**
      * Add width to camera as how many rows and cols it should draw map and units on
@@ -13,35 +13,35 @@ class Camera {
      * @param { number } height
      */
     constructor(x: number, y: number, width: number, height: number) {
-        this.#x = x
-        this.#y = y
-        this.#width = width
-        this.#height = height
+        this.x = x
+        this.y = y
+        this.width = width
+        this.height = height
     }
 
     getX() {
-        return this.#x
+        return this.x
     }
 
     getY() {
-        return this.#y
+        return this.y
     }
 
     getHeight() {
-        return this.#height
+        return this.height
     }
 
     getWidth() {
-        return this.#width
+        return this.width
     }
 
     moveCamera(dx: number, dy: number) {
-        this.#x += dx;
-        this.#y += dy;
+        this.x += dx;
+        this.y += dy;
     }
     setPosition(x: number, y: number) {
-        this.#x = x;
-        this.#y = y;
+        this.x = x;
+        this.y = y;
     }
 }
 

@@ -2,29 +2,29 @@ import { AttackableParams, IAttackable } from "../types";
 import ControlledEntity from "./ControlledEntity";
 
 class Attackable extends ControlledEntity implements IAttackable {
-    #health: number;
-    #maxHealth: number;
+    private health: number;
+    private maxHealth: number;
 
     constructor(params: AttackableParams) {
         super(params.controlledParams);
-        this.#health = params.health;
-        this.#maxHealth = params.health;
+        this.health = params.health;
+        this.maxHealth = params.health;
     }
 
     getMaxHealth() {
-        return this.#maxHealth;
+        return this.maxHealth;
     }
 
     takeDamage(damage: number) {
-        this.#health = Math.max(0, this.#health - damage);
+        this.health = Math.max(0, this.health - damage);
     }
 
     setHealth(hp: number) {
-        this.#health = hp;
+        this.health = hp;
     }
 
     getHealth() {
-        return this.#health;
+        return this.health;
     }
 }
 

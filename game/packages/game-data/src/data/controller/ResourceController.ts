@@ -3,9 +3,9 @@ import { Resource, WheatField, Tree } from "../entities";
 import { mapResourceToResourceParams } from "../utils";
 
 class ResourceController {
-    #resources;
+    private resources;
     constructor() {
-        this.#resources = new Map<string, Resource>();
+        this.resources = new Map<string, Resource>();
     }
 
     loadResources(resourcesData: ResourceData[]) {
@@ -14,15 +14,15 @@ class ResourceController {
             switch (resourceData.resourceType) {
                 case "wheatfield":
                     const wheatfield = new WheatField(resourceParams);
-                    this.#resources.set(wheatfield.getId(), wheatfield);
+                    this.resources.set(wheatfield.getId(), wheatfield);
                     break;
                 case "tree":
                     const tree = new Tree(resourceParams);
-                    this.#resources.set(tree.getId(), tree);
+                    this.resources.set(tree.getId(), tree);
                     break;
                 case "wheat":
                     const wheat = new WheatField(resourceParams);
-                    this.#resources.set(wheat.getId(), wheat);
+                    this.resources.set(wheat.getId(), wheat);
                     break;
                 default:
                     break;
@@ -31,19 +31,19 @@ class ResourceController {
     }
 
     updateResources() {
-        this.#resources.forEach((resource: Resource, id: string) => {
+        this.resources.forEach((resource: Resource, id: string) => {
             if (resource.getAvailableResource() <= 0) {
-                this.#resources.delete(id);
+                this.resources.delete(id);
             }
         })
     }
 
     getResources() {
-        return [...this.#resources.values()];
+        return [...this.resources.values()];
     }
 
     getResourceById(id: string) {
-        return this.#resources.get(id);
+        return this.resources.get(id);
     }
 }
 

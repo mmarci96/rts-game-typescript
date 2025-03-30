@@ -6,7 +6,7 @@ import { PlayerData } from "../types";
 class Game {
     static WIDTH = window.innerWidth;
     static HEIGHT = window.innerHeight;
-    #gameLogic;
+    private gameLogic;
 
     constructor(
         assets: AssetManager,
@@ -20,10 +20,10 @@ class Game {
             gameId,
             player.name,
         );
-        this.#gameLogic = new GameLogic(assets, tiles, currentPlayer);
+        this.gameLogic = new GameLogic(assets, tiles, currentPlayer);
     }
     getLogic() {
-        return this.#gameLogic;
+        return this.gameLogic;
     }
 }
 

@@ -1,14 +1,14 @@
 class AssetManager {
-    #images;
+    private images;
     constructor() {
-        this.#images = new Map<string, HTMLImageElement>();
+        this.images = new Map<string, HTMLImageElement>();
     }
     loadImage(key: string, src: string) {
         const BASE = import.meta.env.BASE_URL;
         return new Promise((resolve, reject) => {
             const img = new Image();
             img.onload = () => {
-                this.#images.set(key, img);
+                this.images.set(key, img);
                 resolve(img);
             };
             img.onerror = (err) => {
@@ -19,7 +19,7 @@ class AssetManager {
         });
     }
     getImage(key: string) {
-        return this.#images.get(key);
+        return this.images.get(key);
     }
 
     async loadAssets() {

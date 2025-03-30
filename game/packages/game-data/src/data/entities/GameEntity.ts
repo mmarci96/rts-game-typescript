@@ -1,10 +1,10 @@
 import { Position, Size } from "../types";
 
 class GameEntity {
-    #id;
-    #position;
-    #description;
-    #size;
+    private id;
+    private position;
+    private description;
+    private size;
 
     /**
      * @param id string
@@ -16,70 +16,70 @@ class GameEntity {
         description: string,
         size: Size,
     ) {
-        this.#id = id;
-        this.#position = position;
-        this.#description = description || "No info";
-        this.#size = size;
+        this.id = id;
+        this.position = position;
+        this.description = description || "No info";
+        this.size = size;
     }
 
     /**
      * @returns string
      */
     getId() {
-        return this.#id;
+        return this.id;
     }
 
     /**
      * @returns Position
      */
     getPosition() {
-        return this.#position;
+        return this.position;
     }
 
     /**
      * @returns number
      */
     getX() {
-        return this.#position.x;
+        return this.position.x;
     }
 
     /**
      * @returns number
      */
     getY() {
-        return this.#position.y;
+        return this.position.y;
     }
 
     /**
      * @param position Position
      */
     setPosition(position: Position) {
-        this.#position = position;
+        this.position = position;
     }
 
     /**
      * @param x number
      */
     setX(x: number) {
-        this.#position.x = x;
+        this.position.x = x;
     }
 
     /**
      * @param y number
      */
     setY(y: number) {
-        this.#position.y = y;
+        this.position.y = y;
     }
 
     /**
      * @returns string
      */
     getDescription() {
-        return this.#description;
+        return this.description;
     }
 
     getSize() {
-        return this.#size;
+        return this.size;
     }
     getType() {
         return "entity";
