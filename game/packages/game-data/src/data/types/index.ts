@@ -1,5 +1,92 @@
 import { Resource } from "../entities";
 
+export interface GameUpdateData {
+    unitUpdateData: UnitUpdateData[];
+    buildingUpdateData: BuildingUpdateData[];
+    resourceUpdateData: ResourceUpdateData[];
+}
+
+export enum UnitType {
+    ARCHER = "archer",
+    WARRIOR = "warrior",
+    WORKER = "worker",
+}
+
+export interface UnitData {
+    id: string;
+    position: Position;
+    color: PlayerColor;
+    health: number;
+    speed: number;
+    damage: number;
+    attackRange: number;
+    attackSpeed: number;
+    unitType: string;
+    state: string;
+    target: Target;
+    size: Size;
+    gameId: string;
+}
+
+export interface UnitUpdateData {
+    id: string;
+    position: Position;
+    target: { targetX: number | null; targetY: number | null };
+    health: number;
+    state: string;
+}
+
+export interface BuildingData {
+    id: string;
+    position: Position;
+    color: PlayerColor;
+    health: number;
+    buildingType: string;
+    state: string;
+    size: Size;
+    gameId: string;
+}
+
+export interface BuildingUpdateData {
+    id: string;
+    health: number;
+    gameId: string;
+}
+
+export enum BuildingType {
+    MAIN = "main",
+    BARRACK = "barrack",
+    ARMORY = "armory",
+    STORAGE = "storage",
+    TOWER = "tower",
+}
+
+export interface ResourceData {
+    id: string;
+    position: Position;
+    availableResource: number;
+    resourceType: string;
+    size: Size;
+    gameId: string;
+}
+
+export interface ResourceUpdateData {
+    id: string;
+    availableResource: number;
+    gameId: string;
+}
+
+export enum ResourceType {
+    TREE = "tree",
+    WHEAT = "wheatfield",
+}
+
+export interface GameState {
+    units: UnitData[];
+    resources: ResourceData[];
+    buildings: BuildingData[];
+}
+
 export interface Position {
     x: number;
     y: number;
@@ -57,40 +144,50 @@ export interface AttackableParams {
     health: number;
 }
 
-export interface UnitData {
-    id: string;
-    position: Position;
-    color: PlayerColor;
-    health: number;
-    speed: number;
-    damage: number;
-    attackRange: number;
-    attackSpeed: number;
-    unitType: string;
-    state: string;
-    target: Target;
-    size: Size;
-    gameId: string;
+export interface PlayerResources {
+    wood: number;
+    food: number;
 }
 
-export interface BuildingData {
-    id: string;
-    position: Position;
-    color: PlayerColor;
-    health: number;
-    buildingType: string;
-    state: string;
-    size: Size;
-    gameId: string;
+export interface IAttackable {
+    getHealth(): number;
+    getMaxHealth(): number;
+    takeDamage(damage: number): void;
 }
 
-export interface ResourceData {
-    id: string;
-    position: Position;
-    availableResource: number;
-    resourceType: string;
-    size: Size;
-    gameId: string;
+export interface IAttacker {
+    attack(target: IAttackable): string;
+    getAttackableTarget(): IAttackable | null;
+    setAttackableTarget(target: IAttackable | null): void;
+    getAttackRange(): number;
+    canAttack(): boolean;
+    resetTarget(): void;
+    getAttackDamage(): number;
+    getAttackSpeed(): number;
+}
+
+export interface IMovable {
+    getTarget(): { targetX: number | null; targetY: number | null };
+    setTarget(x: number | null, y: number | null): void;
+    getSpeed(): number;
+    setupPathfinder(
+        startX: number,
+        startY: number,
+        targetX: number,
+        targetY: number,
+    ): Tile[];
+}
+
+export interface ICollector {
+    collectResource(resource: Resource): void;
+    updateCollect(deltaTime: number): number;
+    getCollected(): number;
+    getTargetResource(): Resource | null;
+    resetTargetResource(): void;
+}
+
+export interface ActionProvider {
+    getAvailableActions(): Set<string>;
 }
 
 export enum TileName {
@@ -139,70 +236,3 @@ export interface Tile {
     pos: { x: number; y: number };
     isPassable: () => boolean;
 }
-
-export enum UnitType {
-    ARCHER = "archer",
-    WARRIOR = "warrior",
-    WORKER = "worker",
-}
-
-export enum ResourceType {
-    TREE = "tree",
-    WHEAT = "wheatfield",
-}
-
-export interface UnitUpdateData {
-    id: string;
-    position: Position;
-    target: Target;
-    health: number;
-    state: string;
-}
-
-export interface GameState {
-    units: UnitData[];
-    resources: ResourceData[];
-    buildings: BuildingData[];
-}
-
-export interface PlayerResources {
-    wood: number;
-    food: number;
-}
-
-export interface IAttackable {
-    getHealth(): number;
-    getMaxHealth(): number;
-    takeDamage(damage: number): void;
-}
-
-export interface IAttacker {
-    attack(target: IAttackable): string;
-    getAttackableTarget(): IAttackable | null;
-    setAttackableTarget(target: IAttackable | null): void;
-    getAttackRange(): number;
-    canAttack(): boolean;
-    resetTarget(): void;
-    getAttackDamage(): number;
-    getAttackSpeed(): number;
-}
-
-export interface IMovable {
-    getTarget(): { targetX: number | null; targetY: number | null };
-    setTarget(x: number | null, y: number | null): void;
-    getSpeed(): number;
-    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[]
-}
-
-export interface ICollector {
-    collectResource(resource: Resource): void;
-    updateCollect(deltaTime: number): number;
-    getCollected(): number;
-    getTargetResource(): Resource | null;
-    resetTargetResource(): void;
-}
-
-export interface ActionProvider {
-    getAvailableActions(): Set<string>;
-}
-
