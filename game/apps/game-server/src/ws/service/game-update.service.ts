@@ -1,7 +1,6 @@
 import Game from "../../game/Game";
 import { Server } from "socket.io";
 import {
-    getGameState,
     updateUnitsCache,
     updateBuildingsCache,
     updateResourceFieldsCache,
@@ -49,14 +48,13 @@ export class GameUpdateService {
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
         await logic.saveGameState(this.getRedisSavers());
-        // const gameData = await getGameState(gameId);
-        // this.io.to(gameId).emit("game_state", gameData);
         const updateData = logic.getUpdatedEntities();
         this.io.to(gameId).emit("game_update", updateData);
         const createdUnits = logic.getCreatedUnits();
-        if (createdUnits.length >= 0) {
+        if (createdUnits.length > 0) {
             createdUnits.forEach((unitData) => {
                 this.io.to(gameId).emit("unit_created", unitData);
+                logic.loadCreatedUnit(unitData);
             });
             logic.emptyCreatedUnits();
         }

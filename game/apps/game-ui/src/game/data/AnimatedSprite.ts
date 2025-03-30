@@ -66,6 +66,9 @@ class AnimatedSprite extends Drawable {
     }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
+        if (this.entity instanceof Unit) {
+            this.setAnimationType(this.entity.getStatus());
+        }
         this.updateAnimation();
         if (!this.spriteSheet) {
             console.error("Sprite sheet not loaded");
