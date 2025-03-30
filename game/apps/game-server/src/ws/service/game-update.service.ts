@@ -12,6 +12,8 @@ import {
 import { SaveGameStateParams } from "../../types";
 import { ConnectionService } from "./connection.service";
 import { setWinnerOnGameOver } from "@packages/game-db";
+import { Player } from "@packages/game-data";
+import GameLogic from "../../game/logic/GameLogic";
 
 export class GameUpdateService {
     private activeGames: Map<string, Game> = new Map();
@@ -47,8 +49,25 @@ export class GameUpdateService {
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
         await logic.saveGameState(this.getRedisSavers());
-        const gameData = await getGameState(gameId);
-        this.io.to(gameId).emit("game_state", gameData);
+        // const gameData = await getGameState(gameId);
+        // this.io.to(gameId).emit("game_state", gameData);
+        const updateData = logic.getUpdatedEntities();
+        this.io.to(gameId).emit("game_update", updateData);
+        const createdUnits = logic.getCreatedUnits();
+        if (createdUnits.length >= 0) {
+            createdUnits.forEach((unitData) => {
+                this.io.to(gameId).emit("unit_created", unitData);
+            });
+            logic.emptyCreatedUnits();
+        }
+
+        await this.handlePlayerUpdates(logic);
+        if (game.isGameOver() && logic.getWinner()) {
+            await this.handleGameOver(logic.getWinner()!);
+        }
+    }
+
+    private async handlePlayerUpdates(logic: GameLogic) {
         Object.entries(ConnectionService.connections).forEach(
             async ([socketId, connectionData]) => {
                 const minedRes = logic.loadMinedResources(
@@ -64,25 +83,26 @@ export class GameUpdateService {
                     connectionData.player,
                 );
                 const data = await getPlayerCache(
-                    gameId,
+                    connectionData.gameId,
                     connectionData.playerId,
                 );
                 this.io.to(socketId).emit("player_state", data);
             },
         );
-        if (game.isGameOver()) {
-            const winner = logic.getWinner();
-            if (!winner) {
-                console.error("No winner found");
-                return;
-            }
-            console.log("Game ended and winner is: ", winner.getName());
-            const winningPlayerData = { name: winner.getName(), id: winner.getId(), color: winner.getColor() }
-            this.io.to(gameId).emit("game_over", winningPlayerData);
-            await setWinnerOnGameOver(gameId, winner.getId());
-            await flushGameCache(gameId);
-            this.removeGame(gameId);
-        }
+    }
+
+    private async handleGameOver(winner: Player) {
+        const gameId = winner.getGameId();
+        console.log("Game ended and winner is: ", winner.getName());
+        const winningPlayerData = {
+            name: winner.getName(),
+            id: winner.getId(),
+            color: winner.getColor(),
+        };
+        this.io.to(gameId).emit("game_over", winningPlayerData);
+        await setWinnerOnGameOver(gameId, winner.getId());
+        await flushGameCache(gameId);
+        this.removeGame(gameId);
     }
 
     private stopGameUpdates(): void {

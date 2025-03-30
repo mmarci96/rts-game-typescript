@@ -15,6 +15,7 @@ import {
     ResourceUpdateData,
     Unit,
     UnitController,
+    UnitData,
     UnitUpdateData,
     Worker,
 } from "@packages/game-data/dist";
@@ -33,6 +34,7 @@ class EntityController {
     private unitController: UnitController;
     private buildingController: BuildingController;
     private resourceController: ResourceController;
+    private createdUnits: Set<UnitData>;
     private gameId: string;
 
     constructor(
@@ -44,6 +46,7 @@ class EntityController {
         this.unitController = unitController;
         this.buildingController = buildingController;
         this.resourceController = resourceController;
+        this.createdUnits = new Set();
         this.gameId = gameId;
     }
 
@@ -51,6 +54,18 @@ class EntityController {
         this.buildingController.loadBuildings(data.buildings);
         this.resourceController.loadResources(data.resources);
         this.unitController.loadUnits(data.units);
+    }
+
+    loadCreatedUnit(data: UnitData) {
+        this.unitController.loadUnit(data);
+    }
+
+    getCreatedUnits(): UnitData[] {
+        return [...this.createdUnits.values()];
+    }
+
+    emptyCreatedUnits() {
+        this.createdUnits.clear();
     }
 
     getEntityUpdateData(): GameUpdateData {
@@ -65,16 +80,18 @@ class EntityController {
                     state: unit.getStatus(),
                 }),
             );
-        const buildingUpdateData: BuildingUpdateData[] =
-            this.buildingController.getBuildings().flatMap(
+        const buildingUpdateData: BuildingUpdateData[] = this.buildingController
+            .getBuildings()
+            .flatMap(
                 (building: Building): BuildingUpdateData => ({
                     id: building.getId(),
                     health: building.getHealth(),
                     gameId: this.gameId,
                 }),
             );
-        const resourceUpdateData: ResourceUpdateData[] =
-            this.resourceController.getResources().flatMap(
+        const resourceUpdateData: ResourceUpdateData[] = this.resourceController
+            .getResources()
+            .flatMap(
                 (resource: Resource): ResourceUpdateData => ({
                     id: resource.getId(),
                     availableResource: resource.getAvailableResource(),
@@ -152,7 +169,8 @@ class EntityController {
                     );
                     if (savedUnit) {
                         const unitData = mapMongoUnitToData(savedUnit);
-                        this.unitController.loadUnit(unitData);
+                        // this.unitController.loadUnit(unitData);
+                        this.createdUnits.add(unitData);
                     }
                 }
             case "moving":

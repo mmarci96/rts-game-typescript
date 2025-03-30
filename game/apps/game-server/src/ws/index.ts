@@ -4,6 +4,7 @@ import { GameStateService } from "./service/game-state.service";
 import { GameUpdateService } from "./service/game-update.service";
 import { GameCommandService } from "../game/service/GameCommandService";
 import { LoadRequest } from "../types";
+import { getGameState } from "../redis";
 
 export const websocketController = (io: Server) => {
     const gameStateService = new GameStateService();
@@ -29,7 +30,8 @@ export const websocketController = (io: Server) => {
             }
             ConnectionService.handlePlayerJoin(socket.id, playerConnecting);
             console.log("Player connected: ", playerConnecting);
-
+            const gameState = await getGameState(gameId);
+            socket.emit("game_state", gameState);
             socket.join(gameId);
         });
 
