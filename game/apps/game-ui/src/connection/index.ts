@@ -1,7 +1,12 @@
 import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
-import { GameState, PlayerColor } from "@packages/game-data/dist";
+import {
+    GameState,
+    GameUpdateData,
+    PlayerColor,
+    UnitData,
+} from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
 import { Command } from "../types";
 
@@ -46,15 +51,27 @@ export class ConnectionHandler {
 
     private initializeSocketHandlers() {
         this.socket.on("connect", () => this.handleConnect());
-        this.socket.on("game_state", (data: GameState) =>
-            this.handleGameState(data),
-        );
-        this.socket.on("player_state", (playerState) =>
-            this.handlePlayerState(playerState),
-        );
-        this.socket.on("game_over", (data) =>
-            this.handleGameOver(data),
-        );
+        this.socket.on("game_state", (data) => this.handleGameState(data));
+        this.socket.on("player_state", (data) => this.handlePlayerState(data));
+        this.socket.on("game_over", (data) => this.handleGameOver(data));
+        this.socket.on("game_update", (data) => this.handleUpdate(data));
+        this.socket.on("unit_created", (data) => this.handleUnitCreated(data));
+    }
+
+    private updateRefreshRate() {
+        const now = Date.now();
+        const deltaTimeMs = now - this.lastPingTime;
+        this.lastPingTime = now;
+        Overlay.statusBar.setPing(deltaTimeMs);
+    }
+
+    private handleUnitCreated(data: UnitData) {
+        this.game.getLogic().handleUnitCreated(data);
+    }
+
+    private handleUpdate(data: GameUpdateData) {
+        this.updateRefreshRate();
+        this.game.getLogic().updateEntities(data);
     }
 
     private handleConnect() {
@@ -68,13 +85,8 @@ export class ConnectionHandler {
     }
 
     private handleGameState(data: GameState) {
-        const now = Date.now();
-        const deltaTimeMs = now - this.lastPingTime;
-        this.lastPingTime = now;
-
-        Overlay.statusBar.setPing(deltaTimeMs);
-        this.game.getLogic().updateGameState(data);
-
+        this.updateRefreshRate();
+        this.game.getLogic().loadGameState(data);
         if (!this.game.getLogic().running) {
             this.game.getLogic().startGameLoop(this.createCommand.bind(this));
         }
@@ -86,8 +98,15 @@ export class ConnectionHandler {
         }
     }
 
-    private handleGameOver(data: { name: string, id: string, color: PlayerColor }) {
-        function displayGameOverScreen(winnerName: string, afterGameUrl: string): void {
+    private handleGameOver(data: {
+        name: string;
+        id: string;
+        color: PlayerColor;
+    }) {
+        function displayGameOverScreen(
+            winnerName: string,
+            afterGameUrl: string,
+        ): void {
             const root = document.getElementById("root");
 
             if (!root) {
@@ -112,15 +131,13 @@ export class ConnectionHandler {
             statsButton.style.cursor = "pointer";
             statsButton.style.display = "block";
             statsButton.style.margin = "0 auto";
-            statsButton.style.borderRadius = "0px"
+            statsButton.style.borderRadius = "0px";
 
             root.appendChild(message);
             root.appendChild(statsButton);
         }
 
-        console.log("Winner is", data);
         const clientBaseUrl = import.meta.env.VITE_CLIENT_BASE_URL;
-        console.log(clientBaseUrl);
         this.dispose();
         const afterGameUrl = `${clientBaseUrl}/game-client/game-over/${data.id}`;
         displayGameOverScreen(data.name, afterGameUrl);
@@ -151,6 +168,7 @@ export class ConnectionHandler {
         this.socket.off("game_state");
         this.socket.off("player_state");
         this.socket.off("game_over");
+        this.socket.off("game_update");
         this.socket.disconnect();
     }
 }

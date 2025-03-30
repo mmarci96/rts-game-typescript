@@ -1,178 +1,223 @@
 import {
-    BuildingController,
-    ResourceController,
     GameState,
+    mapUnitToUnitParams,
+    UnitData,
+    Archer,
+    Warrior,
+    Worker,
     Unit,
+    BuildingData,
+    MainBuilding,
+    mapBuildingToBuildingParams,
     Building,
+    ResourceData,
+    mapResourceToResourceParams,
+    WheatField,
+    Tree,
     Resource,
     ResourceType,
-    UnitData,
-    BuildingData,
-    ResourceData,
+    GameUpdateData,
 } from "@packages/game-data";
-import Drawable from "../data/Drawable";
 import AssetManager from "../data/AssetManager";
+import Drawable from "../data/Drawable";
 import AnimatedSprite from "../data/AnimatedSprite";
 import AnimatedTree from "../data/AnimatedTree";
-import UnitManager from "./UnitManager";
 
 class EntityManager {
-    private unitManager: UnitManager;
-    private buildingController: BuildingController;
-    private resourceController: ResourceController;
     private drawables: Map<string, Drawable>;
     private assets: AssetManager;
 
     constructor(assets: AssetManager) {
         this.assets = assets;
-        this.unitManager = new UnitManager();
-        this.resourceController = new ResourceController();
-        this.buildingController = new BuildingController();
         this.drawables = new Map<string, Drawable>();
     }
 
-    refreshEntities(deltaTime: number) {
-        const existingKeys: Set<string> = new Set(
-            this.unitManager.getUnitIds(),
-        );
-        this.unitManager.getUnits().forEach((unit: Unit) => {
-            const drawable = this.drawables.get(unit.getId());
-            if (
-                drawable &&
-                drawable.entity instanceof Unit &&
-                drawable instanceof AnimatedSprite
-            ) {
-                drawable.setAnimationType(unit.getStatus());
-                const tx = unit.getTarget().targetX;
-                const ty = unit.getTarget().targetY;
-                if (tx && ty) {
-                    const { x, y } = drawable.move(tx, ty, deltaTime);
-                    unit.setX(x);
-                    unit.setY(y);
-                }
-                drawable.entity = unit;
-                existingKeys.delete(drawable.entity.getId());
-            }
-        });
-        [...existingKeys].forEach((unitId: string) => {
-            const unit = this.unitManager.getUnitById(unitId);
-            if (unit) {
-                const animatedSprite = this.loadAnimatedUnit(unit);
-                if (!animatedSprite) {
-                    console.error("No animated sprite");
-                    return;
-                }
-                this.drawables.set(unit.getId(), animatedSprite);
-            }
-        });
+    loadEntities(data: GameState) {
+        const { units, buildings, resources } = data;
+        units.forEach((unitData) => this.loadUnit(unitData));
+        buildings.forEach((buildingData) => this.loadBuilding(buildingData));
+        resources.forEach((resourceData) => this.loadResource(resourceData));
     }
 
-    loadGameState(gameState: GameState) {
-        const { buildings, units, resources } = gameState;
-        const existingIds = new Set(this.drawables.keys());
-        this.unitManager.loadUnits(units);
-        this.buildingController.loadBuildings(buildings);
-        this.resourceController.loadResources(resources);
-        units.forEach((unitData: UnitData) => existingIds.delete(unitData.id));
-        buildings.forEach((buildingData: BuildingData) =>
-            existingIds.delete(buildingData.id),
-        );
-        resources.forEach((resourceData: ResourceData) =>
-            existingIds.delete(resourceData.id),
-        );
-        [...existingIds.keys()].forEach((entityId: string) => {
-            const unit = this.drawables.get(entityId);
-            if (unit instanceof AnimatedSprite) {
-                this.handleDeath(unit);
+    getDrawableEntities(): Drawable[] {
+        return [...this.drawables.values()];
+    }
+
+    updateEntities(data: GameUpdateData) {
+        const existingKeys = new Set(this.drawables.keys());
+        const { unitUpdateData, buildingUpdateData, resourceUpdateData } = data;
+        unitUpdateData.forEach((unitUpdate) => {
+            const unit = this.drawables.get(unitUpdate.id);
+            if (!unit || !(unit.entity instanceof Unit)) {
+                console.error("Error updating unit: ", unitUpdate.id);
+                return;
+            }
+            unit.entity.setPosition(unitUpdate.position);
+            unit.entity.setHealth(unitUpdate.health);
+            unit.entity.setStatus(unitUpdate.state);
+            existingKeys.delete(unitUpdate.id);
+        });
+        buildingUpdateData.forEach((buildingUpdate) => {
+            const building = this.drawables.get(buildingUpdate.id);
+            if (!building || !(building.entity instanceof Building)) {
+                console.error("Error updating building: ", buildingUpdate.id);
+                return;
+            }
+            building.entity.setHealth(buildingUpdate.health);
+            existingKeys.delete(buildingUpdate.id);
+        });
+        resourceUpdateData.forEach((resourceUpdate) => {
+            const resource = this.drawables.get(resourceUpdate.id);
+            if (!resource || !(resource.entity instanceof Resource)) {
+                console.error("Error updating resource: ", resourceUpdate);
+                return;
+            }
+            resource.entity.setAvailableResource(
+                resourceUpdate.availableResource,
+            );
+            existingKeys.delete(resourceUpdate.id);
+        });
+        [...existingKeys].forEach((entityId: string) => {
+            const entity = this.drawables.get(entityId);
+            if (entity instanceof AnimatedSprite) {
+                this.handleDeath(entity);
             } else {
-                this.unitManager.removeUnit(entityId);
                 this.drawables.delete(entityId);
-                console.log("Entity removed", entityId);
             }
         });
     }
 
     handleDeath(animatedSprite: AnimatedSprite) {
         if (animatedSprite.isAnimationComplete) {
-            this.unitManager.removeUnit(animatedSprite.entity.getId());
             this.drawables.delete(animatedSprite.entity.getId());
             return;
         }
         if (animatedSprite.entity instanceof Unit && !animatedSprite.isDying) {
             animatedSprite.isDying = true;
             const deathSprite = this.assets.getImage("dead");
-            if (!deathSprite) return;
+            if (!deathSprite) {
+                console.error("No deathsprite found");
+                return;
+            }
             animatedSprite.setDeathAnimation(deathSprite);
         }
     }
 
-    getUnitsController() {
-        return this.unitManager;
-    }
-
-    getBuildingController() {
-        return this.buildingController;
-    }
-
-    getResourceController() {
-        return this.resourceController;
-    }
-
-    getDrawables() {
-        return this.drawables;
-    }
-
-    loadAnimatedUnit(unit: Unit): AnimatedSprite {
-        const spriteName = `${unit.getType().toLowerCase()}_${unit.getColor()}`;
-        const img = this.assets.getImage(spriteName);
-        if (!img) throw new Error("not found");
-        const animatedSprite = new AnimatedSprite(img, unit);
-        return animatedSprite;
-    }
-
-    loadDrawableEntities(ctx: CanvasRenderingContext2D, assets: AssetManager) {
-        try {
-            const units = this.getUnitsController().getUnits();
-            const buildings = this.getBuildingController().getBuildings();
-            const resources = this.getResourceController().getResources();
-            if (!ctx) {
-                return;
+    loadResource(resourceData: ResourceData) {
+        let resource;
+        const resourceParams = mapResourceToResourceParams(resourceData);
+        switch (resourceData.resourceType) {
+            case "wheatfield":
+                resource = new WheatField(resourceParams);
+                break;
+            case "tree":
+                resource = new Tree(resourceParams);
+                break;
+            case "wheat":
+                resource = new WheatField(resourceParams);
+                break;
+            default:
+                break;
+        }
+        if (resource) {
+            try {
+                this.loadDrawableEntity(resource);
+            } catch (err) {
+                console.error(err);
             }
-            buildings.forEach((building: Building) => {
-                const color = building.getColor();
-                const img = assets.getImage(`house_${color.toLowerCase()}`);
-                if (!img) throw new Error("not found");
-                const drawable = new Drawable(img, building);
-                this.drawables.set(building.getId(), drawable);
-            });
+        }
+    }
 
-            resources.forEach((resource: Resource) => {
-                const img = assets.getImage(resource.getType());
-                if (!img) throw new Error("not found");
+    loadUnit(unitData: UnitData) {
+        let unit;
+        const unitParam = mapUnitToUnitParams(unitData);
+        switch (unitData.unitType) {
+            case "archer":
+                unit = new Archer(unitParam, null);
+                break;
+            case "worker":
+                unit = new Worker(unitParam, null);
+                break;
+            case "warrior":
+                unit = new Warrior(unitParam, null);
+                break;
+            default:
+                console.error("Error loading unit:", unitData);
+                break;
+        }
+        if (unit) {
+            try {
+                this.loadDrawableEntity(unit);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+
+    loadBuilding(buildingData: BuildingData) {
+        let building;
+        const buildingParams = mapBuildingToBuildingParams(buildingData);
+        switch (buildingData.buildingType) {
+            case "main":
+                building = new MainBuilding(buildingParams);
+                break;
+            default:
+                console.error("Error loading building: ", buildingData);
+                break;
+        }
+        if (building) {
+            try {
+                this.loadDrawableEntity(building);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    }
+
+    private loadDrawableEntity(entity: Resource | Building | Unit): void {
+        let drawable: Drawable | AnimatedSprite | undefined;
+        let key: string;
+        switch (true) {
+            case entity instanceof Unit: {
+                const unit = entity as Unit;
+                const spriteName = `${unit.getType().toLowerCase()}_${unit.getColor()}`;
+                const img = this.assets.getImage(spriteName);
+                if (!img) throw new Error("Image not found");
+                drawable = new AnimatedSprite(img, unit);
+                key = unit.getId();
+                break;
+            }
+            case entity instanceof Building: {
+                const building = entity as Building;
+                const img = this.assets.getImage(
+                    `house_${building.getColor().toLowerCase()}`,
+                );
+                if (!img) throw new Error("Image not found");
+                drawable = new Drawable(img, building);
+                key = building.getId();
+                break;
+            }
+            case entity instanceof Resource: {
+                const resource = entity as Resource;
+                const img = this.assets.getImage(resource.getType());
+                if (!img) throw new Error("Image not found");
+                key = resource.getId();
                 switch (resource.getType()) {
                     case ResourceType.TREE:
-                        const tree = new AnimatedTree(img, resource);
-                        this.drawables.set(resource.getId(), tree);
+                        drawable = new AnimatedTree(img, resource);
                         break;
                     default:
-                        const drawable = new Drawable(img, resource);
+                        drawable = new Drawable(img, resource);
                         drawable.setShadow(true);
-                        this.drawables.set(resource.getId(), drawable);
                         break;
                 }
-            });
-
-            units.forEach((unit: Unit) => {
-                const color = unit.getColor();
-                const img = assets.getImage(
-                    `${unit.getType().toLowerCase()}_${color}`,
-                );
-                if (!img) throw new Error("not found");
-                const animatedSprite = new AnimatedSprite(img, unit);
-                this.drawables.set(unit.getId(), animatedSprite);
-            });
-        } catch (err) {
-            console.error(err);
+                break;
+            }
+            default:
+                throw new Error("Unknown entity type");
+        }
+        if (drawable && key) {
+            this.drawables.set(key, drawable);
         }
     }
 }

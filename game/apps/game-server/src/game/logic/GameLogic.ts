@@ -6,6 +6,7 @@ import {
     BuildingController,
     Player,
     PlayerColor,
+    UnitData,
 } from "@packages/game-data/dist";
 import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
@@ -41,8 +42,24 @@ class GameLogic {
         this.loadPlayers(players);
     }
 
+    getUpdatedEntities() {
+        return this.entityController.getEntityUpdateData();
+    }
+
     loadData(data: GameState) {
         this.entityController.loadEntities(data);
+    }
+
+    loadCreatedUnit(data: UnitData) {
+        this.entityController.loadCreatedUnit(data);
+    }
+
+    emptyCreatedUnits() {
+        this.entityController.emptyCreatedUnits();
+    }
+
+    getCreatedUnits(): UnitData[] {
+        return this.entityController.getCreatedUnits();
     }
 
     loadPlayers(players: IPlayer[]) {
@@ -99,8 +116,9 @@ class GameLogic {
             colorPresence.add(building.getColor());
         }
         if (colorPresence.size === 1) {
-            winner = [...this.players.values()].find((player: Player) =>
-                player.getColor() === colorPresence.values().next().value
+            winner = [...this.players.values()].find(
+                (player: Player) =>
+                    player.getColor() === colorPresence.values().next().value,
             );
         }
         if (winner) {
