@@ -92,31 +92,51 @@ export const updateUnitsCache = async (gameId: string, units: Unit[]) => {
             y: unit.getTarget().targetY,
         };
 
-        pipeline.hmset(key, {
-            position: JSON.stringify(unit.getPosition()),
-            health: unit.getHealth().toString(),
-            unitType: unit.getType(),
-            state: unit.getStatus(),
-            target: JSON.stringify(target),
-            id: unit.getId(),
-            color: unit.getColor(),
-            speed: unit.getSpeed(),
-            damage: unit.getAttackDamage(),
-            attackSpeed: unit.getAttackSpeed(),
-            attackRange: unit.getAttackRange(),
-            size: JSON.stringify(unit.getSize()),
-            gameId,
-            updatedAt: new Date().toISOString(),
-        });
+        const existingData = await redis.hgetall(key);
+        if (Object.keys(existingData).length > 0) {
+            const newData = {
+                position: JSON.stringify(unit.getPosition()),
+                health: unit.getHealth().toString(),
+                state: unit.getStatus(),
+                target: JSON.stringify(target),
+                updatedAt: new Date().toISOString(),
+            };
+
+            const updates: Record<string, string> = {};
+            for (const [field, value] of Object.entries(newData)) {
+                if (existingData[field] !== value) {
+                    updates[field] = value;
+                }
+            }
+
+            if (Object.keys(updates).length > 0) {
+                pipeline.hmset(key, updates);
+            }
+        } else {
+            pipeline.hmset(key, {
+                position: JSON.stringify(unit.getPosition()),
+                health: unit.getHealth().toString(),
+                unitType: unit.getType(),
+                state: unit.getStatus(),
+                target: JSON.stringify(target),
+                id: unit.getId(),
+                color: unit.getColor(),
+                speed: unit.getSpeed(),
+                damage: unit.getAttackDamage(),
+                attackSpeed: unit.getAttackSpeed(),
+                attackRange: unit.getAttackRange(),
+                size: JSON.stringify(unit.getSize()),
+                gameId,
+                updatedAt: new Date().toISOString(),
+            });
+        }
     }
     for (const key of existingKeys) {
         const parts = key.split(":");
         const unitIdFromKey = parts[parts.length - 1];
         if (!activeUnitIds.has(unitIdFromKey)) {
             pipeline.del(key);
-            console.log("Deleting stale unit key:", key);
             await deleteUnitById(unitIdFromKey);
-            console.log("Deleting stale unit from mongo db:", unitIdFromKey);
         }
     }
     await pipeline.exec();
@@ -147,12 +167,7 @@ export const updateBuildingsCache = async (
         const buildingIdFromKey = parts[parts.length - 1];
         if (!activeBuildingIds.has(buildingIdFromKey)) {
             pipeline.del(key);
-            console.log("Deleting stale building key:", key);
             await deleteBuildingById(buildingIdFromKey);
-            console.log(
-                "Deleting stale building from mongo db:",
-                buildingIdFromKey,
-            );
         }
     }
     await pipeline.exec();
@@ -181,9 +196,7 @@ export const updateResourceFieldsCache = async (
         const resourceIdFromKey = parts[parts.length - 1];
         if (!activeResourceIds.has(resourceIdFromKey)) {
             pipeline.del(key);
-            console.log("Deleting state resource key:", key);
             await deleteResourceById(resourceIdFromKey);
-            console.log("Deleting resource from mongo db:", resourceIdFromKey);
         }
     }
     await pipeline.exec();
@@ -251,9 +264,14 @@ const parseEntity = <T>(data: Record<string, string>): T | null => {
         try {
             parsed[key] = ["position", "target", "size"].includes(key)
                 ? JSON.parse(value)
-                : ["health", "speed", "damage", "availableResource", "attackRange", "attackSpeed"].includes(
-                    key,
-                )
+                : [
+                    "health",
+                    "speed",
+                    "damage",
+                    "availableResource",
+                    "attackRange",
+                    "attackSpeed",
+                ].includes(key)
                     ? Number(value || 0)
                     : value;
         } catch (e) {
