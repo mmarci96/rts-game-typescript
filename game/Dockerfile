@@ -8,6 +8,7 @@ COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run update-packages
 
+#This should be adjusted when deploying to cloud
 COPY .env.vite apps/game-ui/.env
 COPY .env.vite apps/game-client/.env
 
