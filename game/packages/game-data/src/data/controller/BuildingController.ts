@@ -3,15 +3,15 @@ import { BuildingData } from "../types";
 import { mapBuildingToBuildingParams } from "../utils";
 
 class BuildingController {
-    #buildings;
+    private buildings;
 
     constructor() {
-        this.#buildings = new Map<string, Building>();
+        this.buildings = new Map<string, Building>();
     }
 
     loadBuildings(buildingsData: BuildingData[]) {
         buildingsData.forEach((buildingData: BuildingData) => {
-            const existing = this.#buildings.get(buildingData.id);
+            const existing = this.buildings.get(buildingData.id);
             if (existing) {
                 existing.setHealth(buildingData.health);
                 existing.setStatus(buildingData.state);
@@ -21,7 +21,7 @@ class BuildingController {
             switch (buildingData.buildingType) {
                 case "main":
                     const mainBuilding = new MainBuilding(buildingParams);
-                    this.#buildings.set(mainBuilding.getId(), mainBuilding);
+                    this.buildings.set(mainBuilding.getId(), mainBuilding);
                     break;
                 default:
                     break;
@@ -30,13 +30,13 @@ class BuildingController {
     }
 
     getBuildings() {
-        return [...this.#buildings.values()];
+        return [...this.buildings.values()];
     }
 
     refreshBuilding(deltaTime: number) {
-        [...this.#buildings.values()].forEach((building: Building) => {
+        [...this.buildings.values()].forEach((building: Building) => {
             if (building.getHealth() <= 0) {
-                this.#buildings.delete(building.getId());
+                this.buildings.delete(building.getId());
                 return;
             }
             if (building instanceof MainBuilding) {
@@ -46,7 +46,7 @@ class BuildingController {
     }
 
     getBuildingById(buildingId: string) {
-        return this.#buildings.get(buildingId);
+        return this.buildings.get(buildingId);
     }
 }
 

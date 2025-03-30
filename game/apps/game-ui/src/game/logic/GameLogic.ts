@@ -15,61 +15,61 @@ import Overlay from "../ui/Overlay";
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
     running: boolean = false;
-    #player: Player;
-    #camera: Camera;
-    #gameMapDrawer: GameMapDrawer;
-    #assets: AssetManager;
-    #keyEventHandler: KeyEventHandler;
-    #mouseEventHandler: MouseEventHandler;
-    #gameCanvas: GameCanvas;
-    #entityManager: EntityManager;
+    private player: Player;
+    private camera: Camera;
+    private gameMapDrawer: GameMapDrawer;
+    private assets: AssetManager;
+    private keyEventHandler: KeyEventHandler;
+    private mouseEventHandler: MouseEventHandler;
+    private gameCanvas: GameCanvas;
+    private entityManager: EntityManager;
 
     constructor(assets: AssetManager, tiles: Tile[][], currentPlayer: Player) {
-        this.#player = currentPlayer;
-        this.#camera = new Camera(
+        this.player = currentPlayer;
+        this.camera = new Camera(
             16,
             16,
             GameLogic.CAMERA_SIZE,
             GameLogic.CAMERA_SIZE,
         );
-        this.#assets = assets;
-        this.#gameMapDrawer = new GameMapDrawer(
+        this.assets = assets;
+        this.gameMapDrawer = new GameMapDrawer(
             tiles,
-            this.#camera,
-            this.#assets,
+            this.camera,
+            this.assets,
         );
-        this.#gameCanvas = new GameCanvas();
+        this.gameCanvas = new GameCanvas();
 
-        this.#gameMapDrawer.drawMap();
-        this.#keyEventHandler = new KeyEventHandler(this.#camera);
-        this.#keyEventHandler.setupCameraControl(this.#gameMapDrawer);
+        this.gameMapDrawer.drawMap();
+        this.keyEventHandler = new KeyEventHandler(this.camera);
+        this.keyEventHandler.setupCameraControl(this.gameMapDrawer);
 
-        this.#mouseEventHandler = new MouseEventHandler(
-            this.#player,
-            this.#camera,
+        this.mouseEventHandler = new MouseEventHandler(
+            this.player,
+            this.camera,
             new SelectionBox(),
-            this.#assets,
+            this.assets,
             new Overlay(),
         );
 
-        this.#entityManager = new EntityManager(this.#assets);
+        this.entityManager = new EntityManager(this.assets);
     }
     updateGameState(data: GameState) {
-        this.#entityManager.loadGameState(data);
+        this.entityManager.loadGameState(data);
     }
     updatePlayerState(playerResources: PlayerResources) {
-        this.#player.setResources(playerResources);
+        this.player.setResources(playerResources);
         Overlay.statusBar.setResource("food", playerResources.food);
         Overlay.statusBar.setResource("wood", playerResources.wood);
     }
 
     startGameLoop(createCommand: (commands: Command[]) => void) {
         this.running = true;
-        const context = this.#gameCanvas.getContext();
+        const context = this.gameCanvas.getContext();
         const ctx: CanvasRenderingContext2D | null = context;
         if (!ctx) throw new Error("No canvas");
-        this.#entityManager.loadDrawableEntities(ctx, this.#assets);
-        this.#mouseEventHandler.addCanvasEventListeners(createCommand);
+        this.entityManager.loadDrawableEntities(ctx, this.assets);
+        this.mouseEventHandler.addCanvasEventListeners(createCommand);
 
         let lastTime = Date.now();
         const animate = () => {
@@ -78,12 +78,12 @@ class GameLogic {
             lastTime = now;
 
             ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
-            this.#entityManager.refreshEntities(deltaTime);
-            this.#mouseEventHandler.updateDrawables(this.#entityManager.getDrawables().values());
+            this.entityManager.refreshEntities(deltaTime);
+            this.mouseEventHandler.updateDrawables(this.entityManager.getDrawables().values());
 
-            [...this.#entityManager.getDrawables().values()].forEach(
+            [...this.entityManager.getDrawables().values()].forEach(
                 (drawable: Drawable) => {
-                    drawable.draw(ctx, this.#camera);
+                    drawable.draw(ctx, this.camera);
                 },
             );
             Overlay.statusBar.setFps(deltaTime * 1000);
@@ -93,7 +93,7 @@ class GameLogic {
         animate();
     }
     getPlayerColor() {
-        return this.#player.getColor()
+        return this.player.getColor()
     }
 }
 

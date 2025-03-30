@@ -8,16 +8,16 @@ import Overlay from "../ui/Overlay";
 import { Command } from "../../types";
 
 class MouseEventHandler {
-    #player: Player;
-    #canvas: HTMLCanvasElement;
-    #camera: Camera;
-    #selectionBox: SelectionBox;
-    selectionActive: boolean = false;
-    #assets: AssetManager;
-    #entities: Array<Drawable>;
-    #overlay: Overlay;
-    hoveredEntity: Drawable | null;
-    #selectedUnits: Array<Drawable>;
+    private player: Player;
+    private canvas: HTMLCanvasElement;
+    private camera: Camera;
+    private selectionBox: SelectionBox;
+    public selectionActive: boolean = false;
+    private assets: AssetManager;
+    private entities: Array<Drawable>;
+    private overlay: Overlay;
+    public hoveredEntity: Drawable | null;
+    private selectedUnits: Array<Drawable>;
 
     constructor(
         player: Player,
@@ -26,43 +26,43 @@ class MouseEventHandler {
         assets: AssetManager,
         overlay: Overlay,
     ) {
-        this.#player = player;
+        this.player = player;
 
-        this.#overlay = overlay;
+        this.overlay = overlay;
         this.hoveredEntity = null;
         const canvas = document.getElementById("ui-canvas");
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw new Error("Must be html canvas element ");
         }
-        this.#canvas = canvas;
-        this.#canvas.width = window.innerWidth;
-        this.#canvas.height = window.innerHeight;
-        this.#canvas.style.zIndex = "10";
-        this.#camera = camera;
-        this.#selectionBox = selectionBox;
-        this.#assets = assets;
-        this.#entities = [];
-        this.#selectedUnits = [];
+        this.canvas = canvas;
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        this.canvas.style.zIndex = "10";
+        this.camera = camera;
+        this.selectionBox = selectionBox;
+        this.assets = assets;
+        this.entities = [];
+        this.selectedUnits = [];
         this.setCursor("default")
     }
 
     updateDrawables(drawables: Iterable<Drawable>) {
-        this.#entities = Array.from(drawables);
-        this.#selectedUnits.forEach((selected: Drawable) => {
-            const updater = this.#entities
+        this.entities = Array.from(drawables);
+        this.selectedUnits.forEach((selected: Drawable) => {
+            const updater = this.entities
                 .find(
                     (updatedDrawable) => updatedDrawable.entity.getId() === selected.entity.getId()
                 );
             if (!updater) return;
             selected.entity = updater.entity;
         })
-        this.#overlay.updateSelection(this.#selectedUnits);
+        this.overlay.updateSelection(this.selectedUnits);
     }
 
     addCanvasEventListeners(
         createCommand: (commands: Command[]) => void,
     ) {
-        const ctx = this.#canvas.getContext("2d");
+        const ctx = this.canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");
         }
@@ -70,15 +70,15 @@ class MouseEventHandler {
         let startX = 0;
         let startY = 0;
 
-        this.#canvas.addEventListener("mousedown", (e) => {
+        this.canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) return;
-            const rect = this.#canvas.getBoundingClientRect();
+            const rect = this.canvas.getBoundingClientRect();
             startX = e.clientX - rect.left;
             startY = e.clientY - rect.top;
             isSelecting = true;
         });
 
-        this.#canvas.addEventListener("mousemove", (e) => {
+        this.canvas.addEventListener("mousemove", (e) => {
             if (isSelecting) {
                 this.onSelecting(e.clientX, e.clientY, startX, startY, ctx);
             }
@@ -87,23 +87,23 @@ class MouseEventHandler {
             }
         });
 
-        this.#canvas.addEventListener("mouseup", (e) => {
+        this.canvas.addEventListener("mouseup", (e) => {
             if (e.button === 2) return;
-            this.#entities.forEach(
+            this.entities.forEach(
                 (entity: Drawable) => (entity.isSelected = false),
             );
-            const rect = this.#canvas.getBoundingClientRect();
+            const rect = this.canvas.getBoundingClientRect();
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
 
-            this.#selectionBox.drawBox(startX, startY, finalX, finalY);
-            ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+            this.selectionBox.drawBox(startX, startY, finalX, finalY);
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             isSelecting = false;
             const selectableEntities: Drawable[] = [];
-            this.#entities.forEach((drawable: Drawable) => {
+            this.entities.forEach((drawable: Drawable) => {
                 if (drawable.entity instanceof ControlledEntity) {
                     if (
-                        drawable.entity.getColor() === this.#player.getColor()
+                        drawable.entity.getColor() === this.player.getColor()
                     ) {
                         selectableEntities.push(drawable);
                     }
@@ -112,23 +112,23 @@ class MouseEventHandler {
                 }
             });
 
-            this.#selectedUnits = this.#selectionBox.handleSelecting(
+            this.selectedUnits = this.selectionBox.handleSelecting(
                 selectableEntities,
-                this.#camera,
+                this.camera,
             );
-            if (this.#selectedUnits.length > 0) {
+            if (this.selectedUnits.length > 0) {
                 this.selectionActive = true;
-                this.#overlay.setVisible();
+                this.overlay.setVisible();
             } else {
                 this.selectionActive = false;
-                this.#overlay.setInvisible();
+                this.overlay.setInvisible();
             }
-            this.#overlay.displayUnitSelection(
-                this.#selectedUnits,
+            this.overlay.displayUnitSelection(
+                this.selectedUnits,
                 createCommand,
             );
         });
-        this.#canvas.addEventListener("mousedown", (e) => {
+        this.canvas.addEventListener("mousedown", (e) => {
             if (e.button === 2) {
                 const commands = this.createCommandsOnRightClick(
                     e.clientX,
@@ -139,7 +139,7 @@ class MouseEventHandler {
         });
     }
     handleHover(clientX: number, clientY: number) {
-        const hovering: Drawable | undefined = this.#entities.find(
+        const hovering: Drawable | undefined = this.entities.find(
             (drawable: Drawable) => {
                 const { worldX, worldY } = this.convertCursorPosition(
                     clientX,
@@ -167,14 +167,14 @@ class MouseEventHandler {
         }
     }
     onHover(hoveredEntity: Drawable) {
-        const playerColor: PlayerColor = this.#player.getColor();
+        const playerColor: PlayerColor = this.player.getColor();
         if (
             hoveredEntity.entity instanceof ControlledEntity &&
             hoveredEntity.entity.getColor() !== playerColor
         ) {
             this.setCursor("attack");
         } else if (hoveredEntity.entity instanceof Resource) {
-            const selectedWorkers = this.#selectedUnits.filter(
+            const selectedWorkers = this.selectedUnits.filter(
                 (drawable: Drawable) => drawable.entity.getType() === "worker" && drawable
             )
             if (selectedWorkers.length >= 1) {
@@ -186,14 +186,14 @@ class MouseEventHandler {
     createCommandsOnRightClick(clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
         const commands: Command[] = [];
-        const entityArrSize = Math.round(Math.sqrt(this.#selectedUnits.length));
-        this.#selectedUnits.forEach((unit, index) => {
+        const entityArrSize = Math.round(Math.sqrt(this.selectedUnits.length));
+        this.selectedUnits.forEach((unit, index) => {
             if (unit.isSelected) {
                 if (this.hoveredEntity) {
                     const targetEntity = this.hoveredEntity.entity;
                     if (
                         targetEntity instanceof ControlledEntity &&
-                        targetEntity.getColor() !== this.#player.getColor()
+                        targetEntity.getColor() !== this.player.getColor()
                     ) {
                         const attackCommand = this.createAttackCommand(
                             targetEntity,
@@ -239,7 +239,7 @@ class MouseEventHandler {
         startY: number,
         ctx: CanvasRenderingContext2D,
     ) {
-        const rect = this.#canvas.getBoundingClientRect();
+        const rect = this.canvas.getBoundingClientRect();
         const screenX = clientX - rect.left;
         const screenY = clientY - rect.top;
         const currentX = screenX;
@@ -247,18 +247,18 @@ class MouseEventHandler {
         const width = currentX - startX;
         const height = currentY - startY;
 
-        ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.strokeStyle = "green";
         ctx.lineWidth = 1;
         ctx.strokeRect(startX, startY, width, height);
     }
 
     setCursor(name: string) {
-        const defaultCursor = this.#assets.getImage(`${name}_cursor`);
+        const defaultCursor = this.assets.getImage(`${name}_cursor`);
         if (defaultCursor instanceof HTMLImageElement) {
-            this.#canvas.style.cursor = `url(${defaultCursor.src}), auto`;
+            this.canvas.style.cursor = `url(${defaultCursor.src}), auto`;
         } else if (typeof defaultCursor === "string") {
-            this.#canvas.style.cursor = `url(${defaultCursor}), auto`;
+            this.canvas.style.cursor = `url(${defaultCursor}), auto`;
         } else {
             console.warn("Default cursor is not a valid image or URL.");
         }
@@ -303,12 +303,12 @@ class MouseEventHandler {
     }
 
     convertCursorPosition(clientX: number, clientY: number) {
-        const rect = this.#canvas.getBoundingClientRect();
+        const rect = this.canvas.getBoundingClientRect();
         return VectorTransformer.getPositionFromCanvas(
             clientX - rect.left,
             clientY - rect.top,
-            this.#camera.getX(),
-            this.#camera.getY(),
+            this.camera.getX(),
+            this.camera.getY(),
         );
     }
     createCheapGrid(

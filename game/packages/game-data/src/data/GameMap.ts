@@ -2,17 +2,17 @@ import { Building } from "./entities";
 import { Tile } from "./types";
 
 class GameMap {
-    static TILE_WIDTH = 48;
-    static TILE_HEIGHT = 24;
-    #tiles;
+    public static TILE_WIDTH = 48;
+    public static TILE_HEIGHT = 24;
+    private tiles;
 
     constructor(tiles: Tile[][]) {
-        this.#tiles = tiles;
-        this.#setupMap(tiles)
+        this.tiles = tiles;
+        this.setupMap(tiles)
 
     }
 
-    #setupMap(tiles: Tile[][]) {
+    private setupMap(tiles: Tile[][]) {
         for (let y = 0; y < tiles.length; y++) {
             const row: Tile[] = tiles[y];
             for (let x = 0; x < row.length; x++) {
@@ -33,12 +33,12 @@ class GameMap {
         const buildingPos = building.getPosition();
         const x = Math.floor(buildingPos.x);
         const y = Math.floor(buildingPos.y);
-        const tile = this.#tiles[y][x];
+        const tile = this.tiles[y][x];
         tile.isPassable = () => false;
     }
 
     getTiles() {
-        return [...this.#tiles];
+        return [...this.tiles];
     }
 }
 

@@ -3,9 +3,9 @@ import { IMap, IPlayer } from "@packages/game-db/dist";
 import GameLogic from "./logic/GameLogic";
 
 class Game {
-    #id;
-    #gameLogic;
-    lastUpdateTime: number = 0;
+    private id;
+    private gameLogic;
+    public lastUpdateTime: number = 0;
 
     constructor(
         gameId: string,
@@ -13,17 +13,17 @@ class Game {
         gameData: GameState,
         players: IPlayer[],
     ) {
-        this.#id = gameId;
-        this.#gameLogic = new GameLogic(gameId, gameData, map, players);
+        this.id = gameId;
+        this.gameLogic = new GameLogic(gameId, gameData, map, players);
     }
     getId() {
-        return this.#id;
+        return this.id;
     }
     getLogic() {
-        return this.#gameLogic;
+        return this.gameLogic;
     }
     isGameOver() {
-        return this.#gameLogic.isGameOver();
+        return this.gameLogic.isGameOver();
     }
 }
 

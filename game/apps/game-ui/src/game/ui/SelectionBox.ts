@@ -3,16 +3,16 @@ import VectorTransformer from "../utils/VectorTransformer";
 import Camera from "./Camera";
 
 class SelectionBox {
-    #startX;
-    #startY;
-    #finalX;
-    #finalY;
+    private startX;
+    private startY;
+    private finalX;
+    private finalY;
 
     constructor() {
-        this.#startX = 0;
-        this.#startY = 0;
-        this.#finalY = 0;
-        this.#finalX = 0;
+        this.startX = 0;
+        this.startY = 0;
+        this.finalY = 0;
+        this.finalX = 0;
     }
 
     /**
@@ -22,18 +22,18 @@ class SelectionBox {
      * @param { number } endY
      */
     drawBox(startX: number, startY: number, endX: number, endY: number) {
-        this.#startX = startX;
-        this.#startY = startY;
-        this.#finalX = endX;
-        this.#finalY = endY;
+        this.startX = startX;
+        this.startY = startY;
+        this.finalX = endX;
+        this.finalY = endY;
     }
 
     handleSelecting(drawables: Drawable[], camera: Camera) {
         const selectionRect = {
-            left: Math.min(this.#startX, this.#finalX) + 28,
-            top: Math.min(this.#startY, this.#finalY) + 28,
-            right: Math.max(this.#startX, this.#finalX) + 28,
-            bottom: Math.max(this.#startY, this.#finalY) + 28,
+            left: Math.min(this.startX, this.finalX) + 28,
+            top: Math.min(this.startY, this.finalY) + 28,
+            right: Math.max(this.startX, this.finalX) + 28,
+            bottom: Math.max(this.startY, this.finalY) + 28,
         };
 
         return drawables.filter((drawable: Drawable) => {

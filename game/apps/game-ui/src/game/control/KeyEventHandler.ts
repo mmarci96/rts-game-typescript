@@ -2,9 +2,9 @@ import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
 
 class KeyEventHandler {
-    #camera;
+    private camera;
     constructor(camera: Camera) {
-        this.#camera = camera;
+        this.camera = camera;
     }
 
     setupCameraControl(gameMap: GameMapDrawer) {
@@ -59,27 +59,27 @@ class KeyEventHandler {
             const clampedX = Math.max(minX, Math.min(cameraX, maxX));
             const clampedY = Math.max(minY, Math.min(cameraY, maxY));
 
-            this.#camera.setPosition(clampedX, clampedY);
+            this.camera.setPosition(clampedX, clampedY);
         };
 
         const onDown = () => {
-            this.#camera.moveCamera(1, 1);
-            enforceBounds(this.#camera.getX(), this.#camera.getY());
+            this.camera.moveCamera(1, 1);
+            enforceBounds(this.camera.getX(), this.camera.getY());
             gameMap.drawMap();
         };
         const onRight = () => {
-            this.#camera.moveCamera(1, -1);
-            enforceBounds(this.#camera.getX(), this.#camera.getY());
+            this.camera.moveCamera(1, -1);
+            enforceBounds(this.camera.getX(), this.camera.getY());
             gameMap.drawMap();
         };
         const onLeft = () => {
-            this.#camera.moveCamera(-1, 1);
-            enforceBounds(this.#camera.getX(), this.#camera.getY());
+            this.camera.moveCamera(-1, 1);
+            enforceBounds(this.camera.getX(), this.camera.getY());
             gameMap.drawMap();
         };
         const onUp = () => {
-            this.#camera.moveCamera(-1, -1);
-            enforceBounds(this.#camera.getX(), this.#camera.getY());
+            this.camera.moveCamera(-1, -1);
+            enforceBounds(this.camera.getX(), this.camera.getY());
             gameMap.drawMap();
         };
         setupMovementListeners({ onUp, onDown, onLeft, onRight });

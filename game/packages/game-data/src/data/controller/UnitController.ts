@@ -6,20 +6,20 @@ import GameMap from "../GameMap";
 import { AStar } from "../utils/pathfinding";
 
 class UnitController {
-    #units;
-    #gameMap;
-    #aStar;
+    private units;
+    private gameMap;
+    private aStar;
 
     constructor(gameMap: GameMap) {
-        this.#units = new Map<string, Unit>();
-        this.#gameMap = gameMap;
-        this.#aStar = new AStar(this.#gameMap.getTiles());
+        this.units = new Map<string, Unit>();
+        this.gameMap = gameMap;
+        this.aStar = new AStar(this.gameMap.getTiles());
     }
 
     refreshUnits(deltaTime: number) {
-        [...this.#units.values()].forEach((unit: Unit) => {
+        [...this.units.values()].forEach((unit: Unit) => {
             if (unit.getHealth() <= 0) {
-                this.#units.delete(unit.getId());
+                this.units.delete(unit.getId());
                 return;
             }
             unit.update(deltaTime);
@@ -37,7 +37,7 @@ class UnitController {
             [PlayerColor.YELLOW]: [] as Unit[],
         };
 
-        for (const unit of this.#units.values()) {
+        for (const unit of this.units.values()) {
             const color = unit.getColor();
             colorGroups[color].push(unit);
         }
@@ -48,7 +48,7 @@ class UnitController {
     getMinedResources(player: Player): PlayerResources {
         let wood = 0;
         let food = 0;
-        const workers: Worker[] = [...this.#units.values()].filter(
+        const workers: Worker[] = [...this.units.values()].filter(
             (worker: Unit) =>
                 worker instanceof Worker &&
                 worker.getColor() === player.getColor(),
@@ -70,7 +70,7 @@ class UnitController {
     }
 
     adjustIdleUnitPosition(idleUnit: Unit) {
-        const unitsArray = [...this.#units.values()];
+        const unitsArray = [...this.units.values()];
         const bufferDistance = 1.4;
 
         unitsArray.forEach((otherUnit) => {
@@ -105,7 +105,7 @@ class UnitController {
     }
 
     getUnitIds() {
-        return [...this.#units.keys()];
+        return [...this.units.keys()];
     }
 
     getEnemyUnits(allyColor: PlayerColor) {
@@ -115,19 +115,19 @@ class UnitController {
     }
 
     addUnit(unit: Unit) {
-        this.#units.set(unit.getId(), unit);
+        this.units.set(unit.getId(), unit);
     }
 
     removeUnit(unitId: string) {
-        this.#units.delete(unitId);
+        this.units.delete(unitId);
     }
 
     getUnits() {
-        return [...this.#units.values()];
+        return [...this.units.values()];
     }
 
     getUnitById(id: string): Unit | null {
-        const unit = this.#units.get(id);
+        const unit = this.units.get(id);
         if (!unit) return null;
         return unit;
     }
@@ -140,7 +140,7 @@ class UnitController {
     }
 
     loadUnit(unitData: UnitData) {
-        const existing = this.#units.get(unitData.id);
+        const existing = this.units.get(unitData.id);
         if (existing) {
             this.updateUnitWithData(existing, unitData);
             return;
@@ -148,16 +148,16 @@ class UnitController {
         const unitParam = mapUnitToUnitParams(unitData);
         switch (unitData.unitType) {
             case "archer":
-                const archer = new Archer(unitParam, this.#aStar);
-                this.#units.set(archer.getId(), archer);
+                const archer = new Archer(unitParam, this.aStar);
+                this.units.set(archer.getId(), archer);
                 break;
             case "worker":
-                const worker = new Worker(unitParam, this.#aStar);
-                this.#units.set(worker.getId(), worker);
+                const worker = new Worker(unitParam, this.aStar);
+                this.units.set(worker.getId(), worker);
                 break;
             case "warrior":
-                const warrior = new Warrior(unitParam, this.#aStar);
-                this.#units.set(warrior.getId(), warrior);
+                const warrior = new Warrior(unitParam, this.aStar);
+                this.units.set(warrior.getId(), warrior);
                 break;
             default:
                 console.log("unkown unit", unitData, unitData.unitType);

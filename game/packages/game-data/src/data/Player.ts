@@ -1,11 +1,11 @@
 import { PlayerColor, PlayerResources } from "./types";
 
 class Player {
-    #playerId;
-    #color;
-    #resources: PlayerResources;
-    #gameId: string;
-    #name: string;
+    private playerId;
+    private color;
+    private resources: PlayerResources;
+    private gameId: string;
+    private name: string;
 
     /**
      * @param { string } playerId
@@ -17,65 +17,65 @@ class Player {
         gameId: string,
         name: string,
     ) {
-        this.#gameId = gameId;
-        this.#playerId = playerId;
-        this.#color = color;
-        this.#name = name;
-        this.#resources = { wood: 0, food: 0 };
+        this.gameId = gameId;
+        this.playerId = playerId;
+        this.color = color;
+        this.name = name;
+        this.resources = { wood: 0, food: 0 };
     }
 
     getName() {
-        return this.#name;
+        return this.name;
     }
 
     getGameId() {
-        return this.#gameId;
+        return this.gameId;
     }
 
     spendWood(amount: number) {
-        if (this.#resources.wood < amount) {
+        if (this.resources.wood < amount) {
             console.log("not enough wood!");
             return;
         }
-        this.#resources.wood = this.#resources.wood - amount;
+        this.resources.wood = this.resources.wood - amount;
     }
 
     spendFood(amount: number) {
-        if (this.#resources.food < amount) {
+        if (this.resources.food < amount) {
             console.log("not enough food!");
             return;
         }
-        this.#resources.food = this.#resources.food - amount;
+        this.resources.food = this.resources.food - amount;
     }
 
     setFood(amount: number) {
-        this.#resources.food = amount;
+        this.resources.food = amount;
     }
 
     setWood(amount: number) {
-        this.#resources.wood = amount;
+        this.resources.wood = amount;
     }
 
     setResources(resources: PlayerResources) {
-        this.#resources = resources;
+        this.resources = resources;
     }
 
     getResources() {
-        return this.#resources;
+        return this.resources;
     }
 
     /**
      * @returns PlayerColor
      */
     getColor() {
-        return this.#color;
+        return this.color;
     }
 
     /**
      * @returns string
      */
     getId() {
-        return this.#playerId;
+        return this.playerId;
     }
 }
 

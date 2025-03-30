@@ -8,10 +8,10 @@ import {
 } from "@packages/game-data";
 
 class UnitManager {
-    #units;
+    private units;
 
     constructor() {
-        this.#units = new Map<string, Unit>();
+        this.units = new Map<string, Unit>();
     }
 
     loadUnits(unitsData: UnitData[]) {
@@ -25,7 +25,7 @@ class UnitManager {
     }
 
     getUnitIds() {
-        return [...this.#units.keys()];
+        return [...this.units.keys()];
     }
 
     getEnemyUnits(allyColor: PlayerColor) {
@@ -35,19 +35,19 @@ class UnitManager {
     }
 
     addUnit(unit: Unit) {
-        this.#units.set(unit.getId(), unit);
+        this.units.set(unit.getId(), unit);
     }
 
     removeUnit(unitId: string) {
-        this.#units.delete(unitId);
+        this.units.delete(unitId);
     }
 
     getUnits() {
-        return [...this.#units.values()];
+        return [...this.units.values()];
     }
 
     getUnitById(id: string): Unit | null {
-        const unit = this.#units.get(id);
+        const unit = this.units.get(id);
         if (!unit) return null;
         return unit;
     }
@@ -60,7 +60,7 @@ class UnitManager {
     }
 
     loadUnit(unitData: UnitData) {
-        const existing = this.#units.get(unitData.id);
+        const existing = this.units.get(unitData.id);
         if (existing) {
             this.updateUnitWithData(existing, unitData);
             return;
@@ -69,15 +69,15 @@ class UnitManager {
         switch (unitData.unitType) {
             case "archer":
                 const archer = new Archer(unitParam, null);
-                this.#units.set(archer.getId(), archer);
+                this.units.set(archer.getId(), archer);
                 break;
             case "worker":
                 const worker = new Worker(unitParam, null);
-                this.#units.set(worker.getId(), worker);
+                this.units.set(worker.getId(), worker);
                 break;
             case "warrior":
                 const warrior = new Warrior(unitParam, null);
-                this.#units.set(warrior.getId(), warrior);
+                this.units.set(warrior.getId(), warrior);
                 break;
             default:
                 console.log("unkown unit", unitData, unitData.unitType);

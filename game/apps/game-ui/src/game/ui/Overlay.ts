@@ -4,33 +4,33 @@ import StatusBar from "./Statusbar";
 import { Command } from "../../types";
 
 class Overlay {
-    #overlayDiv;
-    #isVisible;
+    private overlayDiv;
+    private isVisible;
     selectedList: Drawable[] = [];
     static statusBar: StatusBar;
 
     constructor() {
-        this.#overlayDiv = document.getElementById("overlay");
-        this.#isVisible = false;
+        this.overlayDiv = document.getElementById("overlay");
+        this.isVisible = false;
         Overlay.statusBar = new StatusBar();
         document.body.appendChild(Overlay.statusBar.element);
     }
 
     setVisible() {
-        if (this.#overlayDiv) {
-            this.#overlayDiv.style.display = "flex";
-            this.#isVisible = true;
+        if (this.overlayDiv) {
+            this.overlayDiv.style.display = "flex";
+            this.isVisible = true;
         }
     }
 
     setInvisible() {
-        if (this.#overlayDiv) {
-            this.#overlayDiv.style.display = "none";
-            this.#isVisible = false;
+        if (this.overlayDiv) {
+            this.overlayDiv.style.display = "none";
+            this.isVisible = false;
         }
     }
-    isVisible() {
-        return this.#isVisible;
+    getIsVisible() {
+        return this.isVisible;
     }
 
     updateSelection(drawables: Drawable[]) {
@@ -38,7 +38,7 @@ class Overlay {
             return;
         }
         this.selectedList = drawables
-        if (!this.#overlayDiv) {
+        if (!this.overlayDiv) {
             return;
         }
 
@@ -61,11 +61,11 @@ class Overlay {
         }
 
         if (!buildings.size && units.size) {
-            this.#overlayDiv.innerHTML = "";
+            this.overlayDiv.innerHTML = "";
             const selectionDetails = document.createElement("ul");
             selectionDetails.id = "selectionList";
             selectionDetails.style.display = "flex";
-            this.#overlayDiv.appendChild(selectionDetails);
+            this.overlayDiv.appendChild(selectionDetails);
             this.displaySelection(units, selectionDetails);
         }
     }
@@ -75,17 +75,17 @@ class Overlay {
         createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         this.selectedList = selectedList;
-        if (!this.#overlayDiv) {
+        if (!this.overlayDiv) {
             return;
         }
 
-        this.#overlayDiv.innerHTML = "";
+        this.overlayDiv.innerHTML = "";
         const units = new Set<Drawable>();
         const buildings = new Set<Drawable>();
         const selectionDetails = document.createElement("ul");
         selectionDetails.id = "selectionList";
         selectionDetails.style.display = "flex";
-        this.#overlayDiv.appendChild(selectionDetails);
+        this.overlayDiv.appendChild(selectionDetails);
         this.selectedList.forEach((selectedEntity) => {
             if (selectedEntity.entity instanceof Unit) {
                 units.add(selectedEntity);

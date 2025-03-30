@@ -3,14 +3,14 @@ import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 
 class Drawable {
-    #spriteSheet: CanvasImageSource;
-    #hasShadow: boolean;
+    private spriteSheet: CanvasImageSource;
+    private hasShadow: boolean;
     entity: GameEntity;
     isSelected: boolean = false;
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
-        this.#spriteSheet = spriteSheet;
-        this.#hasShadow = false;
+        this.spriteSheet = spriteSheet;
+        this.hasShadow = false;
         this.entity = entity;
     }
 
@@ -29,11 +29,11 @@ class Drawable {
             camera.getX(),
             camera.getY(),
         );
-        if (this.#hasShadow) {
+        if (this.hasShadow) {
             this.drawShadow(ctx, px - this.entity.getSize().height, py - this.entity.getSize().width);
         }
         ctx.drawImage(
-            this.#spriteSheet,
+            this.spriteSheet,
             px - this.entity.getSize().height,
             py - this.entity.getSize().width,
         );
@@ -72,7 +72,7 @@ class Drawable {
     }
 
     setShadow(val: boolean) {
-        this.#hasShadow = val;
+        this.hasShadow = val;
     }
 
     checkOutOfBounds(camera: Camera, x: number, y: number) {
