@@ -3,13 +3,11 @@ import {
     Building,
     BuildingController,
     BuildingUpdateData,
-    ControlledEntity,
     GameEntity,
     GameState,
     GameUpdateData,
     MainBuilding,
     Player,
-    PlayerColor,
     Resource,
     ResourceController,
     ResourceUpdateData,
@@ -24,9 +22,9 @@ import { createUnit } from "@packages/game-db/dist";
 import { mapMongoUnitToData } from "../../utils/parseData";
 
 const UNIT_CONSTRUCTION_COST = {
-    warrior: { food: 10, wood: 10 },
-    worker: { food: 10, wood: 0 },
-    archer: { food: 15, wood: 20 },
+    warrior: { food: 20, wood: 20 },
+    worker: { food: 20, wood: 0 },
+    archer: { food: 30, wood: 30 },
 } as const;
 type UnitType = keyof typeof UNIT_CONSTRUCTION_COST;
 
@@ -56,6 +54,16 @@ class EntityController {
         this.unitController.loadUnits(data.units);
     }
 
+    refreshEntities(deltaTime: number) {
+        this.unitController.refreshUnits(deltaTime);
+        this.buildingController.refreshBuilding(deltaTime);
+        this.resourceController.updateResources();
+    }
+
+    loadMinedResources(player: Player) {
+        return this.unitController.getMinedResources(player);
+    }
+
     loadCreatedUnit(data: UnitData) {
         this.unitController.loadUnit(data);
     }
@@ -76,7 +84,6 @@ class EntityController {
                     id: unit.getId(),
                     position: unit.getPosition(),
                     health: unit.getHealth(),
-                    target: unit.getTarget(),
                     state: unit.getStatus(),
                 }),
             );
@@ -86,7 +93,6 @@ class EntityController {
                 (building: Building): BuildingUpdateData => ({
                     id: building.getId(),
                     health: building.getHealth(),
-                    gameId: this.gameId,
                 }),
             );
         const resourceUpdateData: ResourceUpdateData[] = this.resourceController
@@ -95,10 +101,8 @@ class EntityController {
                 (resource: Resource): ResourceUpdateData => ({
                     id: resource.getId(),
                     availableResource: resource.getAvailableResource(),
-                    gameId: this.gameId,
                 }),
             );
-
         return {
             unitUpdateData,
             buildingUpdateData,
@@ -129,67 +133,18 @@ class EntityController {
 
     async handlePlayerCommand(command: PlayerCommand, player: Player) {
         const entity = this.unitController.getUnitById(command.entityId);
-        if (entity instanceof ControlledEntity) {
-            entity.setStatus(command.action);
-        }
         switch (command.action) {
             case "mining":
-                if (!command.targetId) {
-                    break;
-                }
-                const targetResource = this.resourceController.getResourceById(
-                    command.targetId,
-                );
-                if (entity instanceof Worker && targetResource) {
-                    entity.collector.collectResource(targetResource);
-                }
+                this.handleMiningCommand(entity, command);
                 break;
             case "train":
-                const mainBuilding = this.buildingController.getBuildingById(
-                    command.entityId,
-                );
-                if (mainBuilding instanceof MainBuilding && command.unitType) {
-                    const { wood, food } = player.getResources();
-                    const unitType = command.unitType as UnitType;
-                    const cost = UNIT_CONSTRUCTION_COST[unitType];
-                    if (cost.food > food || cost.wood > wood) {
-                        return;
-                    } else {
-                        player.spendFood(cost.food);
-                        player.spendWood(cost.wood);
-                    }
-
-                    const data = mainBuilding.createUnit(command.unitType);
-                    const savedUnit = await createUnit(
-                        this.gameId,
-                        data.spawnX,
-                        data.spawnY,
-                        data.color,
-                        command.unitType,
-                    );
-                    if (savedUnit) {
-                        const unitData = mapMongoUnitToData(savedUnit);
-                        // this.unitController.loadUnit(unitData);
-                        this.createdUnits.add(unitData);
-                    }
-                }
+                await this.handleTrainingUnit(command, player);
+                break;
             case "moving":
-                if (
-                    entity instanceof Unit &&
-                    command.targetY &&
-                    command.targetX
-                ) {
-                    this.handleMovingUnit(
-                        entity,
-                        command.targetX,
-                        command.targetY,
-                    );
-                }
+                this.handleMovingCommand(entity, command);
                 break;
             case "attack":
-                if (entity instanceof Unit && command.targetId) {
-                    this.handleAttackEntity(entity, command.targetId);
-                }
+                this.handleAttackCommand(entity, command);
                 break;
             default:
                 console.error("Invalid command", command);
@@ -197,40 +152,73 @@ class EntityController {
         }
     }
 
-    getEnemyUnits(playerColor: PlayerColor) {
-        return this.unitController.getEnemyUnits(playerColor);
-    }
+    private async handleTrainingUnit(command: PlayerCommand, player: Player) {
+        const mainBuilding = this.buildingController.getBuildingById(
+            command.entityId,
+        );
+        if (mainBuilding instanceof MainBuilding && command.unitType) {
+            const { wood, food } = player.getResources();
+            const unitType = command.unitType as UnitType;
+            const cost = UNIT_CONSTRUCTION_COST[unitType];
+            if (cost.food > food || cost.wood > wood) return;
 
-    handleMovingUnit(unit: Unit, targetX: number, targetY: number) {
-        if (unit instanceof Worker) {
-            unit.resetTargetResource();
+            player.spendFood(cost.food);
+            player.spendWood(cost.wood);
+
+            const data = mainBuilding.createUnit(command.unitType);
+            const savedUnit = await createUnit(
+                this.gameId,
+                data.spawnX,
+                data.spawnY,
+                data.color,
+                command.unitType,
+            );
+            if (savedUnit) {
+                const unitData = mapMongoUnitToData(savedUnit);
+                this.createdUnits.add(unitData);
+            }
         }
-        unit.setAttackableTarget(null);
-        unit.setStatus("moving");
-        unit.setupPathfinder(unit.getX(), unit.getY(), targetX, targetY);
     }
 
-    handleAttackEntity(unit: Unit, targetId: string) {
+    private handleMiningCommand(entity: Unit | null, command: PlayerCommand) {
+        if (!command.targetId) return;
+        const targetResource = this.resourceController.getResourceById(
+            command.targetId,
+        );
+        if (entity instanceof Worker && targetResource) {
+            entity.collector.collectResource(targetResource);
+        }
+    }
+
+    private handleMovingCommand(entity: Unit | null, command: PlayerCommand) {
+        if (
+            entity instanceof Unit &&
+            typeof command.targetX === "number" &&
+            typeof command.targetY === "number"
+        ) {
+            if (entity instanceof Worker) {
+                entity.resetTargetResource();
+            }
+            entity.setAttackableTarget(null);
+            entity.setStatus("moving");
+            entity.setupPathfinder(
+                entity.getX(),
+                entity.getY(),
+                command.targetX,
+                command.targetY,
+            );
+        }
+    }
+
+    private handleAttackCommand(entity: Unit | null, command: PlayerCommand) {
+        if (!(entity instanceof Unit) || !command.targetId) return;
         let targetEntity: Attackable | null | undefined =
-            this.unitController.getUnitById(targetId);
-        if (!targetEntity) {
-            targetEntity = this.buildingController.getBuildingById(targetId);
-        }
-        if (!targetEntity) {
-            return;
-        }
-        unit.setAttackableTarget(targetEntity);
-    }
+            this.unitController.getUnitById(command.targetId) ||
+            this.buildingController.getBuildingById(command.targetId);
 
-    refreshEntities(deltaTime: number) {
-        this.unitController.refreshUnits(deltaTime);
-        this.buildingController.refreshBuilding(deltaTime);
-        this.resourceController.updateResources();
-    }
-
-    loadMinedResources(player: Player) {
-        const mining = this.unitController.getMinedResources(player);
-        return mining;
+        if (targetEntity) {
+            entity.setAttackableTarget(targetEntity);
+        }
     }
 }
 

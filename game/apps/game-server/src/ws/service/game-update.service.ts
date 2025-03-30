@@ -47,7 +47,6 @@ export class GameUpdateService {
 
         const logic = game.getLogic();
         logic.updateGameState(deltaTime);
-        await logic.saveGameState(this.getRedisSavers());
         const updateData = logic.getUpdatedEntities();
         this.io.to(gameId).emit("game_update", updateData);
         const createdUnits = logic.getCreatedUnits();
@@ -63,9 +62,14 @@ export class GameUpdateService {
         if (game.isGameOver() && logic.getWinner()) {
             await this.handleGameOver(logic.getWinner()!);
         }
+        await logic.saveGameState(this.getRedisSavers());
     }
 
     private async handlePlayerUpdates(logic: GameLogic) {
+        if (!Object.entries(ConnectionService.connections).length) {
+            this.stopGameUpdates();
+            return;
+        }
         Object.entries(ConnectionService.connections).forEach(
             async ([socketId, connectionData]) => {
                 const minedRes = logic.loadMinedResources(
@@ -91,7 +95,7 @@ export class GameUpdateService {
 
     private async handleGameOver(winner: Player) {
         const gameId = winner.getGameId();
-        console.log("Game ended and winner is: ", winner.getName());
+        console.log(`Game:${gameId} ended,winner:${winner.getName()}`);
         const winningPlayerData = {
             name: winner.getName(),
             id: winner.getId(),

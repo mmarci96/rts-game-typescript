@@ -31,7 +31,6 @@ export interface UnitData {
 export interface UnitUpdateData {
     id: string;
     position: Position;
-    target: { targetX: number | null; targetY: number | null };
     health: number;
     state: string;
 }
@@ -50,7 +49,6 @@ export interface BuildingData {
 export interface BuildingUpdateData {
     id: string;
     health: number;
-    gameId: string;
 }
 
 export enum BuildingType {
@@ -73,7 +71,6 @@ export interface ResourceData {
 export interface ResourceUpdateData {
     id: string;
     availableResource: number;
-    gameId: string;
 }
 
 export enum ResourceType {
