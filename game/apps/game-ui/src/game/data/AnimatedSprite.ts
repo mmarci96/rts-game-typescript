@@ -4,7 +4,6 @@ import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";
 
 class AnimatedSprite extends Drawable {
-    spriteSheet: CanvasImageSource;
     frameWidth: number;
     frameHeight: number;
     frameX: number;
@@ -20,7 +19,6 @@ class AnimatedSprite extends Drawable {
 
     constructor(spriteSheet: CanvasImageSource, entity: GameEntity) {
         super(spriteSheet, entity);
-        this.spriteSheet = spriteSheet;
         this.frameWidth = 1152 / 6;
         this.frameHeight = 1536 / 8;
         this.frameX = 0;
@@ -218,9 +216,6 @@ class AnimatedSprite extends Drawable {
         this.spriteSheet = deathSprite;
     }
 
-    /**
-     * @returns number
-     */
     getSkullFrames() {
         return this.skullFrames;
     }

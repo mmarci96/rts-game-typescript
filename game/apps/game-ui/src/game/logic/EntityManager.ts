@@ -58,6 +58,10 @@ class EntityManager {
             const unit = this.unitManager.getUnitById(unitId);
             if (unit) {
                 const animatedSprite = this.loadAnimatedUnit(unit);
+                if (!animatedSprite) {
+                    console.error("No animated sprite");
+                    return;
+                }
                 this.drawables.set(unit.getId(), animatedSprite);
             }
         });
@@ -118,7 +122,7 @@ class EntityManager {
         return this.drawables;
     }
 
-    loadAnimatedUnit(unit: Unit) {
+    loadAnimatedUnit(unit: Unit): AnimatedSprite {
         const spriteName = `${unit.getType().toLowerCase()}_${unit.getColor()}`;
         const img = this.assets.getImage(spriteName);
         if (!img) throw new Error("not found");

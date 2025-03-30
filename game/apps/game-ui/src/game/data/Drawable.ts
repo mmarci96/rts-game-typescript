@@ -3,7 +3,7 @@ import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 
 class Drawable {
-    private spriteSheet: CanvasImageSource;
+    protected spriteSheet: CanvasImageSource;
     private hasShadow: boolean;
     entity: GameEntity;
     isSelected: boolean = false;
