@@ -26,6 +26,10 @@ class Resource extends Neutral {
     getType(): string {
         return "resource";
     }
+
+    setAvailableResource(amount: number) {
+        this.availableResource = amount;
+    }
 }
 
 export default Resource;
