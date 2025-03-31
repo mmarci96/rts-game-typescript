@@ -10,6 +10,7 @@ enum GameStatus {
 interface IGame extends Document {
     _id: Types.ObjectId;
     mapId: Types.ObjectId;
+    gameName: string;
     status: GameStatus;
     maxPlayers: number;
     winner?: Types.ObjectId;
@@ -19,6 +20,7 @@ interface IGame extends Document {
 
 const gameSchema = new Schema({
     mapId: { type: mongoose.Schema.Types.ObjectId, ref: "Map", required: true },
+    gameName: { type: String, required: true },
     status: { type: String, enum: GameStatus, default: GameStatus.WAITING },
     maxPlayers: { type: Number, required: true },
     winner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

@@ -17,14 +17,18 @@ export const createGame = async (
     color: PlayerColor,
     maxPlayers: number,
 ) => {
-    const newGame = new GameModel({ mapId: mapId, maxPlayers });
-    const game = await newGame.save();
-    const gameId = game._id;
     const user = await UserModel.findById(userId);
     if (!user) {
         throw new Error("No user found with id");
     }
-
+    const gameName = `${user.username}'s game`;
+    const newGame = new GameModel({
+        mapId: mapId,
+        maxPlayers,
+        gameName,
+    });
+    const game = await newGame.save();
+    const gameId = game._id;
     const newPlayer = new PlayerModel({
         gameId,
         userId,

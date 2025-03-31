@@ -9,7 +9,7 @@ const main = async () => {
         await mongoose.connect(mongo_uri);
         console.log("Connected to mongo: ", mongo_uri);
 
-        app.listen(port, () => {
+        app.listen(Number(port), "0.0.0.0", () => {
             console.log(`Listening: http://localhost:${port}`);
         });
     } catch (err) {

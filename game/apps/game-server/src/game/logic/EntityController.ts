@@ -1,22 +1,22 @@
 import {
     Attackable,
     Building,
-    BuildingController,
-    BuildingUpdateData,
     GameEntity,
     GameState,
     GameUpdateData,
     MainBuilding,
     Player,
     Resource,
-    ResourceController,
     ResourceUpdateData,
+    BuildingUpdateData,
     Unit,
-    UnitController,
     UnitData,
     UnitUpdateData,
     Worker,
 } from "@packages/game-data/dist";
+import BuildingController from "./BuildingController";
+import ResourceController from "./ResourceController";
+import UnitController from "./UnitController";
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db/dist";
 import { mapMongoUnitToData } from "../../utils/parseData";
@@ -186,6 +186,7 @@ class EntityController {
             command.targetId,
         );
         if (entity instanceof Worker && targetResource) {
+            entity.setStatus("moving");
             entity.collector.collectResource(targetResource);
         }
     }
@@ -217,6 +218,7 @@ class EntityController {
             this.buildingController.getBuildingById(command.targetId);
 
         if (targetEntity) {
+            entity.setStatus("moving");
             entity.setAttackableTarget(targetEntity);
         }
     }

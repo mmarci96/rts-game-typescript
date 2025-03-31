@@ -3,6 +3,7 @@ export interface GameData {
     mapId: string;
     status: string;
     maxPlayers: number;
+    gameName?: string;
     createdAt: Date;
 }
 

@@ -16,17 +16,17 @@ class MainBuilding extends Building implements ActionProvider {
             trainingDuration += 2;
         }
         this.currentTimer = trainingDuration;
-        const spawnX = this.getX() + 8;
-        const spawnY = this.getY() + 8;
+        const spawnX = this.getX() + 2;
+        const spawnY = this.getY() + 2;
         const color = this.getColor();
         return { spawnX, spawnY, unitType, color };
     }
 
     getAvailableActions() {
         const actions = new Set<string>();
-        actions.add("create_warrior")
-        actions.add("create_worker")
-        actions.add("create_archer")
+        actions.add("create_warrior");
+        actions.add("create_worker");
+        actions.add("create_archer");
         return actions;
     }
 

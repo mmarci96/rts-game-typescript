@@ -32,11 +32,14 @@ const Lobby = () => {
             let timeLeft = 5;
             const countdownInterval = setInterval(() => {
                 const userId = window.localStorage.getItem("userId");
-                const player = players.find((player: Player) => player.userId === userId && player);
+                const player = players.find(
+                    (player: Player) => player.userId === userId && player,
+                );
                 setCountdown(timeLeft);
                 timeLeft -= 1;
                 if (timeLeft < 0) {
                     clearInterval(countdownInterval);
+                    console.log(countdown);
                     //const gameUrl = `http://localhost:3000/${gameId}/${player._id}`;
                     //const gameUrl = `http://localhost/${gameId}/${player._id}`;
                     const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
@@ -72,7 +75,7 @@ const Lobby = () => {
         const url = "/api/players/" + window.localStorage.getItem("userId");
         const res = await fetchApiData(url, HttpMethod.DELETE, null);
         if (res) {
-            console.log(res);
+            // console.log(res);
         }
     };
     const handleStart = async () => {
@@ -102,7 +105,7 @@ const Lobby = () => {
     }, []);
 
     useEffect(() => {
-        const colors = Object.values(PlayerColor);
+        const colors = [PlayerColor.RED, PlayerColor.BLUE]; // Object.values(PlayerColor);
 
         const colorsTaken: PlayerColor[] = joinedPlayers.flatMap(
             (player: Player) => player.color as PlayerColor,
@@ -131,12 +134,12 @@ const Lobby = () => {
                     )}
                     {showCountdown && (
                         <PopupCard
-                            onClose={() => { }}
+                            onClose={() => {}}
                             header="Game Starting"
                             footer="Get Ready!"
                         >
                             <p className="text-center text-xl font-bold">
-                                {countdown} seconds remaining...
+                                Game staring soon...
                             </p>
                         </PopupCard>
                     )}

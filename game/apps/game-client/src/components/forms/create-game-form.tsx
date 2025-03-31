@@ -41,8 +41,8 @@ export const CreateGameForm = ({ onSubmit }: GameFormProps) => {
                         }}
                     >
                         <option value={2}>2 Players</option>
-                        <option value={3}>3 Players</option>
-                        <option value={4}>4 Players</option>
+                        {/* <option value={3}>3 Players</option> */}
+                        {/* <option value={4}>4 Players</option> */}
                     </select>
                 </div>
                 <div className="flex justify-between">
@@ -62,7 +62,7 @@ export const CreateGameForm = ({ onSubmit }: GameFormProps) => {
                             }));
                         }}
                     >
-                        {Object.values(PlayerColor).map((color, i) => (
+                        {[PlayerColor.RED, PlayerColor.BLUE].map((color, i) => (
                             <option key={i} value={color}>
                                 {color[0].toUpperCase() + color.substring(1)}
                             </option>
