@@ -52,9 +52,7 @@ class EntityManager {
                 console.error("Error updating unit: ", unitUpdate.id);
                 return;
             }
-            unit.entity.setPosition(unitUpdate.position);
-            unit.entity.setHealth(unitUpdate.health);
-            unit.entity.setStatus(unitUpdate.state);
+            unit.entity.handleUpdateData(unitUpdate);
             existingKeys.delete(unitUpdate.id);
         });
         buildingUpdateData.forEach((buildingUpdate) => {
