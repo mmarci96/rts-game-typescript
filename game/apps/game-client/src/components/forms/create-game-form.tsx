@@ -41,8 +41,8 @@ export const CreateGameForm = ({ onSubmit }: GameFormProps) => {
                         }}
                     >
                         <option value={2}>2 Players</option>
-                        <option value={3}>3 Players</option>
-                        <option value={4}>4 Players</option>
+                        {/* <option value={3}>3 Players</option> */}
+                        {/* <option value={4}>4 Players</option> */}
                     </select>
                 </div>
                 <div className="flex justify-between">
