@@ -32,7 +32,9 @@ const Lobby = () => {
             let timeLeft = 5;
             const countdownInterval = setInterval(() => {
                 const userId = window.localStorage.getItem("userId");
-                const player = players.find((player: Player) => player.userId === userId && player);
+                const player = players.find(
+                    (player: Player) => player.userId === userId && player,
+                );
                 setCountdown(timeLeft);
                 timeLeft -= 1;
                 if (timeLeft < 0) {
@@ -102,7 +104,7 @@ const Lobby = () => {
     }, []);
 
     useEffect(() => {
-        const colors = Object.values(PlayerColor);
+        const colors = [PlayerColor.RED, PlayerColor.BLUE]; // Object.values(PlayerColor);
 
         const colorsTaken: PlayerColor[] = joinedPlayers.flatMap(
             (player: Player) => player.color as PlayerColor,
@@ -131,7 +133,7 @@ const Lobby = () => {
                     )}
                     {showCountdown && (
                         <PopupCard
-                            onClose={() => { }}
+                            onClose={() => {}}
                             header="Game Starting"
                             footer="Get Ready!"
                         >

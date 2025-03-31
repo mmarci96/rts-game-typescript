@@ -62,7 +62,7 @@ export const CreateGameForm = ({ onSubmit }: GameFormProps) => {
                             }));
                         }}
                     >
-                        {Object.values(PlayerColor).map((color, i) => (
+                        {[PlayerColor.RED, PlayerColor.BLUE].map((color, i) => (
                             <option key={i} value={color}>
                                 {color[0].toUpperCase() + color.substring(1)}
                             </option>
