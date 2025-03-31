@@ -34,9 +34,17 @@ class GameLogic {
 
     constructor(assets: AssetManager, tiles: Tile[][], currentPlayer: Player) {
         this.player = currentPlayer;
+        const cameraStartPosition = { x: 16, y: 16 };
+
+        if (this.player.getColor() === "blue") {
+            const camOffSet = Math.sqrt(tiles.length * tiles[0].length);
+            cameraStartPosition.x = camOffSet - 16;
+            cameraStartPosition.y = camOffSet - 16;
+        }
+
         this.camera = new Camera(
-            16,
-            16,
+            cameraStartPosition.x,
+            cameraStartPosition.y,
             GameLogic.CAMERA_SIZE,
             GameLogic.CAMERA_SIZE,
         );
