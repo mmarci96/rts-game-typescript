@@ -2,6 +2,7 @@ import { GameEntity, Unit } from "@packages/game-data";
 import Camera from "../ui/Camera";
 import VectorTransformer from "../utils/VectorTransformer";
 import Drawable from "./Drawable";
+import GameLogic from "../logic/GameLogic";
 
 class AnimatedSprite extends Drawable {
     frameWidth: number;
@@ -64,10 +65,22 @@ class AnimatedSprite extends Drawable {
         }
         this.skullFrames++;
     }
+    private handleUnitMovement() {
+        if (this.entity instanceof Unit) {
+            const { targetX, targetY } = this.entity.getTarget();
+            if (!targetX || !targetY) {
+                return;
+            }
+            const { x, y } = this.move(targetX, targetY);
+            this.entity.setX(x);
+            this.entity.setY(y);
+        }
+    }
 
     draw(ctx: CanvasRenderingContext2D, camera: Camera) {
         if (this.entity instanceof Unit) {
             this.setAnimationType(this.entity.getStatus());
+            this.handleUnitMovement();
         }
         this.updateAnimation();
         if (!this.spriteSheet) {
@@ -114,7 +127,8 @@ class AnimatedSprite extends Drawable {
         );
     }
 
-    move(targetX: number, targetY: number, deltaTime: number) {
+    private move(targetX: number, targetY: number) {
+        const deltaTime = GameLogic.DELTA_TIME;
         const x = this.entity.getX();
         const y = this.entity.getY();
         if (!(this.entity instanceof Unit)) {

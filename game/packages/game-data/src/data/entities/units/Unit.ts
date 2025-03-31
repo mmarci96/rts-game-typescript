@@ -1,4 +1,4 @@
-import { Tile, UnitParams } from "../../types";
+import { Tile, UnitParams, UnitUpdateData } from "../../types";
 import Attackable from "../Attackable";
 import Movable from "../Movable";
 import Attacker from "../Attacker";
@@ -12,18 +12,35 @@ class Unit extends Attackable implements IAttacker, IMovable {
 
     constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters.controlledParams);
-        this.movable = new Movable(parameters.speed, this.getX(), this.getY(), aStar);
+        this.movable = new Movable(
+            parameters.speed,
+            this.getX(),
+            this.getY(),
+            aStar,
+        );
         this.attacker = new Attacker(
             parameters.damage,
             parameters.attackSpeed,
-            parameters.attackRange
+            parameters.attackRange,
         );
         this.movable.setTarget(parameters.target.x, parameters.target.y);
     }
 
+    handleUpdateData(data: UnitUpdateData) {
+        if (data.position.y !== null || data.position.x !== null) {
+            this.setTarget(data.position.x, data.position.y);
+        }
+        if (this.getHealth() !== data.health) {
+            this.setHealth(data.health);
+        }
+        if (this.getStatus() !== data.state) {
+            this.setStatus(data.state);
+        }
+    }
+
     update(deltaTime: number) {
         let state = this.getStatus();
-        if (state !== 'idle') this.idleTime = 0;
+        if (state !== "idle") this.idleTime = 0;
         switch (state) {
             case "attack":
                 this.attackHandler();
@@ -45,14 +62,13 @@ class Unit extends Attackable implements IAttacker, IMovable {
         }
     }
 
-    attackHandler() {
+    private attackHandler() {
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
             this.setAttackableTarget(null);
             return;
         }
-
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
         const dx = tx - this.getX();
@@ -82,16 +98,13 @@ class Unit extends Attackable implements IAttacker, IMovable {
         return this.movable.move(deltaTime);
     }
 
-    updatePosition(deltaTime: number) {
-        const { newX, newY, progress } = this.move(
-            deltaTime,
-        );
+    protected updatePosition(deltaTime: number) {
+        const { newX, newY, progress } = this.move(deltaTime);
         if (progress === "completed") {
             this.movable.setTarget(null, null);
             if (!this.attacker.getAttackableTarget()) {
                 this.setStatus("idle");
-            }
-            else if (this.attacker.getAttackableTarget()) {
+            } else if (this.attacker.getAttackableTarget()) {
                 this.attackHandler();
             }
         } else {
@@ -108,34 +121,39 @@ class Unit extends Attackable implements IAttacker, IMovable {
         if (deltaTime) {
             this.setStatus("idle");
         }
-    };
+    }
 
-    updateCooldown(deltaTime: number) {
+    private updateCooldown(deltaTime: number) {
         if (this.canAttack()) {
             this.attackHandler();
             return;
         }
-        this.attacker.updateCooldown(deltaTime)
+        this.attacker.updateCooldown(deltaTime);
     }
 
-    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number): Tile[] {
-        return this.movable.setupPathfinder(startX, startY, targetX, targetY)
+    setupPathfinder(
+        startX: number,
+        startY: number,
+        targetX: number,
+        targetY: number,
+    ): Tile[] {
+        return this.movable.setupPathfinder(startX, startY, targetX, targetY);
     }
 
     getAttackableTarget(): Attackable | null {
-        return this.attacker.getAttackableTarget()
+        return this.attacker.getAttackableTarget();
     }
 
     setAttackableTarget(target: Attackable | null): void {
-        this.attacker.setAttackableTarget(target)
+        this.attacker.setAttackableTarget(target);
     }
 
     getAttackSpeed(): number {
-        return this.attacker.getAttackSpeed()
+        return this.attacker.getAttackSpeed();
     }
 
     getAttackDamage(): number {
-        return this.attacker.getAttackDamage()
+        return this.attacker.getAttackDamage();
     }
 
     attack(): string {
@@ -146,7 +164,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         this.attacker.resetTarget();
     }
 
-    getTarget(): { targetX: number | null; targetY: number | null; } {
+    getTarget(): { targetX: number | null; targetY: number | null } {
         return this.movable.getTarget();
     }
 
@@ -159,7 +177,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     canAttack(): boolean {
-        return this.attacker.canAttack()
+        return this.attacker.canAttack();
     }
 
     getSpeed() {
