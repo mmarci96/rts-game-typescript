@@ -168,6 +168,7 @@ export class ConnectionHandler {
         this.socket.off("game_state");
         this.socket.off("player_state");
         this.socket.off("game_over");
+        this.socket.off("unit_created");
         this.socket.off("game_update");
         this.socket.disconnect();
     }
