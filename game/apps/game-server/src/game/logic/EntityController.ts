@@ -186,6 +186,7 @@ class EntityController {
             command.targetId,
         );
         if (entity instanceof Worker && targetResource) {
+            entity.setStatus("moving");
             entity.collector.collectResource(targetResource);
         }
     }
