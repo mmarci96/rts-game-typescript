@@ -1,9 +1,6 @@
 import {
     GameMap,
-    UnitController,
-    ResourceController,
     GameState,
-    BuildingController,
     Player,
     PlayerColor,
     UnitData,
@@ -11,6 +8,9 @@ import {
 import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
 import { PlayerCommand, SaveGameStateParams } from "../../types";
+import BuildingController from "./BuildingController";
+import ResourceController from "./ResourceController";
+import UnitController from "./UnitController";
 
 class GameLogic {
     private entityController: EntityController;

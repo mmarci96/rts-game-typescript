@@ -1,7 +1,10 @@
-import { ResourceData } from "../types";
-import { Resource, WheatField, Tree } from "../entities";
-import { mapResourceToResourceParams } from "../utils";
-
+import {
+    Resource,
+    WheatField,
+    Tree,
+    mapResourceToResourceParams,
+    ResourceData,
+} from "@packages/game-data/dist";
 class ResourceController {
     private resources;
     constructor() {
@@ -35,7 +38,7 @@ class ResourceController {
             if (resource.getAvailableResource() <= 0) {
                 this.resources.delete(id);
             }
-        })
+        });
     }
 
     getResources() {

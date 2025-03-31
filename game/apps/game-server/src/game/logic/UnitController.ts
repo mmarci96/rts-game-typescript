@@ -1,9 +1,16 @@
-import { UnitData, PlayerColor, PlayerResources } from "../types";
-import { mapUnitToUnitParams } from "../utils";
-import { Unit, Archer, Worker, Warrior } from "../entities";
-import Player from "../Player";
-import GameMap from "../GameMap";
-import { AStar } from "../utils/pathfinding";
+import {
+    AStar,
+    UnitData,
+    PlayerColor,
+    PlayerResources,
+    mapUnitToUnitParams,
+    Unit,
+    Archer,
+    Worker,
+    Warrior,
+    Player,
+    GameMap,
+} from "@packages/game-data/dist";
 
 class UnitController {
     private units;

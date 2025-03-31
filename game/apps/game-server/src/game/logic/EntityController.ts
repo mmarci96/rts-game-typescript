@@ -1,22 +1,22 @@
 import {
     Attackable,
     Building,
-    BuildingController,
-    BuildingUpdateData,
     GameEntity,
     GameState,
     GameUpdateData,
     MainBuilding,
     Player,
     Resource,
-    ResourceController,
     ResourceUpdateData,
+    BuildingUpdateData,
     Unit,
-    UnitController,
     UnitData,
     UnitUpdateData,
     Worker,
 } from "@packages/game-data/dist";
+import BuildingController from "./BuildingController";
+import ResourceController from "./ResourceController";
+import UnitController from "./UnitController";
 import { PlayerCommand } from "../../types";
 import { createUnit } from "@packages/game-db/dist";
 import { mapMongoUnitToData } from "../../utils/parseData";

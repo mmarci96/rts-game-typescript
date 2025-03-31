@@ -1,7 +1,9 @@
-import { Building, MainBuilding } from "../entities";
-import { BuildingData } from "../types";
-import { mapBuildingToBuildingParams } from "../utils";
-
+import {
+    Building,
+    BuildingData,
+    mapBuildingToBuildingParams,
+    MainBuilding,
+} from "@packages/game-data/dist";
 class BuildingController {
     private buildings;
 
