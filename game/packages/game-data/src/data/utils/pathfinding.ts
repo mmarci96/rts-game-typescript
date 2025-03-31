@@ -39,7 +39,8 @@ class BinaryHeap<T> {
         while (index > 0) {
             const parentIndex = Math.floor((index - 1) / 2);
             const parent = this.content[parentIndex];
-            if (this.scoreFunction(element) >= this.scoreFunction(parent)) break;
+            if (this.scoreFunction(element) >= this.scoreFunction(parent))
+                break;
             this.content[parentIndex] = element;
             this.content[index] = parent;
             index = parentIndex;
@@ -56,7 +57,9 @@ class BinaryHeap<T> {
 
             if (leftChildIdx < length) {
                 const leftChild = this.content[leftChildIdx];
-                if (this.scoreFunction(leftChild) < this.scoreFunction(element)) {
+                if (
+                    this.scoreFunction(leftChild) < this.scoreFunction(element)
+                ) {
                     swapIndex = leftChildIdx;
                 }
             }
@@ -64,8 +67,12 @@ class BinaryHeap<T> {
             if (rightChildIdx < length) {
                 const rightChild = this.content[rightChildIdx];
                 if (
-                    (swapIndex === null && this.scoreFunction(rightChild) < this.scoreFunction(element)) ||
-                    (swapIndex !== null && this.scoreFunction(rightChild) < this.scoreFunction(this.content[swapIndex]))
+                    (swapIndex === null &&
+                        this.scoreFunction(rightChild) <
+                            this.scoreFunction(element)) ||
+                    (swapIndex !== null &&
+                        this.scoreFunction(rightChild) <
+                            this.scoreFunction(this.content[swapIndex]))
                 ) {
                     swapIndex = rightChildIdx;
                 }
@@ -100,7 +107,10 @@ export class AStar {
         }
     }
 
-    private static manhattan(pos0: { x: number; y: number }, pos1: { x: number; y: number }): number {
+    private static manhattan(
+        pos0: { x: number; y: number },
+        pos1: { x: number; y: number },
+    ): number {
         return Math.abs(pos1.x - pos0.x) + Math.abs(pos1.y - pos0.y);
     }
 
@@ -109,14 +119,18 @@ export class AStar {
         const neighbors: Tile[] = [];
 
         const directions: [number, number][] = [
-            [x - 1, y], [x + 1, y],
-            [x, y - 1], [x, y + 1]
+            [x - 1, y],
+            [x + 1, y],
+            [x, y - 1],
+            [x, y + 1],
         ];
 
         if (diagonals) {
             directions.push(
-                [x - 1, y - 1], [x + 1, y - 1],
-                [x - 1, y + 1], [x + 1, y + 1]
+                [x - 1, y - 1],
+                [x + 1, y - 1],
+                [x - 1, y + 1],
+                [x + 1, y + 1],
             );
         }
 
@@ -124,19 +138,28 @@ export class AStar {
             if (this.grid[dy] && this.grid[dy][dx]) {
                 neighbors.push(this.grid[dy][dx]);
             }
-
         }
 
         return neighbors;
     }
 
     public getTile(x: number, y: number): Tile {
-        return this.grid[Math.floor(y)][Math.floor(x)];
+        const maxY = this.grid.length - 1;
+        const maxX = this.grid[0].length - 1;
+        const clampedX = Math.max(0, Math.min(maxX, Math.floor(x)));
+        const clampedY = Math.max(0, Math.min(maxY, Math.floor(y)));
+
+        return this.grid[clampedY][clampedX];
     }
 
-    public search(start: Tile, end: Tile, diagonals = true, heuristic = AStar.manhattan): Tile[] {
+    public search(
+        start: Tile,
+        end: Tile,
+        diagonals = true,
+        heuristic = AStar.manhattan,
+    ): Tile[] {
         this.init();
-        const openHeap = new BinaryHeap<Tile>(node => node.f);
+        const openHeap = new BinaryHeap<Tile>((node) => node.f);
         openHeap.push(start);
 
         while (openHeap.size() > 0) {
@@ -181,4 +204,3 @@ export class AStar {
         return [];
     }
 }
-
