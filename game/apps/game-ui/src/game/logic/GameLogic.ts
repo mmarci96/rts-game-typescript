@@ -21,6 +21,7 @@ import Overlay from "../ui/Overlay";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
+    static DELTA_TIME = Date.now();
     running: boolean = false;
     private player: Player;
     private camera: Camera;
@@ -76,27 +77,21 @@ class GameLogic {
         this.running = true;
         const context = this.gameCanvas.getContext();
         const ctx: CanvasRenderingContext2D | null = context;
-        if (!ctx) throw new Error("No canvas");
         this.mouseEventHandler.addCanvasEventListeners(createCommand);
 
         let lastTime = Date.now();
         const animate = () => {
             const now = Date.now();
-            const deltaTime = (now - lastTime) / 1000;
+            GameLogic.DELTA_TIME = (now - lastTime) / 1000;
             lastTime = now;
+            ctx!.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
 
-            ctx.clearRect(0, 0, Game.WIDTH, Game.HEIGHT);
-
-            this.mouseEventHandler.updateDrawables(
-                this.entityManager.getDrawableEntities(),
-            );
-
-            this.entityManager
-                .getDrawableEntities()
-                .forEach((drawable: Drawable) => {
-                    drawable.draw(ctx, this.camera);
-                });
-            Overlay.statusBar.setFps(deltaTime * 1000);
+            const drawables = this.entityManager.getDrawableEntities();
+            this.mouseEventHandler.updateDrawables(drawables);
+            drawables.forEach((drawable: Drawable) => {
+                drawable.draw(ctx!, this.camera);
+            });
+            Overlay.statusBar.setFps();
             requestAnimationFrame(animate);
         };
         animate();

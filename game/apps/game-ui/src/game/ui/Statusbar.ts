@@ -1,4 +1,5 @@
 import { PlayerResources } from "@packages/game-data";
+import GameLogic from "../logic/GameLogic";
 
 class StatusBar {
     element: HTMLDivElement;
@@ -85,8 +86,8 @@ class StatusBar {
         this.checkAndUpdate();
     }
 
-    setFps(deltaTimeMs: number): void {
-        this.fpsSamples.push(deltaTimeMs);
+    setFps(): void {
+        this.fpsSamples.push(GameLogic.DELTA_TIME * 1000);
         this.checkAndUpdate();
     }
 
