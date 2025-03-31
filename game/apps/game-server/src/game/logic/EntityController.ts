@@ -218,6 +218,7 @@ class EntityController {
             this.buildingController.getBuildingById(command.targetId);
 
         if (targetEntity) {
+            entity.setStatus("moving");
             entity.setAttackableTarget(targetEntity);
         }
     }
