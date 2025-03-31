@@ -74,7 +74,7 @@ const Lobby = () => {
         const url = "/api/players/" + window.localStorage.getItem("userId");
         const res = await fetchApiData(url, HttpMethod.DELETE, null);
         if (res) {
-            console.log(res);
+            // console.log(res);
         }
     };
     const handleStart = async () => {
@@ -138,7 +138,7 @@ const Lobby = () => {
                             footer="Get Ready!"
                         >
                             <p className="text-center text-xl font-bold">
-                                {countdown} seconds remaining...
+                                Game staring soon...
                             </p>
                         </PopupCard>
                     )}

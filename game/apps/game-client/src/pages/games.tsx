@@ -26,13 +26,18 @@ const Games = () => {
                 <div className="m-4">
                     <h1>Games</h1>
                 </div>
-                <ul className="flex flex-wrap ">
+                <ul className="flex flex-wrap justify-center">
                     {gameLobbyList?.map((gameData: GameData) => (
                         <li
-                            className="mx-4 m-2 flex flex-col items-center"
+                            className="mx-4 m-2 flex flex-col items-center w-1/3 border-gray-400 rounded-2xl p-3 border-2"
                             key={gameData._id}
                         >
-                            <p>Game: {gameData._id}</p>
+                            <p>
+                                Game:{" "}
+                                {gameData.gameName
+                                    ? gameData.gameName
+                                    : gameData._id}
+                            </p>
                             <p>
                                 {gameData.status}/{gameData.maxPlayers}
                             </p>
