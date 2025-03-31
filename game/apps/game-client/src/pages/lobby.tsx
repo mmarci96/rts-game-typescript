@@ -39,6 +39,7 @@ const Lobby = () => {
                 timeLeft -= 1;
                 if (timeLeft < 0) {
                     clearInterval(countdownInterval);
+                    console.log(countdown);
                     //const gameUrl = `http://localhost:3000/${gameId}/${player._id}`;
                     //const gameUrl = `http://localhost/${gameId}/${player._id}`;
                     const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
