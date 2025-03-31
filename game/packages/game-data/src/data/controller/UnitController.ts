@@ -69,7 +69,7 @@ class UnitController {
         return { wood, food };
     }
 
-    adjustIdleUnitPosition(idleUnit: Unit) {
+    private adjustIdleUnitPosition(idleUnit: Unit) {
         const unitsArray = [...this.units.values()];
         const bufferDistance = 1.4;
 
@@ -87,8 +87,8 @@ class UnitController {
                 const directionX = dx / distance || Math.random() - 0.5;
                 const directionY = dy / distance || Math.random() - 0.5;
 
-                const targetX = (idleUnit.getX() - directionX * overlap);
-                const targetY = (idleUnit.getY() - directionY * overlap);
+                const targetX = idleUnit.getX() - directionX * overlap;
+                const targetY = idleUnit.getY() - directionY * overlap;
                 idleUnit.setPosition({ x: targetX, y: targetY });
             }
         });
@@ -132,7 +132,7 @@ class UnitController {
         return unit;
     }
 
-    updateUnitWithData(unit: Unit, unitData: UnitData) {
+    private updateUnitWithData(unit: Unit, unitData: UnitData) {
         unit.setStatus(unitData.state);
         unit.setPosition(unitData.position);
         unit.setTarget(unitData.target.x, unitData.target.y);
