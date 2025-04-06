@@ -1,6 +1,6 @@
 server:
   host: "0.0.0.0"
-  listen_port: "9000"
+  port: "9000"
 
 connection:
   - name: Server 

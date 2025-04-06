@@ -57,13 +57,12 @@ func reader(conn *websocket.Conn) {
 			return
 		}
 		// print out that message for clarity
-		fmt.Println(string(p))
+		fmt.Println("Reading from websocket connection", string(p))
 
 		if err := conn.WriteMessage(messageType, p); err != nil {
 			log.Println(err)
 			return
 		}
-
 	}
 }
 
