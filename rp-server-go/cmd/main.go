@@ -1,17 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/server"
 )
 
-func setupRoutes() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Simple Server")
-	})
-}
-
 func main() {
-	setupRoutes()
+	server.SetupRoutes()
 	http.ListenAndServe(":4000", nil)
 }
