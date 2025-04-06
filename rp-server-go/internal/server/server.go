@@ -6,9 +6,25 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/configs"
 )
 
-func SetupRoutes() {
+func Run() error {
+	config, err := configs.NewConfiguration()
+	if err != nil {
+		return fmt.Errorf("Could not load configs!")
+	}
+
+	setupRoutes()
+	addr := config.Server.Host + ":" + config.Server.Port
+	fmt.Println("Server started on: ", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
+		return fmt.Errorf("Error starting server")
+	}
+	return nil
+}
+
+func setupRoutes() {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Simple Server")
 	})

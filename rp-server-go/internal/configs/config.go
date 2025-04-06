@@ -6,18 +6,11 @@ import (
 	"strings"
 )
 
-type connection struct {
-	Name            string
-	Endpoint        string
-	Destination_URL string
-}
-
 type configuration struct {
 	Server struct {
 		Host string
 		Port string
 	}
-	Connections []connection
 }
 
 var Config *configuration

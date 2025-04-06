@@ -1,9 +1,6 @@
 server:
   host: "0.0.0.0"
-  listen_port: "8000"
-
-static:
-  dir: "/home/meirl/Documents/film-media-hub/client/dist"
+  listen_port: "9000"
 
 connection:
   - name: Server 
@@ -12,3 +9,6 @@ connection:
   - name: API
     endpoint: /api/
     destination_url: "http://localhost:5000/"
+  - name: UI
+    endpoint: /game-ui/
+    destination_url: "http://localhost:3000/game-ui/"
