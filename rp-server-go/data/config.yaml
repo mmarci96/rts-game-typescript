@@ -3,12 +3,12 @@ server:
   port: "9000"
 
 connection:
-  - name: Server 
-    endpoint: /ws/
+  - name: Server0 
+    endpoint: /ws/world0/
     destination_url: "http://localhost:8080/"
-  - name: API
-    endpoint: /api/
-    destination_url: "http://localhost:5000/"
-  - name: UI
-    endpoint: /game-ui/
-    destination_url: "http://localhost:3000/game-ui/"
+  - name: Server1
+    endpoint: /ws/world1/
+    destination_url: "http://localhost:8081/"
+  - name: Server2
+    endpoint: /ws/world2
+    destination_url: "http://localhost:8082/"
