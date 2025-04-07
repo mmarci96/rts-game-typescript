@@ -18,7 +18,7 @@ services:
     build: ./rp-server-go
     container_name: rp-server-go 
     ports:
-      - "80:80"
+      - "9000:9000"
   
   nodejs-proxy:
     build: ./nodejs-proxy
