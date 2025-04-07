@@ -11,11 +11,12 @@ const main = async () => {
         const io = new Server(PORT, {
             cors: { origin: "*" },
         });
-        const goSocket = new WebSocket("ws://localhost:9000/ws"); // Connect to Go
-
         console.log(`Server running on: http://${HOST}:${PORT}/`);
-        goSocketHandler(goSocket, clients);
-        socketIoHandler(goSocket, io, clients);
+        const goSocket = new WebSocket("ws://localhost:80/ws"); // Connect to Go
+        if (goSocket) {
+            goSocketHandler(goSocket, clients);
+            socketIoHandler(goSocket, io, clients);
+        }
     } catch (err) {
         console.error("Error on node bridge: ", err);
     }

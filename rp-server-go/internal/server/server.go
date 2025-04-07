@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/configs"
 )
@@ -50,7 +51,6 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-
 func reader(conn *websocket.Conn) {
 	defer conn.Close()
 
@@ -81,7 +81,6 @@ func reader(conn *websocket.Conn) {
 			log.Println("Unknown message type:", message.Type)
 		}
 	}
-}
 }
 
 func serveWs(w http.ResponseWriter, r *http.Request) {

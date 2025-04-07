@@ -14,6 +14,50 @@ services:
     volumes:
       - redis_data:/data
 
+  rp-server-go:
+    build: ./rp-server-go
+    container_name: rp-server-go 
+    ports:
+      - "80:80"
+  
+  nodejs-proxy:
+    build: ./nodejs-proxy
+    container_name: nodejs-proxy
+    ports:
+      - "3001:3001"
+
+  server-0:
+    build: ./game-server-mock/
+    environment:
+    - HOST=0.0.0.0 
+    - PORT=8080
+    ports:
+    - "8080:8080"
+
+  server-1:
+    build: ./game-server-mock/
+    environment:
+    - HOST=0.0.0.0 
+    - PORT=8081
+    ports:
+    - "8081:8081"
+
+  server-2:
+    build: ./game-server-mock/
+    environment:
+    - HOST=0.0.0.0 
+    - PORT=8082
+    ports:
+    - "8082:8082"
+
+  server-3:
+    build: ./game-server-mock/
+    environment:
+    - HOST=0.0.0.0 
+    - PORT=8083
+    ports:
+    - "8083:8083"
+
 volumes:
   redis_data:
     driver: local
