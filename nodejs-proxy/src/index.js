@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
         console.log("Event: ", event);
         console.log("Payload: ", payload);
         const ctx = {
-            clientId: socket.id,
+            socket_id: socket.id,
             event,
             payload,
         };

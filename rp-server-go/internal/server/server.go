@@ -14,8 +14,11 @@ import (
 )
 
 type Message struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
+	Type     string `json:"type"`
+	Data     string `json:"data"`
+	SocketId string `json:"socket_id"`
+	Event    string `json:"event"`
+	Payload  any    `json:"payload"`
 }
 
 type spaHandler struct {
@@ -87,9 +90,9 @@ func reader(conn *websocket.Conn) {
 			continue
 		}
 
-		log.Printf("Received: %s - %s\n", message.Type, message.Data)
+		log.Printf("Received: %s - %s - %s - %a \n", message.Type, message.Data, message.SocketId, message.Payload)
 
-		switch message.Type {
+		switch message.Event {
 		case "log":
 			// Save logs, send to dashboard, etc.
 			log.Println("Log entry from node:", message.Data)
@@ -98,6 +101,7 @@ func reader(conn *websocket.Conn) {
 			conn.WriteJSON(Message{Type: "pong", Data: "hello from go"})
 
 		default:
+			conn.WriteJSON(Message{Type: "default", Payload: message.Payload})
 			log.Println("Unknown message type:", message.Type)
 		}
 	}
