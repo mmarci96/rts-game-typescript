@@ -7,21 +7,21 @@ import (
 )
 
 type connection struct {
-	Name           string
-	Endpoint       string
-	Desination_URL string
+	Name           string `mapstructure:"name"`
+	Endpoint       string `mapstructure:"endpoint"`
+	Desination_URL string `mapstructure:"desination_url"`
 }
 
 type configuration struct {
 	Server struct {
-		Host string
-		Port string
-	}
+		Host string `mapstructure:"host"`
+		Port string `mapstructure:"port"`
+	} `mapstructure:"server"`
 	Static struct {
-		Dir string
-	}
-	Bridge      connection
-	Connections []connection
+		Dir string `mapstructure:"dir"`
+	} `mapstructure:"static"`
+	Bridge      connection   `mapstructure:"bridge"`
+	Connections []connection `mapstructure:"connections"`
 }
 
 var Config *configuration

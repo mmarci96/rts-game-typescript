@@ -3,23 +3,21 @@ server:
   port: "9000"
 
 static:
-  - name: UI
-    endpoint: "/"
-    destination_url: "/"
-    dist: 
+  dir: "./dist"
 
 bridge:
-  - name: WsBridge
-    endpoint: "^~ /socket/"
-    destination_url: "http://localhost:3001/"
+  name: "WsBridge"
+  endpoint: "^~ /socket/"
+  desination_url: "http://localhost:3001/"
 
 connections:
-  - name: Server0 
-    endpoint: /ws/world0/
-    destination_url: "http://localhost:8080/"
-  - name: Server1
-    endpoint: /ws/world1/
-    destination_url: "http://localhost:8081/"
-  - name: Server2
-    endpoint: /ws/world2
-    destination_url: "http://localhost:8082/"
+  - name: "Server0"
+    endpoint: "/ws/world0/"
+    desination_url: "http://localhost:8080/"
+  - name: "Server1"
+    endpoint: "/ws/world1/"
+    desination_url: "http://localhost:8081/"
+  - name: "Server2"
+    endpoint: "/ws/world2/"
+    desination_url: "http://localhost:8082/"
+

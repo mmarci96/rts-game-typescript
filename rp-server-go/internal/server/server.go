@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/gorilla/websocket"
-	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/configs"
+	"github.com/mmarci96/rts-game-monorepo/rp-server-go/configs"
 	"os"
 )
 
@@ -41,8 +41,8 @@ func Run() error {
 			fmt.Fprintf(w, "Simple Server")
 		})
 
-	http.HandleFunc("/ws", serveWs)
 	mux := http.NewServeMux()
+	mux.HandleFunc("/ws", serveWs)
 
 	for _, resource := range config.Connections {
 		url, _ := url.Parse(resource.Desination_URL)
@@ -53,7 +53,7 @@ func Run() error {
 	addr := config.Server.Host + ":" + config.Server.Port
 	fmt.Println("Server started on: ", addr)
 	if err := http.ListenAndServe(addr, mux); err != nil {
-		return fmt.Errorf("Error starting server")
+		return fmt.Errorf("Error starting server: %w", err)
 	}
 	return nil
 }
