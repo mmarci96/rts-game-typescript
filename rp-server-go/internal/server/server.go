@@ -9,6 +9,11 @@ import (
 	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/configs"
 )
 
+type Message struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
 func Run() error {
 	config, err := configs.NewConfiguration()
 	if err != nil {
@@ -45,38 +50,47 @@ var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
-// define a reader which will listen for
-// new messages being sent to our WebSocket
-// endpoint
-func reader(conn *websocket.Conn) {
-	for {
-		// read in a message
-		messageType, p, err := conn.ReadMessage()
-		if err != nil {
-			log.Println(err)
-			return
-		}
-		// print out that message for clarity
-		fmt.Println("Reading from websocket connection", string(p))
 
-		if err := conn.WriteMessage(messageType, p); err != nil {
-			log.Println(err)
-			return
+func reader(conn *websocket.Conn) {
+	defer conn.Close()
+
+	for {
+		_, msg, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("read error:", err)
+			break
+		}
+
+		var message Message
+		if err := json.Unmarshal(msg, &message); err != nil {
+			log.Println("invalid json:", string(msg))
+			continue
+		}
+
+		log.Printf("Received: %s - %s\n", message.Type, message.Data)
+
+		switch message.Type {
+		case "log":
+			// Save logs, send to dashboard, etc.
+			log.Println("Log entry from node:", message.Data)
+
+		case "ping":
+			conn.WriteJSON(Message{Type: "pong", Data: "hello from go"})
+
+		default:
+			log.Println("Unknown message type:", message.Type)
 		}
 	}
 }
+}
 
-// define our WebSocket endpoint
 func serveWs(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.Host)
-
-	// upgrade this connection to a WebSocket
-	// connection
-	ws, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		log.Println("WebSocket Upgrade error:", err)
+		return
 	}
-	// listen indefinitely for new messages coming
-	// through on our WebSocket connection
-	reader(ws)
+	log.Println("WebSocket client connected")
+
+	go reader(conn) // async read loop
 }
