@@ -1,8 +1,19 @@
 server:
   host: "0.0.0.0"
-  port: "80"
+  port: "9000"
 
-connection:
+static:
+  - name: UI
+    endpoint: "/"
+    destination_url: "/"
+    dist: 
+
+bridge:
+  - name: WsBridge
+    endpoint: "^~ /socket/"
+    destination_url: "http://localhost:3001/"
+
+connections:
   - name: Server0 
     endpoint: /ws/world0/
     destination_url: "http://localhost:8080/"

@@ -17,6 +17,10 @@ type configuration struct {
 		Host string
 		Port string
 	}
+	Static struct {
+		Dir string
+	}
+	Bridge      connection
 	Connections []connection
 }
 

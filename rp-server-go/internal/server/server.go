@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 
 	"encoding/json"
+
 	"github.com/gorilla/websocket"
 	"github.com/mmarci96/rts-game-monorepo/rp-server-go/internal/configs"
+	"os"
 )
 
 type Message struct {
@@ -15,27 +18,44 @@ type Message struct {
 	Data string `json:"data"`
 }
 
+type spaHandler struct {
+	staticDir string
+}
+
+func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fs := http.Dir(h.staticDir)
+	path := r.URL.Path
+	if _, err := fs.Open(path); os.IsNotExist(err) {
+		r.URL.Path = "/"
+	}
+	http.FileServer(fs).ServeHTTP(w, r)
+}
+
 func Run() error {
 	config, err := configs.NewConfiguration()
 	if err != nil {
 		return fmt.Errorf("Could not load configs!")
 	}
+	http.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "Simple Server")
+		})
 
-	setupRoutes()
+	http.HandleFunc("/ws", serveWs)
+	mux := http.NewServeMux()
+
+	for _, resource := range config.Connections {
+		url, _ := url.Parse(resource.Desination_URL)
+		proxy := NewProxy(url)
+		pr := ProxyRequestHandler(proxy, url, resource.Endpoint)
+		mux.HandleFunc(resource.Endpoint, pr)
+	}
 	addr := config.Server.Host + ":" + config.Server.Port
 	fmt.Println("Server started on: ", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
+	if err := http.ListenAndServe(addr, mux); err != nil {
 		return fmt.Errorf("Error starting server")
 	}
 	return nil
-}
-
-func setupRoutes() {
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Simple Server")
-	})
-	// mape our `/ws` endpoint to the `serveWs` function
-	http.HandleFunc("/ws", serveWs)
 }
 
 // We'll need to define an Upgrader

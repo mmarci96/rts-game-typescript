@@ -8,7 +8,7 @@ import (
 func main() {
 	err := server.Run()
 	if err != nil {
-		log.Fatal("Go server crashing...")
+		log.Fatal("Go server crashing...", err)
 	}
 	select {}
 }
