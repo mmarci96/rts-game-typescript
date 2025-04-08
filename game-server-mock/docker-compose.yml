@@ -3,6 +3,7 @@ services:
     build: ./
     environment:
     - HOST=0.0.0.0 
+    - NAMESPACE=server-0
     - PORT=8080
     ports:
     - "8080:8080"
@@ -12,22 +13,23 @@ services:
     environment:
     - HOST=0.0.0.0 
     - PORT=8081
+    - NAMESPACE=server-1
     ports:
     - "8081:8081"
 
-  server-2:
-    build: ./
-    environment:
-    - HOST=0.0.0.0 
-    - PORT=8082
-    ports:
-    - "8082:8082"
-
-  server-3:
-    build: ./
-    environment:
-    - HOST=0.0.0.0 
-    - PORT=8083
-    ports:
-    - "8083:8083"
+  # server-2:
+  #   build: ./
+  #   environment:
+  #   - HOST=0.0.0.0 
+  #   - PORT=8082
+  #   ports:
+  #   - "8082:8082"
+  #
+  # server-3:
+  #   build: ./
+  #   environment:
+  #   - HOST=0.0.0.0 
+  #   - PORT=8083
+  #   ports:
+  #   - "8083:8083"
 
