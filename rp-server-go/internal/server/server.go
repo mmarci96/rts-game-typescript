@@ -16,6 +16,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fs := http.Dir(h.staticDir)
 	fileServer := http.FileServer(fs)
 	path := r.URL.Path
+	fmt.Printf("Path of client: %s", path)
 	f, err := fs.Open(path)
 	if err != nil {
 		if !strings.Contains(path, ".") {

@@ -1,17 +1,16 @@
 server:
   host: "0.0.0.0"
-  port: "9000"
+  port: "80"
 
 static:
-  dir: "/home/meirl/Documents/rts-game-monorepo/rp-server-go/internal/static/dist"
+  dir: "/app/internal/html/dist"
+
 
 connections:
   - name: "Server 0"
     endpoint: "/socket.io/"
-    desination_url: "http://localhost:8080/server-0/"
+    desination_url: "http://game_server_0:8080/server_0/socket.io/"
+
   - name: "Server 1"
-    endpoint: "/server-1/socket.io/"
-    desination_url: "http://localhost:8081/socket.io/"
-  - name: "Server 2"
-    endpoint: "/server-2/"
-    desination_url: "http://localhost:8082/socket.io/"
+    endpoint: "/s1/socket.io/"
+    desination_url: "http://game_server_1:8081/server_1/socket.io/"

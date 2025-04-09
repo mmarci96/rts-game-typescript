@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -15,31 +14,25 @@ func NewProxy(target *url.URL) *httputil.ReverseProxy {
 		Director: func(req *http.Request) {
 			req.URL.Scheme = target.Scheme
 			req.URL.Host = target.Host
-			req.URL.Path = singleJoiningSlash(target.Path, req.URL.Path)
+			req.URL.Path = target.Path
 			req.Host = target.Host
 		},
 	}
 }
 
 func ProxyRequestHandler(
-	proxy *httputil.ReverseProxy, target *url.URL, endpoint string) http.HandlerFunc {
-
+	p *httputil.ReverseProxy, t *url.URL, endpoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ct := time.Now().UTC()
 		fmt.Printf("Request received at %s at %s\n", r.URL, ct)
 
-		// WebSocket detection
 		connection := strings.ToLower(r.Header.Get("Connection"))
 		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 		isWebSocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
 
-		if isWebSocket {
-			fmt.Println("Detected WebSocket upgrade request")
-		}
-
-		r.URL.Scheme = target.Scheme
-		r.URL.Host = target.Host
-		r.Host = target.Host
+		r.URL.Scheme = t.Scheme
+		r.URL.Host = t.Host
+		r.Host = t.Host
 
 		if isWebSocket {
 			r.Header.Set("Connection", "upgrade")
@@ -47,49 +40,8 @@ func ProxyRequestHandler(
 		}
 		r.Header.Set("X-Forwarded-Host", r.Host)
 		r.Header.Set("X-Real-IP", r.RemoteAddr)
-
-		r.URL.Path = target.Path + strings.TrimPrefix(r.URL.Path, endpoint)
-		fmt.Println("Connecting to:", target.String())
-		proxy.ServeHTTP(w, r)
+		r.URL.Path = t.Path + strings.TrimPrefix(r.URL.Path, endpoint)
+		fmt.Println("Connecting to:", t.String())
+		p.ServeHTTP(w, r)
 	}
 }
-
-func singleJoiningSlash(a, b string) string {
-	switch {
-	case strings.HasSuffix(a, "/") && strings.HasPrefix(b, "/"):
-		return a + b[1:]
-	case !strings.HasSuffix(a, "/") && !strings.HasPrefix(b, "/"):
-		return a + "/" + b
-	}
-	return a + b
-}
-
-// func ProxyRequestHandler(
-// 	proxy *httputil.ReverseProxy, url *url.URL, endpoint string) func(
-// 	http.ResponseWriter, *http.Request) {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		ct := time.Now().UTC()
-// 		fmt.Printf("Request received at %s at %s\n", r.URL, ct)
-//
-// 		connection := strings.ToLower(r.Header.Get("Connection"))
-// 		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
-// 		isWebsocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
-//
-// 		r.URL.Host = url.Host
-// 		r.URL.Scheme = url.Scheme
-// 		r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-// 		r.Host = url.Host
-// 		if isWebsocket {
-// 			fmt.Println("Websocket upgrade")
-// 			r.Header.Set("Connection", "upgrade")
-// 			r.Header.Set("Upgrade", "websocket")
-// 		}
-//
-// 		path := r.URL.Path
-// 		r.URL.Path = strings.TrimLeft(path, endpoint)
-// 		fmt.Printf("Redirecting request to %s at %s\n", r.URL, time.Now().UTC())
-//
-// 		proxy.ServeHTTP(w, r)
-// 	}
-// }
-//
