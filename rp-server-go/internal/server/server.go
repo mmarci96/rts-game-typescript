@@ -25,6 +25,7 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
+	fmt.Printf("Path from client: %s ", path)
 	defer f.Close()
 	stat, _ := f.Stat()
 	if stat.IsDir() {

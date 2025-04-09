@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -27,19 +26,11 @@ func ProxyRequestHandler(
 	return func(w http.ResponseWriter, r *http.Request) {
 		ct := time.Now().UTC()
 		fmt.Printf("Request received at %s at %s\n", r.URL, ct)
-
-		// WebSocket detection
 		connection := strings.ToLower(r.Header.Get("Connection"))
 		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 		isWebSocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
-
-		if isWebSocket {
-			fmt.Println("Detected WebSocket upgrade request")
-		}
-
 		r.URL.Scheme = target.Scheme
 		r.URL.Host = target.Host
-		r.Host = target.Host
 
 		if isWebSocket {
 			r.Header.Set("Connection", "upgrade")
@@ -47,7 +38,6 @@ func ProxyRequestHandler(
 		}
 		r.Header.Set("X-Forwarded-Host", r.Host)
 		r.Header.Set("X-Real-IP", r.RemoteAddr)
-
 		r.URL.Path = target.Path + strings.TrimPrefix(r.URL.Path, endpoint)
 		fmt.Println("Connecting to:", target.String())
 		proxy.ServeHTTP(w, r)
