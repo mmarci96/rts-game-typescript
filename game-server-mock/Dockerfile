@@ -1,12 +1,15 @@
-FROM node:18-alpine
+FROM node:23-alpine
 
 WORKDIR /app
 
-COPY ./package*.json .
+COPY package*.json ./
 
-RUN npm install
+RUN npm ci --omit=dev 
 
-COPY ./src/ ./src/
+COPY ./src ./src
 
-ENTRYPOINT ["node", "./src/index.js"]
+USER node
 
+COPY --chown=node:node . .
+
+ENTRYPOINT ["node", "/app/src/index.js"]

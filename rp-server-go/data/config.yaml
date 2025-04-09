@@ -3,21 +3,15 @@ server:
   port: "9000"
 
 static:
-  dir: "./dist"
-
-bridge:
-  name: "WsBridge"
-  endpoint: "^~ /socket/"
-  desination_url: "http://localhost:3001/"
+  dir: "/home/meirl/Documents/rts-game-monorepo/rp-server-go/internal/static/dist"
 
 connections:
-  - name: "Server0"
-    endpoint: "/ws/world0/"
-    desination_url: "http://localhost:8080/"
-  - name: "Server1"
-    endpoint: "/ws/world1/"
-    desination_url: "http://localhost:8081/"
-  - name: "Server2"
-    endpoint: "/ws/world2/"
-    desination_url: "http://localhost:8082/"
-
+  - name: "Server 0"
+    endpoint: "/socket.io/"
+    desination_url: "http://localhost:8080/socket.io/"
+  - name: "Server 1"
+    endpoint: "/server-1/socket.io/"
+    desination_url: "http://localhost:8081/socket.io/"
+  - name: "Server 2"
+    endpoint: "/server-2/"
+    desination_url: "http://localhost:8082/socket.io/"
