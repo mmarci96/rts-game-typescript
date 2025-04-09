@@ -1,65 +1,81 @@
 services:
-  mongodb:
-    image: mongo:6.0
-    container_name: game-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-  redis:
-    image: redis:latest
-    container_name: game-redis-db
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
   rp-server-go:
-    build: ./rp-server-go
+    build: .
     container_name: rp-server-go 
     ports:
-      - "9000:9000"
-  
-  nodejs-proxy:
-    build: ./nodejs-proxy
-    container_name: nodejs-proxy
-    ports:
-      - "3001:3001"
+      - "80:80"
 
   server-0:
     build: ./game-server-mock/
     environment:
     - HOST=0.0.0.0 
     - PORT=8080
+    - NAMESPACE=server-0
     ports:
     - "8080:8080"
 
-  server-1:
-    build: ./game-server-mock/
-    environment:
-    - HOST=0.0.0.0 
-    - PORT=8081
-    ports:
-    - "8081:8081"
 
-  server-2:
-    build: ./game-server-mock/
-    environment:
-    - HOST=0.0.0.0 
-    - PORT=8082
-    ports:
-    - "8082:8082"
-
-  server-3:
-    build: ./game-server-mock/
-    environment:
-    - HOST=0.0.0.0 
-    - PORT=8083
-    ports:
-    - "8083:8083"
-
-volumes:
-  redis_data:
-    driver: local
-  mongo-data:
-    driver: local
+#   mongodb:
+#     image: mongo:6.0
+#     container_name: game-mongodb
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
+#   redis:
+#     image: redis:latest
+#     container_name: game-redis-db
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+#
+#   rp-server-go:
+#     build: ./rp-server-go
+#     container_name: rp-server-go 
+#     ports:
+#       - "9000:9000"
+#
+#   nodejs-proxy:
+#     build: ./nodejs-proxy
+#     container_name: nodejs-proxy
+#     ports:
+#       - "3001:3001"
+#
+#   server-0:
+#     build: ./game-server-mock/
+#     environment:
+#     - HOST=0.0.0.0 
+#     - PORT=8080
+#     ports:
+#     - "8080:8080"
+#
+#   server-1:
+#     build: ./game-server-mock/
+#     environment:
+#     - HOST=0.0.0.0 
+#     - PORT=8081
+#     ports:
+#     - "8081:8081"
+#
+#   server-2:
+#     build: ./game-server-mock/
+#     environment:
+#     - HOST=0.0.0.0 
+#     - PORT=8082
+#     ports:
+#     - "8082:8082"
+#
+#   server-3:
+#     build: ./game-server-mock/
+#     environment:
+#     - HOST=0.0.0.0 
+#     - PORT=8083
+#     ports:
+#     - "8083:8083"
+#
+# volumes:
+#   redis_data:
+#     driver: local
+#   mongo-data:
+#     driver: local
