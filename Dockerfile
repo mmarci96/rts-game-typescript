@@ -24,8 +24,6 @@ COPY ./rp-server-go/ .
 
 COPY --from=client /usr/app/dist /app/internal/html/dist
 
-RUN mv /app/data/docker_conf.yaml /app/data/config.yaml
-
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/main.go
 
 EXPOSE 80

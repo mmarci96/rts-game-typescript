@@ -5,7 +5,7 @@ services:
     ports:
       - "80:80"
 
-  game_server:
+  game_server_0:
     build: ./game-server-mock/
     environment:
     - HOST=0.0.0.0 
@@ -13,6 +13,16 @@ services:
     - NAMESPACE=server_0
     ports:
     - "8080:8080"
+
+  game_server_1:
+    build: ./game-server-mock/
+    environment:
+    - HOST=0.0.0.0 
+    - PORT=8081
+    - NAMESPACE=server_1
+    ports:
+    - "8081:8081"
+
 
 
 #   mongodb:
