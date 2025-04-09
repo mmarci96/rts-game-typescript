@@ -9,11 +9,4 @@ static:
 connections:
   - name: "Server 0"
     endpoint: "/socket.io/"
-    desination_url: "http://localhost:8080/socket.io/"
-  - name: "Server 1"
-    endpoint: "/server-1/socket.io/"
-    desination_url: "http://localhost:8081/socket.io/"
-  - name: "Server 2"
-    endpoint: "/server-2/"
-    desination_url: "http://localhost:8082/socket.io/"
-
+    desination_url: "http://game_server:8080/server_0/socket.io/"

@@ -5,12 +5,12 @@ services:
     ports:
       - "80:80"
 
-  server-0:
+  game_server:
     build: ./game-server-mock/
     environment:
     - HOST=0.0.0.0 
     - PORT=8080
-    - NAMESPACE=server-0
+    - NAMESPACE=server_0
     ports:
     - "8080:8080"
 

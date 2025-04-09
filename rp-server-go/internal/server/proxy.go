@@ -16,28 +16,40 @@ func NewProxy(target *url.URL) *httputil.ReverseProxy {
 			req.URL.Scheme = target.Scheme
 			req.URL.Host = target.Host
 			req.URL.Path = singleJoiningSlash(target.Path, req.URL.Path)
-			log.Println("Path: ", req.URL.Path)
-			if target.RawQuery == "" || req.URL.RawQuery == "" {
-				req.URL.RawQuery = target.RawQuery + req.URL.RawQuery
-			} else {
-				req.URL.RawQuery = target.RawQuery + "&" + req.URL.RawQuery
-			}
 			req.Host = target.Host
 		},
 	}
 }
 
-func ProxyRequestHandler(proxy *httputil.ReverseProxy, url *url.URL, endpoint string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Printf("[ TinyRP ] Request received at %s at %s\n", r.URL, time.Now().UTC())
-		r.URL.Host = url.Host
-		r.URL.Scheme = url.Scheme
-		r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-		r.Host = url.Host
+func ProxyRequestHandler(
+	proxy *httputil.ReverseProxy, target *url.URL, endpoint string) http.HandlerFunc {
 
-		path := r.URL.Path
-		r.URL.Path = strings.TrimPrefix(path, endpoint)
-		fmt.Printf("[ TinyRP ] Redirecting request to %s at %s\n", r.URL, time.Now().UTC())
+	return func(w http.ResponseWriter, r *http.Request) {
+		ct := time.Now().UTC()
+		fmt.Printf("Request received at %s at %s\n", r.URL, ct)
+
+		// WebSocket detection
+		connection := strings.ToLower(r.Header.Get("Connection"))
+		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
+		isWebSocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
+
+		if isWebSocket {
+			fmt.Println("Detected WebSocket upgrade request")
+		}
+
+		r.URL.Scheme = target.Scheme
+		r.URL.Host = target.Host
+		r.Host = target.Host
+
+		if isWebSocket {
+			r.Header.Set("Connection", "upgrade")
+			r.Header.Set("Upgrade", "websocket")
+		}
+		r.Header.Set("X-Forwarded-Host", r.Host)
+		r.Header.Set("X-Real-IP", r.RemoteAddr)
+
+		r.URL.Path = target.Path + strings.TrimPrefix(r.URL.Path, endpoint)
+		fmt.Println("Connecting to:", target.String())
 		proxy.ServeHTTP(w, r)
 	}
 }
