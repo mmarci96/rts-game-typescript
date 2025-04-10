@@ -6,9 +6,9 @@ static:
   dir: "./internal/html/dist"
 
 resources:
-  - name: "Server 0"
-    endpoint: "/s0/socket.io/"
+  - name: "Server-0"
+    endpoint: "/server_0/socket.io/"
     desination_url: "http://localhost:8080/server_0/socket.io/"
-  - name: "Server 1"
-    endpoint: "/s1/socket.io/"
+  - name: "Server-1"
+    endpoint: "/server_1/socket.io/"
     desination_url: "http://localhost:8081/server_1/socket.io/"

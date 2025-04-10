@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
+	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 	// "github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
 
@@ -18,8 +19,29 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("could not load configuration: %v", err)
 	}
+	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		fmt.Printf("+--------------------------------+")
+		fmt.Printf("|Socket request on: %s\n", path)
+		gameId := strings.Split(path, "/")[2]
+		fmt.Printf("|Requesting with game id: %s\n", gameId)
+		backendURL := store.RetrieveServer(gameId)
+		fmt.Printf("|Found destination: %s\n", backendURL)
+		fmt.Printf("+--------------------------------+")
+
+	})
+	// http.HandleFunc("/ws/67f82d5ba87ce182ff73a2fd/socket.io/", func(w http.ResponseWriter, r *http.Request) {
+	// 	p := r.URL.Path
+	// 	fmt.Printf("\n --- [ On test Path: %s ] ---", p)
+	// })
+	for _, res := range conf.Resources {
+		fmt.Printf("\n[ Resource loaded ] %v\n", res)
+		store.SaveBackendService(res.Name, res.Endpoint, res.Desination_URL)
+		proxy, _ := NewProxy(res.Desination_URL)
+		http.Handle(res.Endpoint, proxy)
+	}
+
 	spa := SpaHandler{StaticDir: conf.Static.Dir}
-	// http.Handle("/ws/", )
 	http.Handle("/ui/", spa)
 	endpoint := conf.Server.Host + ":" + conf.Server.Port
 	fmt.Printf("\nServer started: %s\n", endpoint)
@@ -33,46 +55,24 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fs := http.Dir(h.StaticDir)
 	fileServer := http.FileServer(fs)
 	path := r.URL.Path
-	p := strings.Split(r.URL.Path, "/")
-	root := "/" + strings.Join(p[2:], "/")
 
-	fmt.Printf("\n------------------------------------------------------\n")
-	fmt.Printf("Path: %s\n", path)
-	fmt.Printf("Root: %s\n", root)
+	fmt.Printf("+----------------------------------------------------+\n")
+	fmt.Printf("| Path: %s\n", path)
+
 	f, err := fs.Open(path)
 	if err != nil {
+		http.ServeFile(w, r, h.StaticDir+"/index.html")
 		if !strings.Contains(path, ".") {
-			fmt.Printf("Error and dot: %s\n", err)
-			http.ServeFile(w, r, h.StaticDir+"/index.html")
-		} else {
-			fmt.Printf("Not served shit on this request\n")
-			http.NotFound(w, r)
+			gameId, playerID, _ := ExtractIDsFromPath(path)
+			fmt.Printf("| Game:%s\n| PlayerID:%s\n", gameId, playerID)
+			store.SaveProxyMapping(gameId, "server_0")
 		}
+		fmt.Printf("+----------------------------------------------------+\n")
 		return
 	}
 	defer f.Close()
-	stat, _ := f.Stat()
-	if stat.IsDir() {
-		fmt.Printf("Standard way served")
-		http.ServeFile(w, r, h.StaticDir+"/index.html")
-		return
-	}
-	fmt.Printf("Did not return %v\n", stat)
-	fmt.Printf("\n------------------------------------------------------\n")
+	fmt.Printf("| Served file: %s\n", path)
+	fmt.Printf("+----------------------------------------------------+\n")
 
 	fileServer.ServeHTTP(w, r)
 }
-
-// urlParts := strings.Split(path, "/")
-// origin := urlParts[1]
-// if origin == "ui" {
-// 	id := urlParts[2]
-// 	fmt.Printf("GameID: %s\n", urlParts[2])
-// 	fmt.Printf("PlayerID: %s\n", urlParts[3])
-// 	store.SaveProxyMapping(id)
-// }
-// vibeCheck, err := store.GetAllProxyMappings()
-// if err != nil {
-// 	fmt.Println("No data from vibeCheck")
-// }
-// fmt.Printf("\n[ Vibe ] results: %+v\n", vibeCheck)

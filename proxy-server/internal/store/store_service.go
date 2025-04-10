@@ -3,8 +3,10 @@ package store
 import (
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"time"
+
+	"encoding/json"
+	"github.com/redis/go-redis/v9"
 )
 
 type StorageService struct {
@@ -30,13 +32,14 @@ func InitializeStore() *StorageService {
 		panic(fmt.Sprintf("Error init Redis: %v", err))
 	}
 
-	fmt.Printf("\nRedis started successfully: pong message = {%s}", pong)
+	fmt.Printf("\nRedis started successfully: pong message = {%s}\n", pong)
 	storeService.redisClient = redisClient
 	return storeService
 }
 
-type GameID struct {
-	id string
+type ProxyAlias struct {
+	GameID    string
+	ServerURL string
 }
 
 type ServerEndpoint struct {
@@ -49,11 +52,23 @@ type Player struct {
 	sessionID string
 }
 
-type GameConnections struct {
-	ConnectionMap map[GameID]ServerEndpoint
+type BackendService struct {
+	Endpoint       string
+	DestinationUrl string
+	Name           string
 }
 
-func RetrieveProxyMapping(gameId string) string {
+func SaveBackendService(name string, endpoint string, destination string) {
+	s := BackendService{Name: name, Endpoint: endpoint, DestinationUrl: destination}
+	bytes, _ := json.Marshal(s)
+	err := storeService.redisClient.Set(ctx, name, bytes, CacheDuration).Err()
+	if err != nil {
+		fmt.Printf("Error saving: %s", err)
+		return
+	}
+}
+
+func RetrieveServer(gameId string) string {
 	res, err := storeService.redisClient.Get(ctx, gameId).Result()
 	if err != nil {
 		fmt.Printf("Failed getting server | Error: %v - shortUrl: %s\n", err, gameId)
@@ -86,16 +101,13 @@ func GetAllProxyMappings() (map[string]string, error) {
 	if len(keys) > 0 {
 		values, err := storeService.redisClient.MGet(ctx, keys...).Result()
 		if err != nil {
-			return nil, fmt.Errorf("error fetching Redis values: %w", err)
+			return nil, fmt.Errorf("error fetching Redis values: %w\n", err)
 		}
 
 		// Store values in map
 		for i, key := range keys {
 			if values[i] != nil {
 				proxyMappings[key] = values[i].(string)
-				// gameId := GameID{key}
-				// server := ServerEndpoint{Endpoint: "/socket.io", DestinationUrl: values[i].(string)}
-				// conn.ConnectionMap[gameId] = server
 			}
 		}
 	}
@@ -103,15 +115,14 @@ func GetAllProxyMappings() (map[string]string, error) {
 	return proxyMappings, nil
 }
 
-func SaveProxyMapping(gameId string) {
-	server_0 := "http://loaclhost:8080/server_0/socket.io/"
+func SaveProxyMapping(gameId string, serverName string) {
+	server_0 := "server_0"
 
 	err := storeService.redisClient.Set(
 		ctx, gameId, server_0, CacheDuration,
 	)
 	if err != nil {
-		fmt.Printf("Failed to save proxy mapping Error: %v - GameID:%s",
-			err, gameId)
+		fmt.Printf("Failed to save proxy mapping: %v\n", err)
 	}
 }
 
