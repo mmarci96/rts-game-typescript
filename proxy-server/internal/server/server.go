@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
@@ -19,27 +20,38 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("could not load configuration: %v", err)
 	}
+	for _, resource := range conf.Resources {
+		store.SaveBackendService(resource.Name, resource.Endpoint, resource.Desination_URL)
+	}
 	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		fmt.Printf("+--------------------------------+")
+		fmt.Printf("\n+--------------------------------+\n")
 		fmt.Printf("|Socket request on: %s\n", path)
 		gameId := strings.Split(path, "/")[2]
 		fmt.Printf("|Requesting with game id: %s\n", gameId)
 		backendURL := store.RetrieveServer(gameId)
 		fmt.Printf("|Found destination: %s\n", backendURL)
-		fmt.Printf("+--------------------------------+")
+		url, _ := url.Parse(backendURL)
+		proxy := NewProxy(url)
+		fmt.Printf("|Found ulr: %s\n", url)
+		proxy.ServeHTTP(w, r)
+		bs, e := store.RetrieveBackendService("server_0")
+
+		fmt.Printf("+%s,%s+\n", bs, e)
+		fmt.Printf("+--------------------------------+\n")
 
 	})
+
 	// http.HandleFunc("/ws/67f82d5ba87ce182ff73a2fd/socket.io/", func(w http.ResponseWriter, r *http.Request) {
 	// 	p := r.URL.Path
 	// 	fmt.Printf("\n --- [ On test Path: %s ] ---", p)
 	// })
-	for _, res := range conf.Resources {
-		fmt.Printf("\n[ Resource loaded ] %v\n", res)
-		store.SaveBackendService(res.Name, res.Endpoint, res.Desination_URL)
-		proxy, _ := NewProxy(res.Desination_URL)
-		http.Handle(res.Endpoint, proxy)
-	}
+	// for _, res := range conf.Resources {
+	// 	fmt.Printf("\n[ Resource loaded ] %v\n", res)
+	// 	store.SaveBackendService(res.Name, res.Endpoint, res.Desination_URL)
+	// 	proxy, _ := NewProxy(res.Desination_URL)
+	// 	http.Handle(res.Endpoint, proxy)
+	// }
 
 	spa := SpaHandler{StaticDir: conf.Static.Dir}
 	http.Handle("/ui/", spa)
@@ -64,8 +76,13 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, h.StaticDir+"/index.html")
 		if !strings.Contains(path, ".") {
 			gameId, playerID, _ := ExtractIDsFromPath(path)
+			existing := store.RetrieveServer(gameId)
+			if existing == "" {
+				store.SaveProxyMapping(gameId, "server_0")
+			}
 			fmt.Printf("| Game:%s\n| PlayerID:%s\n", gameId, playerID)
-			store.SaveProxyMapping(gameId, "server_0")
+
+			fmt.Printf("| Existing data: %s\n", existing)
 		}
 		fmt.Printf("+----------------------------------------------------+\n")
 		return

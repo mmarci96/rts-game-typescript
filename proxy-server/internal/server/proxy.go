@@ -9,19 +9,50 @@ import (
 	"strings"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
+	"net/http"
+	"time"
 )
 
-func NewProxy(rawUrl string) (*httputil.ReverseProxy, error) {
-	url, err := url.Parse(rawUrl)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("Proxy url: %s\n", url)
-	proxy := httputil.NewSingleHostReverseProxy(url)
-
-	return proxy, nil
+func NewProxy(target *url.URL) *httputil.ReverseProxy {
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	return proxy
 }
 
+func ProxyRequestHandler(p *httputil.ReverseProxy, t *url.URL, e string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ct := time.Now().UTC()
+		fmt.Printf("Request url:%s - %s\n", r.URL, ct)
+
+		connection := strings.ToLower(r.Header.Get("Connection"))
+		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
+		isWebSocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
+
+		r.URL.Scheme = t.Scheme
+		r.URL.Host = t.Host
+		r.Host = t.Host
+
+		if isWebSocket {
+			r.Header.Set("Connection", "upgrade")
+			r.Header.Set("Upgrade", "websocket")
+		}
+		r.Header.Set("X-Forwarded-Host", r.Host)
+		r.Header.Set("X-Real-IP", r.RemoteAddr)
+		r.URL.Path = t.Path + strings.TrimPrefix(r.URL.Path, e)
+		fmt.Println("Connecting to:", t.String())
+		p.ServeHTTP(w, r)
+	}
+}
+
+//	func NewProxy(rawUrl string) (*httputil.ReverseProxy, error) {
+//		url, err := url.Parse(rawUrl)
+//		if err != nil {
+//			return nil, err
+//		}
+//		fmt.Printf("Proxy url: %s\n", url)
+//		proxy := httputil.NewSingleHostReverseProxy(url)
+//
+//		return proxy, nil
+//	}
 func RegisterConnection(gameID string, playerID string) error {
 	serverName := store.RetrieveServer(gameID)
 	if serverName == "" {
