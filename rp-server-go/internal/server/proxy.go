@@ -24,7 +24,7 @@ func ProxyRequestHandler(
 	p *httputil.ReverseProxy, t *url.URL, endpoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ct := time.Now().UTC()
-		fmt.Printf("Request received at %s at %s\n", r.URL, ct)
+		fmt.Printf("Request url:%s - %s\n", r.URL, ct)
 
 		connection := strings.ToLower(r.Header.Get("Connection"))
 		upgrade := strings.ToLower(r.Header.Get("Upgrade"))

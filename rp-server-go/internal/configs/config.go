@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-type connection struct {
+type resource struct {
 	Name           string `mapstructure:"name"`
 	Endpoint       string `mapstructure:"endpoint"`
 	Desination_URL string `mapstructure:"desination_url"`
@@ -20,7 +20,7 @@ type configuration struct {
 	Static struct {
 		Dir string `mapstructure:"dir"`
 	} `mapstructure:"static"`
-	Connections []connection `mapstructure:"connections"`
+	Resources []resource `mapstructure:"resources"`
 }
 
 var Config *configuration

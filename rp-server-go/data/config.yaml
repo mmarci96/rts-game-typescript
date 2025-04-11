@@ -6,7 +6,7 @@ static:
   dir: "/app/internal/html/dist"
 
 
-connections:
+resources:
   - name: "Server 0"
     endpoint: "/socket.io/"
     desination_url: "http://game_server_0:8080/server_0/socket.io/"

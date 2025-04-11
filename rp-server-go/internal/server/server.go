@@ -17,6 +17,8 @@ func (h spaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fileServer := http.FileServer(fs)
 	path := r.URL.Path
 	fmt.Printf("Path of client: %s", path)
+	urlParts := strings.Split(path, "/")
+	fmt.Printf("GameID: %s", urlParts[:2])
 	f, err := fs.Open(path)
 	if err != nil {
 		if !strings.Contains(path, ".") {
@@ -44,16 +46,15 @@ func Run() error {
 	for _, resource := range config.Connections {
 		url, _ := url.Parse(resource.Desination_URL)
 		proxy := NewProxy(url)
-		mux.HandleFunc(resource.Endpoint, ProxyRequestHandler(proxy, url, resource.Endpoint))
+		mux.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
 	}
-	fmt.Printf("[ProxyServer] started http://%s:%s\n",
-		config.Server.Host, config.Server.Port,
-	)
 
 	spa := spaHandler{staticDir: config.Static.Dir}
 	mux.Handle("/", spa)
 
-	if err := http.ListenAndServe(config.Server.Host+":"+config.Server.Port, mux); err != nil {
+	endpoint := config.Server.Host + ":" + config.Server.Port
+	fmt.Printf("Server started: %s", endpoint)
+	if err := http.ListenAndServe(endpoint, mux); err != nil {
 		return fmt.Errorf("could not start the server: %v", err)
 	}
 	return nil

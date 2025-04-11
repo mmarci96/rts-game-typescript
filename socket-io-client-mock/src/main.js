@@ -17,7 +17,9 @@ class ConnectionHandler {
         const { gameId, playerId } = this.getIdFromUrl(
             window.location.pathname,
         );
-        const socket = io(); // Connects to same origin server
+        const socket = io(`/${gameId}`, {
+            path: `/ws/${gameId}/socket.io`,
+        }); // Connects to same origin server
 
         return new ConnectionHandler(socket, playerId, gameId);
     }
