@@ -19,7 +19,7 @@ const io = new Server(server, {
         origin: "http://**",
         methods: ["GET", "POST"],
     },
-    path: `/${NAMESPACE}`,
+    path: `/ws/${NAMESPACE}`,
 });
 
 const connections = {};
