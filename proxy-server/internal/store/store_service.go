@@ -30,7 +30,7 @@ func InitializeStore() *StorageService {
 	if err != nil {
 		panic(fmt.Sprintf("Error init Redis: %v", err))
 	}
-	fmt.Printf("\nRedis started successfully: pong message = {%s}\n", pong)
+	fmt.Printf("Redis started successfully: pong message = {%s}\n", pong)
 	storeService.redisClient = redisClient
 	return storeService
 }
@@ -46,19 +46,26 @@ type Player struct {
 }
 
 type BackendService struct {
-	Endpoint         string   `json:"endpoint"`
 	DestinationUrl   string   `json:"destination_url"`
 	Name             string   `json:"name"`
 	ConnectedPlayers []Player `json:"connected_players"`
 }
 
-func SaveProxyMapping(gameId string, serverUrl string) {
+func SaveServerUrl(gameId string, serverUrl string) {
 	err := storeService.redisClient.Set(
 		ctx, gameId, serverUrl, CacheDuration,
-	)
+	).Err()
 	if err != nil {
 		fmt.Printf("Failed to save proxy mapping: %v\n", err)
 	}
+}
+
+func RetrieveServerUrl(gameId string) string {
+	res, err := storeService.redisClient.Get(ctx, gameId).Result()
+	if err != nil {
+		fmt.Printf("Failed getting server | Error: %v - shortUrl: %s\n", err, gameId)
+	}
+	return res
 }
 
 func RetrieveBackendService(name string) (BackendService, error) {
@@ -76,8 +83,8 @@ func RetrieveBackendService(name string) (BackendService, error) {
 	return *bs, redis.Nil
 }
 
-func SaveBackendService(name string, endpoint string, destination string) {
-	s := BackendService{Name: name, Endpoint: endpoint, DestinationUrl: destination}
+func SaveBackendService(name string, destination string) {
+	s := BackendService{Name: name, DestinationUrl: destination}
 	bytes, _ := json.Marshal(s)
 	err := storeService.redisClient.Set(ctx, name, bytes, CacheDuration).Err()
 	if err != nil {
@@ -86,40 +93,55 @@ func SaveBackendService(name string, endpoint string, destination string) {
 	}
 }
 
-func RetrieveServer(gameId string) string {
-	res, err := storeService.redisClient.Get(ctx, gameId).Result()
+func RetrievePlayerConn(playerId string) (Player, error) {
+	var player = Player{}
+	result, err := storeService.redisClient.Get(ctx, playerId).Result()
 	if err != nil {
-		fmt.Printf("Failed getting server | Error: %v - shortUrl: %s\n", err, gameId)
+		return player, err
 	}
-	return res
+	fmt.Printf("[ Result %v ]  \n", result)
+	return player, nil
 }
 
-func GetAllProxyMappings() (map[string]string, error) {
-	keys := []string{}
-	cursor := uint64(0)
-	for {
-		result, newCursor, err := storeService.redisClient.Scan(ctx, cursor, "*", 0).Result()
-		if err != nil {
-			return nil, fmt.Errorf("error scanning Redis: %w", err)
-		}
-		keys = append(keys, result...)
-		cursor = newCursor
-		if cursor == 0 {
-			break
-		}
+func SavePlayerConn(playerId string, sessionId string) {
+	conn := Player{PlayerId: playerId, SessionID: sessionId}
+	p, err := RetrievePlayerConn(playerId)
+	if err != nil {
+		fmt.Printf("[ERROR getting data but thats ok %v]", err)
 	}
-	proxyMappings := make(map[string]string)
-	if len(keys) > 0 {
-		values, err := storeService.redisClient.MGet(ctx, keys...).Result()
-		if err != nil {
-			return nil, fmt.Errorf("error fetching Redis values: %w\n", err)
-		}
-		for i, key := range keys {
-			if values[i] != nil {
-				proxyMappings[key] = values[i].(string)
-			}
-		}
+	err = storeService.redisClient.Set(ctx, playerId, sessionId, CacheDuration).Err()
+	if err != nil {
+		fmt.Printf("ERRPR saving %v", err)
 	}
-
-	return proxyMappings, nil
+	fmt.Printf("[ Connection %v player:%v ] \n", conn, p)
 }
+
+// func GetAllProxyMappings() (map[string]string, error) {
+// 	keys := []string{}
+// 	cursor := uint64(0)
+// 	for {
+// 		result, newCursor, err := storeService.redisClient.Scan(ctx, cursor, "*", 0).Result()
+// 		if err != nil {
+// 			return nil, fmt.Errorf("error scanning Redis: %w", err)
+// 		}
+// 		keys = append(keys, result...)
+// 		cursor = newCursor
+// 		if cursor == 0 {
+// 			break
+// 		}
+// 	}
+// 	proxyMappings := make(map[string]string)
+// 	if len(keys) > 0 {
+// 		values, err := storeService.redisClient.MGet(ctx, keys...).Result()
+// 		if err != nil {
+// 			return nil, fmt.Errorf("error fetching Redis values: %w\n", err)
+// 		}
+// 		for i, key := range keys {
+// 			if values[i] != nil {
+// 				proxyMappings[key] = values[i].(string)
+// 			}
+// 		}
+// 	}
+//
+// 	return proxyMappings, nil
+// }
