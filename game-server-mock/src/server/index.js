@@ -3,11 +3,11 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import http from "http";
-const { PORT, HOST, NAMESPACE } = config;
+const { NAMESPACE } = config;
 const app = express();
 
-app.get("/health", (req, res) => {
-    res.status(200).send({ health: "ok" });
+app.get("/ping", (req, res) => {
+    res.status(200).send({ message: "pong" });
 });
 
 app.use(cors());
@@ -19,17 +19,12 @@ const io = new Server(server, {
         origin: "http://**",
         methods: ["GET", "POST"],
     },
-    path: `/ws/${NAMESPACE}`,
+    path: `/${NAMESPACE}`,
 });
 
 const connections = {};
 const games = {};
 const websocketController = (io) => {
-    console.log(
-        "Starting socket on: ",
-        `http://${HOST}:${PORT}/ws/${NAMESPACE}`,
-    );
-
     io.on("connection", (socket) => {
         console.log("New connection: ", socket.id);
         connections[socket.id] = {

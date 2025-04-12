@@ -19,6 +19,7 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("could not load configuration: %v\n", err)
 	}
+
 	for _, resource := range conf.Resources {
 		store.SaveBackendService(resource.Endpoint, resource.Desination_URL)
 		url, _ := url.Parse(resource.Desination_URL)
@@ -29,6 +30,7 @@ func Run() error {
 		fmt.Printf("+---------------------------------------------------------+\n")
 		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
 	}
+
 	spa := SpaHandler{StaticDir: conf.Static.Dir}
 	http.Handle("/ui/", spa)
 
@@ -54,7 +56,7 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			gameId, playerID, _ := ExtractIDsFromPath(path)
 			existing := store.RetrieveServerUrl(gameId)
 			if existing == "" {
-				store.SaveServerUrl(gameId, "http://localhost:8080/server_0/socket.io/")
+				store.SaveServerUrl(gameId, "/server_0/")
 			}
 			store.SavePlayerConn(playerID, gameId)
 			fmt.Printf("| Path: %s\n", path)
