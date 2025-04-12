@@ -101,7 +101,7 @@ const getServerLocation = async () => {
     const playerId = arr[lastIndex];
     const res = await fetch(`/game_location/${gameId}/${playerId}`);
     const data = await res.json();
-    return data;
+    return data.server_endpoint;
 };
 
 window.addEventListener("load", async () => {
