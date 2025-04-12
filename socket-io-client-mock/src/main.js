@@ -12,13 +12,13 @@ class ConnectionHandler {
         this.setupCommandBatching();
     }
 
-    static initialize() {
+    static initialize(serverLocation) {
         document.addEventListener("contextmenu", (e) => e.preventDefault());
         const { gameId, playerId } = this.getIdFromUrl(
             window.location.pathname,
         );
         const socket = io("/", {
-            path: `/server_0/socket.io`,
+            path: `/${serverLocation}/socket.io`,
         }); // Connects to same origin server
 
         return new ConnectionHandler(socket, playerId, gameId);
@@ -93,9 +93,26 @@ class ConnectionHandler {
         this.socket.disconnect();
     }
 }
-window.addEventListener("load", () => {
+const getServerLocation = async () => {
+    const url = window.location.pathname;
+    const arr = url.split("/");
+    const lastIndex = arr.length - 1;
+    const gameId = arr[lastIndex - 1];
+    const playerId = arr[lastIndex];
+    const res = await fetch(`/game_location/${gameId}/${playerId}`);
+    const data = await res.json();
+    return data;
+};
+
+window.addEventListener("load", async () => {
     try {
-        const handler = ConnectionHandler.initialize();
+        const serverLocation = await getServerLocation();
+        if (!serverLocation) {
+            console.error("No server found to connect!");
+            return;
+        }
+        console.log("Server listening on: ", serverLocation);
+        const handler = ConnectionHandler.initialize(serverLocation);
         const connData = {
             gameId: handler.gameId,
             playerId: handler.playerId,
