@@ -8,7 +8,6 @@ import (
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
-	// "github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
 
 type SpaHandler struct {
@@ -21,23 +20,15 @@ func Run() error {
 		return fmt.Errorf("could not load configuration: %v\n", err)
 	}
 	for _, resource := range conf.Resources {
-		store.SaveBackendService(resource.Name, resource.Desination_URL)
-	}
-	http.HandleFunc("/ws/", func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-		gameId := strings.Split(path, "/")[2]
-		backendURL := store.RetrieveServerUrl(gameId)
-		fmt.Printf("+---------------------------------------------------/\n")
-		fmt.Printf("|Socket request on: %s\n ", path)
-		fmt.Printf("|Requesting with game id: %s\n", gameId)
-		fmt.Printf("|Found destination: %s\n ", backendURL)
-		fmt.Printf("+---------------------------------------------------/\n")
-
-		url, _ := url.Parse(backendURL)
+		store.SaveBackendService(resource.Endpoint, resource.Desination_URL)
+		url, _ := url.Parse(resource.Desination_URL)
 		proxy := NewProxy(url)
-		proxy.ServeHTTP(w, r)
-	})
-
+		fmt.Printf("+---------------------------------------------------------+\n")
+		fmt.Printf("| Proxy listening on: %s\n", resource.Endpoint)
+		fmt.Printf("| Redirecting to: %s\n", resource.Desination_URL)
+		fmt.Printf("+---------------------------------------------------------+\n")
+		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
+	}
 	spa := SpaHandler{StaticDir: conf.Static.Dir}
 	http.Handle("/ui/", spa)
 
@@ -55,7 +46,7 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fileServer := http.FileServer(fs)
 	path := r.URL.Path
 
-	fmt.Printf("+---------------------------------------------------------/\n")
+	fmt.Printf("+---------------------------------------------------------+\n")
 	f, err := fs.Open(path)
 	if err != nil {
 		http.ServeFile(w, r, h.StaticDir+"/index.html")

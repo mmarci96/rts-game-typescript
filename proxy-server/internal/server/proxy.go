@@ -14,15 +14,19 @@ import (
 )
 
 func NewProxy(target *url.URL) *httputil.ReverseProxy {
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	return proxy
+	return &httputil.ReverseProxy{
+		Director: func(req *http.Request) {
+			req.URL.Scheme = target.Scheme
+			req.URL.Host = target.Host
+			req.URL.Path = target.Path
+			req.Host = target.Host
+		},
+	}
 }
 
 func ProxyRequestHandler(p *httputil.ReverseProxy, t *url.URL, e string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ct := time.Now().UTC()
-		fmt.Printf("Request url:%s - %s\n", r.URL, ct)
-
 		connection := strings.ToLower(r.Header.Get("Connection"))
 		upgrade := strings.ToLower(r.Header.Get("Upgrade"))
 		isWebSocket := strings.Contains(connection, "upgrade") && upgrade == "websocket"
@@ -30,7 +34,6 @@ func ProxyRequestHandler(p *httputil.ReverseProxy, t *url.URL, e string) http.Ha
 		r.URL.Scheme = t.Scheme
 		r.URL.Host = t.Host
 		r.Host = t.Host
-
 		if isWebSocket {
 			r.Header.Set("Connection", "upgrade")
 			r.Header.Set("Upgrade", "websocket")
@@ -38,21 +41,15 @@ func ProxyRequestHandler(p *httputil.ReverseProxy, t *url.URL, e string) http.Ha
 		r.Header.Set("X-Forwarded-Host", r.Host)
 		r.Header.Set("X-Real-IP", r.RemoteAddr)
 		r.URL.Path = t.Path + strings.TrimPrefix(r.URL.Path, e)
-		fmt.Println("Connecting to:", t.String())
+
+		fmt.Printf("+-----------------------------------------------------+\n")
+		fmt.Printf("| Request url:%s - %s\n", r.URL, ct)
+		fmt.Printf("| Connecting to: %s\n", t.String())
+		fmt.Printf("+-----------------------------------------------------+\n")
 		p.ServeHTTP(w, r)
 	}
 }
 
-//	func NewProxy(rawUrl string) (*httputil.ReverseProxy, error) {
-//		url, err := url.Parse(rawUrl)
-//		if err != nil {
-//			return nil, err
-//		}
-//		fmt.Printf("Proxy url: %s\n", url)
-//		proxy := httputil.NewSingleHostReverseProxy(url)
-//
-//		return proxy, nil
-//	}
 func RegisterConnection(gameID string, playerID string) error {
 	serverName := store.RetrieveServerUrl(gameID)
 	if serverName == "" {
