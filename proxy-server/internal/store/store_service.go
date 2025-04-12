@@ -39,6 +39,20 @@ func InitializeStore() *StorageService {
 	return storeService
 }
 
+func InitBackendServer(serverName string) {
+	// Initialize server connection set (empty)
+	connKey := fmt.Sprintf("backend:%s:connections", serverName)
+	_ = storeService.redisClient.Del(ctx, connKey) // optional cleanup
+
+	// Add server to the sorted set with 0 connections
+	err := storeService.redisClient.ZAddNX(ctx, "server_connection_count", redis.Z{
+		Score:  0,
+		Member: serverName,
+	}).Err()
+	if err != nil {
+		fmt.Printf("Error initializing server in connection count set: %v\n", err)
+	}
+}
 func SaveBackendConnection(serverName, gameId, playerId string) {
 	connKey := fmt.Sprintf("backend:%s:connections", serverName)
 	gameKey := fmt.Sprintf("game_to_backend:%s", gameId)
@@ -119,4 +133,3 @@ func GetConnectionsForBackend(serverName string) ([]connection, error) {
 	}
 	return connections, nil
 }
-
