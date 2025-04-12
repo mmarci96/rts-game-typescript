@@ -5,12 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"encoding/json"
 	"github.com/redis/go-redis/v9"
 )
 
 type StorageService struct {
 	redisClient *redis.Client
+}
+
+type connection struct {
+	GameId   string `json:"game_id"`
+	PlayerId string `json:"player_id"`
 }
 
 var (
@@ -35,113 +39,84 @@ func InitializeStore() *StorageService {
 	return storeService
 }
 
-type ProxyAlias struct {
-	GameID    string
-	ServerURL string
-}
+func SaveBackendConnection(serverName, gameId, playerId string) {
+	connKey := fmt.Sprintf("backend:%s:connections", serverName)
+	gameKey := fmt.Sprintf("game_to_backend:%s", gameId)
+	conn := fmt.Sprintf("%s:%s", gameId, playerId)
 
-type Player struct {
-	PlayerId  string `json:"player_id"`
-	SessionID string `json:"session_id"`
-}
-
-type BackendService struct {
-	DestinationUrl   string   `json:"destination_url"`
-	Name             string   `json:"name"`
-	ConnectedPlayers []Player `json:"connected_players"`
-}
-
-func SaveServerUrl(gameId string, serverUrl string) {
-	err := storeService.redisClient.Set(
-		ctx, gameId, serverUrl, CacheDuration,
-	).Err()
+	// Add to server connection set
+	added, err := storeService.redisClient.SAdd(ctx, connKey, conn).Result()
 	if err != nil {
-		fmt.Printf("Failed to save proxy mapping: %v\n", err)
-	}
-}
-
-func RetrieveServerUrl(gameId string) string {
-	res, err := storeService.redisClient.Get(ctx, gameId).Result()
-	if err != nil {
-		fmt.Printf("Failed getting server | Error: %v - shortUrl: %s\n", err, gameId)
-	}
-	return res
-}
-
-func RetrieveBackendService(name string) (BackendService, error) {
-	var bs = &BackendService{}
-	result, err := storeService.redisClient.Get(ctx, name).Result()
-	if err != nil {
-		fmt.Printf("Error getting saervice: %s, name:%s", err, name)
-		return *bs, err
-	}
-	err = json.Unmarshal([]byte(result), bs)
-	if err != nil {
-		return *bs, redis.Nil
-	}
-
-	return *bs, redis.Nil
-}
-
-func SaveBackendService(name string, destination string) {
-	s := BackendService{Name: name, DestinationUrl: destination}
-	bytes, _ := json.Marshal(s)
-	err := storeService.redisClient.Set(ctx, name, bytes, CacheDuration).Err()
-	if err != nil {
-		fmt.Printf("Error saving: %s", err)
+		fmt.Printf("Error saving connection to server set: %v\n", err)
 		return
 	}
+
+	// Only update counters and mappings if it's a new connection
+	if added > 0 {
+		// Map gameId -> server
+		err = storeService.redisClient.Set(ctx, gameKey, serverName, CacheDuration).Err()
+		if err != nil {
+			fmt.Printf("Error saving game-to-server mapping: %v\n", err)
+		}
+
+		// Add to global game id set
+		err = storeService.redisClient.SAdd(ctx, "game_ids", gameId).Err()
+		if err != nil {
+			fmt.Printf("Error adding game ID to global set: %v\n", err)
+		}
+
+		// Increment connection count
+		err = storeService.redisClient.ZIncrBy(ctx, "server_connection_count", 1, serverName).Err()
+		if err != nil {
+			fmt.Printf("Error incrementing server connection count: %v\n", err)
+		}
+	}
 }
 
-func RetrievePlayerConn(playerId string) (Player, error) {
-	var player = Player{}
-	result, err := storeService.redisClient.Get(ctx, playerId).Result()
+func GetServerWithLeastConnections() (string, error) {
+	servers, err := storeService.redisClient.ZRange(ctx, "server_connection_count", 0, 0).Result()
 	if err != nil {
-		return player, err
+		return "", fmt.Errorf("failed to get servers by connection count: %v", err)
 	}
-	fmt.Printf("[ Result %v ]  \n", result)
-	return player, nil
+	if len(servers) == 0 {
+		return "", fmt.Errorf("no servers available")
+	}
+	return servers[0], nil
 }
 
-func SavePlayerConn(playerId string, sessionId string) {
-	conn := Player{PlayerId: playerId, SessionID: sessionId}
-	p, err := RetrievePlayerConn(playerId)
+func GetBackendByGameID(gameId string) (string, error) {
+	key := fmt.Sprintf("game_to_backend:%s", gameId)
+	serverName, err := storeService.redisClient.Get(ctx, key).Result()
 	if err != nil {
-		fmt.Printf("[ERROR getting data but thats ok %v]", err)
+		return "", fmt.Errorf("could not find server for gameId %s: %v", gameId, err)
 	}
-	err = storeService.redisClient.Set(ctx, playerId, sessionId, CacheDuration).Err()
-	if err != nil {
-		fmt.Printf("ERRPR saving %v", err)
-	}
-	fmt.Printf("[ Connection %v player:%v ] \n", conn, p)
+	return serverName, nil
 }
 
-// func GetAllProxyMappings() (map[string]string, error) {
-// 	keys := []string{}
-// 	cursor := uint64(0)
-// 	for {
-// 		result, newCursor, err := storeService.redisClient.Scan(ctx, cursor, "*", 0).Result()
-// 		if err != nil {
-// 			return nil, fmt.Errorf("error scanning Redis: %w", err)
-// 		}
-// 		keys = append(keys, result...)
-// 		cursor = newCursor
-// 		if cursor == 0 {
-// 			break
-// 		}
-// 	}
-// 	proxyMappings := make(map[string]string)
-// 	if len(keys) > 0 {
-// 		values, err := storeService.redisClient.MGet(ctx, keys...).Result()
-// 		if err != nil {
-// 			return nil, fmt.Errorf("error fetching Redis values: %w\n", err)
-// 		}
-// 		for i, key := range keys {
-// 			if values[i] != nil {
-// 				proxyMappings[key] = values[i].(string)
-// 			}
-// 		}
-// 	}
-//
-// 	return proxyMappings, nil
-// }
+func CountUniqueGameIDs() (int64, error) {
+	count, err := storeService.redisClient.SCard(ctx, "game_ids").Result()
+	if err != nil {
+		return 0, fmt.Errorf("error getting unique game count: %v", err)
+	}
+	return count, nil
+}
+
+func GetConnectionsForBackend(serverName string) ([]connection, error) {
+	key := fmt.Sprintf("backend:%s:connections", serverName)
+	members, err := storeService.redisClient.SMembers(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	var connections []connection
+	for _, m := range members {
+		var c connection
+		_, err := fmt.Sscanf(m, "%s:%s", &c.GameId, &c.PlayerId)
+		if err != nil {
+			continue
+		}
+		connections = append(connections, c)
+	}
+	return connections, nil
+}
+

@@ -9,6 +9,6 @@ resources:
   - name: "server_0"
     endpoint: "/server_0/socket.io/"
     desination_url: "http://localhost:8080/server_0/socket.io/"
-  - name: "server_0"
+  - name: "server_1"
     endpoint: "/server_1/socket.io/"
     desination_url: "http://localhost:8081/server_1/socket.io/"

@@ -23,10 +23,6 @@ func Run() error {
 	for _, resource := range conf.Resources {
 		url, _ := url.Parse(resource.Desination_URL)
 		proxy := NewProxy(url)
-		fmt.Printf("+---------------------------------------------------------+\n")
-		fmt.Printf("| Proxy listening on: %s\n", resource.Endpoint)
-		fmt.Printf("| Redirecting to: %s\n", resource.Desination_URL)
-		fmt.Printf("+---------------------------------------------------------+\n")
 		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
 	}
 
