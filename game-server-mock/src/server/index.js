@@ -3,7 +3,7 @@ import express from "express";
 import cors from "cors";
 import { Server } from "socket.io";
 import http from "http";
-const { NAMESPACE } = config;
+const { PORT, HOST, NAMESPACE } = config;
 const app = express();
 
 app.get("/health", (req, res) => {
@@ -25,6 +25,11 @@ const io = new Server(server, {
 const connections = {};
 const games = {};
 const websocketController = (io) => {
+    console.log(
+        "Starting socket on: ",
+        `http://${HOST}:${PORT}/ws/${NAMESPACE}`,
+    );
+
     io.on("connection", (socket) => {
         console.log("New connection: ", socket.id);
         connections[socket.id] = {

@@ -43,7 +43,7 @@ func Run() error {
 		return fmt.Errorf("could not load configuration: %v", err)
 	}
 	mux := http.NewServeMux()
-	for _, resource := range config.Connections {
+	for _, resource := range config.Resources {
 		url, _ := url.Parse(resource.Desination_URL)
 		proxy := NewProxy(url)
 		mux.HandleFunc(resource.Endpoint, proxy.ServeHTTP)

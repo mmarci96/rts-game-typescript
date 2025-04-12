@@ -1,13 +1,11 @@
 import { config } from "./config.js";
 import server from "./server/index.js";
-const { PORT, HOST, NAMESPACE } = config;
+const { PORT, HOST } = config;
 
 const main = async () => {
     try {
         server.listen(PORT, HOST, () => {
-            console.log(
-                `Server is running on http://${HOST}:${PORT}/${NAMESPACE}`,
-            );
+            console.log(`Server is running on http://${HOST}:${PORT}`);
         });
     } catch (err) {
         console.error(err);
