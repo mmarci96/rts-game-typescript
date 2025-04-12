@@ -24,6 +24,34 @@ func NewProxy(target *url.URL) *httputil.ReverseProxy {
 	}
 }
 
+type SpaHandler struct {
+	StaticDir string
+}
+
+func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fs := http.Dir(h.StaticDir)
+	fileServer := http.FileServer(fs)
+	path := r.URL.Path
+
+	fmt.Printf("+---------------------------------------------------------+\n")
+	f, err := fs.Open(path)
+	if err != nil {
+		http.ServeFile(w, r, h.StaticDir+"/index.html")
+		if !strings.Contains(path, ".") {
+			gameId, playerID, _ := ExtractIDsFromPath(path)
+			store.SavePlayerConn(playerID, gameId)
+			fmt.Printf("| Path: %s\n", path)
+		}
+		fmt.Printf("+---------------------------------------------------------+\n")
+		return
+	}
+	defer f.Close()
+	fmt.Printf("| Served file: %s\n", path)
+	fmt.Printf("+---------------------------------------------------------+\n")
+
+	fileServer.ServeHTTP(w, r)
+}
+
 func ProxyRequestHandler(p *httputil.ReverseProxy, t *url.URL, e string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ct := time.Now().UTC()

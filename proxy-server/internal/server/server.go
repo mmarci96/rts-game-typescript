@@ -1,17 +1,16 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
-	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
 
-type SpaHandler struct {
-	StaticDir string
+type server_endpoint struct {
+	Server string `json:"server_endpoint"`
 }
 
 func Run() error {
@@ -19,9 +18,9 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("could not load configuration: %v\n", err)
 	}
+	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
 
 	for _, resource := range conf.Resources {
-		store.SaveBackendService(resource.Endpoint, resource.Desination_URL)
 		url, _ := url.Parse(resource.Desination_URL)
 		proxy := NewProxy(url)
 		fmt.Printf("+---------------------------------------------------------+\n")
@@ -35,7 +34,6 @@ func Run() error {
 	http.Handle("/ui/", spa)
 
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
-
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
 		return fmt.Errorf("could not start the server: %v\n", err)
 	}
@@ -43,32 +41,11 @@ func Run() error {
 	return nil
 }
 
-func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fs := http.Dir(h.StaticDir)
-	fileServer := http.FileServer(fs)
+func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
+	var serverEndpoint = server_endpoint{Server: "server_0"}
+	url := r.URL.String()
 	path := r.URL.Path
-
-	fmt.Printf("+---------------------------------------------------------+\n")
-	f, err := fs.Open(path)
-	if err != nil {
-		http.ServeFile(w, r, h.StaticDir+"/index.html")
-		if !strings.Contains(path, ".") {
-			gameId, playerID, _ := ExtractIDsFromPath(path)
-			existing := store.RetrieveServerUrl(gameId)
-			if existing == "" {
-				store.SaveServerUrl(gameId, "/server_0/")
-			}
-			store.SavePlayerConn(playerID, gameId)
-			fmt.Printf("| Path: %s\n", path)
-			fmt.Printf("| Game:%s\n| PlayerID:%s\n", gameId, playerID)
-			fmt.Printf("| Existing data: %s\n", existing)
-		}
-		fmt.Printf("+----------------------------------------------------/\n")
-		return
-	}
-	defer f.Close()
-	fmt.Printf("| Served file: %s\n", path)
-	fmt.Printf("+-----------------------------------------------------/\n")
-
-	fileServer.ServeHTTP(w, r)
+	fmt.Printf("| Get Serverendpoint requested\n| Path:%s\n| Url%s\n", url, path)
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(serverEndpoint)
 }
