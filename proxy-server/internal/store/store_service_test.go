@@ -1,4 +1,5 @@
-// package store
+package store
+
 //
 // import (
 // 	"github.com/stretchr/testify/assert"
