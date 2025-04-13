@@ -28,18 +28,29 @@ export const GameTable = () => {
     return (
         <Table
             aria-label="Games are waiting for you!"
-            fullWidth
+            fullWidth={true}
             isStriped
             classNames={{
                 table: "min-w-lg",
             }}
+            style={{ backgroundImage: "url('../../public/')" }}
         >
             <TableHeader>
-                <TableColumn>Game</TableColumn>
-                <TableColumn>Players</TableColumn>
-                <TableColumn>Status</TableColumn>
-                <TableColumn>Created</TableColumn>
-                <TableColumn>Options</TableColumn>
+                <TableColumn>
+                    <h2 className="text-2xl font-bold ">Game</h2>
+                </TableColumn>
+                <TableColumn>
+                    <h2 className="text-2xl font-bold ">Players</h2>
+                </TableColumn>
+                <TableColumn>
+                    <h2 className="text-2xl font-bold ">Status</h2>
+                </TableColumn>
+                <TableColumn>
+                    <h2 className="text-2xl font-bold ">Created</h2>
+                </TableColumn>
+                <TableColumn>
+                    <h2 className="text-2xl font-bold ">Options</h2>
+                </TableColumn>
             </TableHeader>
             <TableBody emptyContent="No games found." isLoading={loading}>
                 {gameLobbyList.map((game) => (
