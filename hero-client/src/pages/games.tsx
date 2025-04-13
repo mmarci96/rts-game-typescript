@@ -1,3 +1,4 @@
+import { GameTable } from "@/components/game-table";
 import { title } from "@/components/primitives";
 import DefaultLayout from "@/layouts/default";
 
@@ -8,6 +9,7 @@ export default function GamesPage() {
                 <div className="inline-block max-w-lg text-center justify-center">
                     <h1 className={title()}>Docs</h1>
                 </div>
+                <GameTable />
             </section>
         </DefaultLayout>
     );
