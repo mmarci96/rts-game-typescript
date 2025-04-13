@@ -14,8 +14,8 @@ export const siteConfig = {
             href: "/games",
         },
         {
-            label: "Pricing",
-            href: "/pricing",
+            label: "New Game",
+            href: "/create-game",
         },
         {
             label: "Blog",

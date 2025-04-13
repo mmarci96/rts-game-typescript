@@ -35,7 +35,7 @@ export const GameTable = () => {
             }}
         >
             <TableHeader>
-                <TableColumn>ID</TableColumn>
+                <TableColumn>Game</TableColumn>
                 <TableColumn>Players</TableColumn>
                 <TableColumn>Status</TableColumn>
                 <TableColumn>Created</TableColumn>
@@ -45,7 +45,7 @@ export const GameTable = () => {
                 {gameLobbyList.map((game) => (
                     <TableRow key={game._id}>
                         <TableCell className="text-sm text-blue">
-                            {game._id.slice(-6)}
+                            {game.gameName}
                         </TableCell>
                         <TableCell>{game.maxPlayers}</TableCell>
                         <TableCell className="capitalize">
