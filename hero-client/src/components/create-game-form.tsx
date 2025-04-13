@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, PointerEvent } from "react";
 import { TbMapSearch, TbMapStar } from "react-icons/tb";
 import { PlayerColor, GameMap } from "@/types";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +19,9 @@ export const CreateGameForm = () => {
     const [error, setError] = useState("");
     const [gameMaps, setGameMaps] = useState<GameMap[]>([]);
     const [selectedMap, setSelectedMap] = useState<GameMap | null>(null);
-    const [playerColor, setPlayerColor] = useState(PlayerColor.RED);
+    const [playerColor, setPlayerColor] = useState<PlayerColor | string>(
+        PlayerColor.RED,
+    );
     const navigate = useNavigate();
 
     const fetchGameMaps = async () => {
@@ -28,7 +30,9 @@ export const CreateGameForm = () => {
         setGameMaps(data);
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
         const userId = window.localStorage.getItem("userId");
         const requestData = {
             color: playerColor,
@@ -53,7 +57,23 @@ export const CreateGameForm = () => {
             setError(err as string);
         }
     };
+    const handleColorChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const color = e.target.value;
 
+        setPlayerColor(color);
+    };
+
+    const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        const mapId = e.target.value;
+        const map: GameMap | undefined = gameMaps.find(
+            (gameMap: GameMap) => gameMap._id === mapId,
+        );
+        if (!map) {
+            console.error("WTF");
+            return;
+        }
+        setSelectedMap(map);
+    };
     useEffect(() => {
         fetchGameMaps();
     }, []);
@@ -61,11 +81,16 @@ export const CreateGameForm = () => {
     return (
         <Card
             fullWidth={true}
-            className="w-full max-w-xl py-16 px-6  bg-[#04000F] bg-opacity-80"
+            className="w-full max-w-xl min-h-72 py-8 px-6 bg-[#000] bg-opacity-60"
             isBlurred={true}
         >
             <CardHeader>
-                <h2 className="text-xl font-bold">Create Game</h2>
+                <div className="flex flex-col items-center mb-auto mt-0">
+                    <h2 className="text-2xl font-bold mr-auto">Create Game</h2>
+                    <small className="text-default-500 italic mr-auto">
+                        12 Tracks
+                    </small>
+                </div>
             </CardHeader>
             <CardBody>
                 <Form onSubmit={handleSubmit}>
@@ -75,9 +100,7 @@ export const CreateGameForm = () => {
                             placeholder="Choose a map for the game!"
                             className="w-full min-w-[320px] text-lg"
                             startContent={<TbMapSearch size={32} />}
-                            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
-                                setSelectedMap(e)
-                            }
+                            onChange={handleChange}
                         >
                             {gameMaps?.map((gameMap) => (
                                 <SelectItem
@@ -104,6 +127,7 @@ export const CreateGameForm = () => {
                             label="Select color"
                             orientation="horizontal"
                             className="mx-auto ml-1 "
+                            onChange={handleColorChange}
                         >
                             <Radio value={PlayerColor.RED}>Red</Radio>
                             <Radio value={PlayerColor.BLUE}>Blue</Radio>
@@ -115,10 +139,10 @@ export const CreateGameForm = () => {
                             </Radio>
                         </RadioGroup>
                         <Button
-                            className="w-[120px] ml-8 m-4 mr-0 hover:ring-2"
+                            className="rounded-xl w-[120px] ml-8 m-4 mr-0 hover:ring-2"
                             type="submit"
                             size="lg"
-                            variant="ghost"
+                            variant="bordered"
                         >
                             Create game
                         </Button>

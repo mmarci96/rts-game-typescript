@@ -41,6 +41,7 @@ export const AuthForm = () => {
         }
 
         const { data } = await response.json();
+        localStorage.setItem("userId", data.id);
         console.log(`Request ${selected} response:  `, data);
     };
 
