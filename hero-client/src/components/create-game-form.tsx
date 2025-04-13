@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { TbMapSearch, TbMapStar } from "react-icons/tb";
 import { PlayerColor, GameMap } from "@/types";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,8 @@ import {
     CardFooter,
     SelectItem,
     Select,
+    RadioGroup,
+    Radio,
 } from "@heroui/react";
 
 export const CreateGameForm = () => {
@@ -57,8 +59,14 @@ export const CreateGameForm = () => {
     }, []);
 
     return (
-        <Card fullWidth={true} className="w-full max-w-lg">
-            <CardHeader>CreateGame</CardHeader>
+        <Card
+            fullWidth={true}
+            className="w-full max-w-xl py-16 px-6  bg-[#04000F] bg-opacity-80"
+            isBlurred={true}
+        >
+            <CardHeader>
+                <h2 className="text-xl font-bold">Create Game</h2>
+            </CardHeader>
             <CardBody>
                 <Form onSubmit={handleSubmit}>
                     <span className="flex gap-1">
@@ -67,6 +75,9 @@ export const CreateGameForm = () => {
                             placeholder="Choose a map for the game!"
                             className="w-full min-w-[320px] text-lg"
                             startContent={<TbMapSearch size={32} />}
+                            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                                setSelectedMap(e)
+                            }
                         >
                             {gameMaps?.map((gameMap) => (
                                 <SelectItem
@@ -88,9 +99,30 @@ export const CreateGameForm = () => {
                             <SelectItem key={"2"}>2 Players </SelectItem>
                         </Select>
                     </span>
-                    <Button type="submit" variant="bordered">
-                        Create game
-                    </Button>
+                    <span className="flex justify-between">
+                        <RadioGroup
+                            label="Select color"
+                            orientation="horizontal"
+                            className="mx-auto ml-1 "
+                        >
+                            <Radio value={PlayerColor.RED}>Red</Radio>
+                            <Radio value={PlayerColor.BLUE}>Blue</Radio>
+                            <Radio isDisabled={true} value={PlayerColor.YELLOW}>
+                                Yellow
+                            </Radio>
+                            <Radio isDisabled={true} value={PlayerColor.PURPLE}>
+                                Purple
+                            </Radio>
+                        </RadioGroup>
+                        <Button
+                            className="w-[120px] ml-8 m-4 mr-0 hover:ring-2"
+                            type="submit"
+                            size="lg"
+                            variant="ghost"
+                        >
+                            Create game
+                        </Button>
+                    </span>
                 </Form>
             </CardBody>
             <CardFooter>

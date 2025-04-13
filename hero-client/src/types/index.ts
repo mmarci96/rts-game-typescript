@@ -18,7 +18,7 @@ export interface GameMap {
 export enum PlayerColor {
     RED = "red",
     BLUE = "blue",
-    GREEN = "green",
+    PURPLE = "purple",
     YELLOW = "yellow",
 }
 
