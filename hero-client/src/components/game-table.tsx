@@ -33,7 +33,6 @@ export const GameTable = () => {
             classNames={{
                 table: "min-w-lg",
             }}
-            style={{ backgroundImage: "url('../../public/')" }}
         >
             <TableHeader>
                 <TableColumn>

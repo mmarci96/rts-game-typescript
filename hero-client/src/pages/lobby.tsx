@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
-import DefaultLayout from "../layouts/default";
+import DefaultLayout from "@/layouts/default";
 import { useEffect, useState } from "react";
-import { useApiRequest } from "../hooks/use-apirequest";
+import { useApiRequest } from "@/hooks/use-apirequest";
 import { GameData, HttpMethod, Player, PlayerColor } from "../types";
 
 const LobbyPage = () => {

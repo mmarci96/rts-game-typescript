@@ -10,9 +10,7 @@ export default function CreateGamePage() {
                 style={{ backgroundImage: "url('./create-game-bg.png')" }}
             ></span>
 
-            <span className="absolute inset-0 top-0 w-screen h-32 bg-[#000]"></span>
-            <span className="absolute inset-0 mt-32  w-screen h-screen bg-cover bg-center bg-gradient-to-b from-[#000] to-transparent flex flex-col items-center justify-center gap-4 p-4 md:py-10"></span>
-            <section className="absolute inset-0  w-screen h-full bg-cover bg-center bg-gradient-to-t from-[#0D0913] to-transparent flex flex-col items-center justify-center gap-4 p-4 md:py-10">
+            <section className="absolute inset-0  w-screen h-full bg-cover bg-center bg-gradient-to-t from-[#0D0913] to-slate-50 flex flex-col items-center justify-center gap-4 p-4 md:py-10">
                 <div className="inline-block max-w-lg text-center justify-center">
                     <h1 className={title()}>Create new game</h1>
                 </div>
