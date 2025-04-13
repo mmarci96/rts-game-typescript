@@ -78,6 +78,7 @@ export const Navbar = () => {
                 <NavbarItem className="hidden sm:flex">
                     {searchInput}
                 </NavbarItem>
+                <ThemeSwitch />
             </NavbarContent>
 
             <NavbarContent className="sm:hidden basis-1 pl-4" justify="end">

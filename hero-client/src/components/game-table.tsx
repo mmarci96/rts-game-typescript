@@ -28,12 +28,11 @@ export const GameTable = () => {
     return (
         <Table
             aria-label="Games are waiting for you!"
-            fullWidth={true}
+            fullWidth
             isStriped
             classNames={{
                 table: "min-w-lg",
             }}
-            style={{ backgroundImage: "url('../../public/')" }}
         >
             <TableHeader>
                 <TableColumn>
