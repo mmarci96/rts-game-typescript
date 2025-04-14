@@ -19,6 +19,11 @@ func Run() error {
 	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
 
 	for _, resource := range conf.Resources {
+		_, err := http.Get(resource.Desination_URL + "ping")
+		if err != nil {
+			fmt.Printf("Backend service check err, skipping: %s \n", resource.Name)
+			continue
+		}
 		url, _ := url.Parse(resource.Desination_URL)
 		isSocketIO := strings.Contains(resource.Desination_URL, "socket.io")
 		if isSocketIO {
@@ -34,10 +39,10 @@ func Run() error {
 	http.Handle("/", homeApp)
 
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
+	fmt.Printf("\nServer started: %s\n", hostUrl)
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
 		return fmt.Errorf("could not start the server: %v", err)
 	}
-	fmt.Printf("\nServer started: %s\n", hostUrl)
 	return nil
 }
 

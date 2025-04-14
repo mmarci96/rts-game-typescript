@@ -41,7 +41,7 @@ func InitializeStore() *StorageService {
 
 func InitBackendServer(serverName string) {
 	connKey := fmt.Sprintf("backend:%s:connections", serverName)
-	_ = storeService.redisClient.Del(ctx, connKey) // optional cleanup
+	_ = storeService.redisClient.Del(ctx, connKey)
 
 	err := storeService.redisClient.ZAddNX(ctx, "server_connection_count", redis.Z{
 		Score:  0,

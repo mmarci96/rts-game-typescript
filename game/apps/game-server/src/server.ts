@@ -11,6 +11,10 @@ app.get("/health", (req: Request, res: Response) => {
     res.status(200).send({ health: "ok" });
 });
 
+app.get("/ping", (req: Request, res: Response) => {
+    res.status(200).send("PONG");
+});
+
 app.use(cors());
 app.use(express.json());
 
