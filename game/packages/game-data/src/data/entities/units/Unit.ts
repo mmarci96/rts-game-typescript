@@ -63,10 +63,6 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     private attackHandler() {
-        if (this.hasPath()) {
-            this.setStatus("moving");
-            return;
-        }
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
@@ -75,11 +71,14 @@ class Unit extends Attackable implements IAttacker, IMovable {
         }
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
+        if (!this.hasPath()) {
+            this.setupPathfinder(this.getX(), this.getY(), tx, tx);
+        }
         const dx = tx - this.getX();
         const dy = ty - this.getY();
         const distance = Math.sqrt(dx * dx + dy * dy);
         const attackRange = Number(this.getAttackRange());
-        const attackBuffer = 0.3;
+        const attackBuffer = 0.4;
         const attackRangeWithBuffer = attackRange + attackBuffer;
         const epsilon = 0.000001;
 
@@ -87,17 +86,10 @@ class Unit extends Attackable implements IAttacker, IMovable {
             const status = this.attack();
             this.setStatus(status);
         } else {
-            const directionX = dx / distance;
-            const directionY = dy / distance;
-            const dynamicOffset = distance - attackRangeWithBuffer;
-
-            const targetX = tx - directionX * dynamicOffset;
-            const targetY = ty - directionY * dynamicOffset;
-
-            this.setupPathfinder(this.getX(), this.getY(), targetX, targetY);
             this.setStatus("moving");
         }
     }
+
     move(deltaTime: number) {
         return this.movable.move(deltaTime);
     }
@@ -112,16 +104,15 @@ class Unit extends Attackable implements IAttacker, IMovable {
             this.movable.setTarget(null, null);
             if (!this.attacker.getAttackableTarget()) {
                 this.setStatus("idle");
-            } else if (this.attacker.getAttackableTarget()) {
-                this.attackHandler();
             }
         } else {
             this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
-            if (this.getStatus() !== "moving") {
-                this.setStatus("moving");
-            }
+            this.setStatus("moving");
+        }
+        if (this.attacker.getAttackableTarget()) {
+            this.attackHandler();
         }
     }
 
