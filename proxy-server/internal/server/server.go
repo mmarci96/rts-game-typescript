@@ -25,7 +25,7 @@ func Run() error {
 			continue
 		}
 		url, _ := url.Parse(resource.Desination_URL)
-		isSocketIO := strings.Contains(resource.Desination_URL, "socket.io")
+		isSocketIO := strings.Contains(resource.Endpoint, "socket.io")
 		if isSocketIO {
 			store.InitBackendServer(resource.Name)
 		}

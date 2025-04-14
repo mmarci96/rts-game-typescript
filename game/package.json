@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.7.0",
+  "packageManager": "pnpm@10.8.1",
   "dependencies": {
     "@packages/game-data": "link:packages/game-data",
     "@packages/game-db": "link:packages/game-db",
