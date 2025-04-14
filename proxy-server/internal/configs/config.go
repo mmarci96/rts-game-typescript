@@ -18,7 +18,8 @@ type configuration struct {
 		Port string `mapstructure:"port"`
 	} `mapstructure:"server"`
 	Static struct {
-		Dir string `mapstructure:"dir"`
+		Game string `mapstructure:"game"`
+		Home string `mapstructure:"home"`
 	} `mapstructure:"static"`
 	Resources []resource
 }

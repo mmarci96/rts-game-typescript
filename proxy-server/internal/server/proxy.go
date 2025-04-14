@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http/httputil"
 	"net/url"
+	"path/filepath"
+
+	"net/http"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
-	"net/http"
 )
 
 func NewProxy(target *url.URL) *httputil.ReverseProxy {
@@ -27,13 +29,25 @@ type SpaHandler struct {
 func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fs := http.Dir(h.StaticDir)
 	fileServer := http.FileServer(fs)
+
 	path := r.URL.Path
 	f, err := fs.Open(path)
 	if err != nil {
-		http.ServeFile(w, r, h.StaticDir+"/index.html")
+		http.ServeFile(w, r, filepath.Join(h.StaticDir, "index.html"))
 		return
 	}
-	defer f.Close()
+	defer func() {
+		if cerr := f.Close(); cerr != nil {
+			fmt.Printf("Error closing file: %v\n", cerr)
+		}
+	}()
+
+	stat, err := f.Stat()
+	if err != nil || stat.IsDir() {
+		http.ServeFile(w, r, filepath.Join(h.StaticDir, "index.html"))
+		return
+	}
+
 	fileServer.ServeHTTP(w, r)
 }
 

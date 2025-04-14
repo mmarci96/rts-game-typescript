@@ -3,7 +3,8 @@ server:
   port: "8000"
 
 static:
-  dir: "./internal/html/dist"
+  game: "./internal/html/game/dist"
+  home: "./internal/html/home/dist"
 
 resources:
   - name: "server_0"

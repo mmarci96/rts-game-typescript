@@ -40,11 +40,9 @@ func InitializeStore() *StorageService {
 }
 
 func InitBackendServer(serverName string) {
-	// Initialize server connection set (empty)
 	connKey := fmt.Sprintf("backend:%s:connections", serverName)
 	_ = storeService.redisClient.Del(ctx, connKey) // optional cleanup
 
-	// Add server to the sorted set with 0 connections
 	err := storeService.redisClient.ZAddNX(ctx, "server_connection_count", redis.Z{
 		Score:  0,
 		Member: serverName,
@@ -58,28 +56,23 @@ func SaveBackendConnection(serverName, gameId, playerId string) {
 	gameKey := fmt.Sprintf("game_to_backend:%s", gameId)
 	conn := fmt.Sprintf("%s:%s", gameId, playerId)
 
-	// Add to server connection set
 	added, err := storeService.redisClient.SAdd(ctx, connKey, conn).Result()
 	if err != nil {
 		fmt.Printf("Error saving connection to server set: %v\n", err)
 		return
 	}
 
-	// Only update counters and mappings if it's a new connection
 	if added > 0 {
-		// Map gameId -> server
 		err = storeService.redisClient.Set(ctx, gameKey, serverName, CacheDuration).Err()
 		if err != nil {
 			fmt.Printf("Error saving game-to-server mapping: %v\n", err)
 		}
 
-		// Add to global game id set
 		err = storeService.redisClient.SAdd(ctx, "game_ids", gameId).Err()
 		if err != nil {
 			fmt.Printf("Error adding game ID to global set: %v\n", err)
 		}
 
-		// Increment connection count
 		err = storeService.redisClient.ZIncrBy(ctx, "server_connection_count", 1, serverName).Err()
 		if err != nil {
 			fmt.Printf("Error incrementing server connection count: %v\n", err)

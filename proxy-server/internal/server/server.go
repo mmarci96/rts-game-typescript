@@ -25,8 +25,10 @@ func Run() error {
 		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
 	}
 
-	spa := SpaHandler{StaticDir: conf.Static.Dir}
-	http.Handle("/ui/", spa)
+	gameApp := SpaHandler{StaticDir: conf.Static.Game}
+	homeApp := SpaHandler{StaticDir: conf.Static.Home}
+	http.Handle("/game/", gameApp)
+	http.Handle("/", homeApp)
 
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
@@ -54,10 +56,8 @@ func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
 	var serverName string
 	var err error
 
-	// Check if the gameId is already registered
 	serverName, err = store.GetBackendByGameID(gameId)
 	if err != nil || serverName == "" {
-		// Not found, assign to the chillest server
 		serverName, err = store.GetServerWithLeastConnections()
 		if err != nil {
 			http.Error(w, "No backend servers available", http.StatusServiceUnavailable)
@@ -65,17 +65,10 @@ func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Save this new connection
 		store.SaveBackendConnection(serverName, gameId, playerId)
 	}
 
-	// Respond with server info
 	endpoint := serverEndpoint{Server: serverName}
-
-	fmt.Printf("GameID: %v\n", gameId)
-	fmt.Printf("PlayerID: %v\n", playerId)
-	fmt.Printf("Assigned Server: %v\n", serverName)
-	fmt.Printf("| Get Serverendpoint requested\n| Path: %s\n", path)
 
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(endpoint)
