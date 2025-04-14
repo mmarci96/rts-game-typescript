@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-
-	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
 
 type SpaHandler struct {
@@ -60,16 +58,6 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	r.URL.Path = path
 	fileServer.ServeHTTP(w, r)
-}
-
-func RegisterConnection(gameID, playerID string) error {
-	serverName, err := store.GetBackendByGameID(gameID)
-	if err != nil {
-		fmt.Printf("No proxy alias found in store for game: %s\n", gameID)
-		store.SaveBackendConnection(serverName, gameID, playerID)
-	}
-	fmt.Printf("Server found for [ Game: %s]\n [ Server: %s ]\n", gameID, serverName)
-	return nil
 }
 
 func singleJoiningSlash(a, b string) string {
