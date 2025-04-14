@@ -63,6 +63,10 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     private attackHandler() {
+        if (this.hasPath()) {
+            this.setStatus("moving");
+            return;
+        }
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
@@ -96,6 +100,10 @@ class Unit extends Attackable implements IAttacker, IMovable {
     }
     move(deltaTime: number) {
         return this.movable.move(deltaTime);
+    }
+
+    private hasPath() {
+        return this.movable.hasPath();
     }
 
     protected updatePosition(deltaTime: number) {
