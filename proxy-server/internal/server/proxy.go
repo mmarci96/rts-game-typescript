@@ -5,6 +5,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
+	"strings"
 
 	"net/http"
 
@@ -12,11 +13,29 @@ import (
 )
 
 func NewProxy(target *url.URL) *httputil.ReverseProxy {
+	targetQuery := target.RawQuery
 	return &httputil.ReverseProxy{
 		Director: func(req *http.Request) {
+			// Preserve the full path after the matched prefix (e.g., /api/)
+			originalPath := req.URL.Path
+			targetBasePath := target.Path
+			fmt.Printf("Target query: %s \n", targetQuery)
+			fmt.Printf("Original path: %s \n", originalPath)
+			fmt.Printf("Target path: %s \n", targetBasePath)
+
+			// Combine target base path and request path
 			req.URL.Scheme = target.Scheme
 			req.URL.Host = target.Host
-			req.URL.Path = target.Path
+			req.URL.Path = singleJoiningSlash(targetBasePath, originalPath)
+
+			// Preserve query string if any
+			if targetQuery == "" || req.URL.RawQuery == "" {
+				req.URL.RawQuery = targetQuery + req.URL.RawQuery
+			} else {
+				req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
+			}
+
+			// Optional: override Host header (depends on backend)
 			req.Host = target.Host
 		},
 	}
@@ -59,4 +78,17 @@ func RegisterConnection(gameID, playerID string) error {
 	}
 	fmt.Printf("Server found for [ Game: %s]\n [ Server: %s ]\n", gameID, serverName)
 	return nil
+}
+
+func singleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
+	default:
+		return a + b
+	}
 }

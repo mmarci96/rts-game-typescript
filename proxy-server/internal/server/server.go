@@ -47,6 +47,7 @@ func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := r.URL.Path
+	fmt.Printf("Requested at: %s", path)
 	s := strings.Split(path, "/")
 	if len(s) < 3 {
 		http.Error(w, "Invalid path", http.StatusBadRequest)
