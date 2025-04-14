@@ -11,14 +11,10 @@ import (
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
 
-type server_endpoint struct {
-	Server string `json:"server_endpoint"`
-}
-
 func Run() error {
 	conf, err := configs.NewConfiguration()
 	if err != nil {
-		return fmt.Errorf("could not load configuration: %v\n", err)
+		return fmt.Errorf("could not load configuration: %v", err)
 	}
 	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
 
@@ -34,7 +30,7 @@ func Run() error {
 
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
-		return fmt.Errorf("could not start the server: %v\n", err)
+		return fmt.Errorf("could not start the server: %v", err)
 	}
 	fmt.Printf("\nServer started: %s\n", hostUrl)
 	return nil
@@ -82,5 +78,10 @@ func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("| Get Serverendpoint requested\n| Path: %s\n", path)
 
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(endpoint)
+	err = json.NewEncoder(w).Encode(endpoint)
+	if err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		fmt.Printf("Error encoding JSON response: %v\n", err)
+		return
+	}
 }

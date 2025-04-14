@@ -37,7 +37,7 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fileServer.ServeHTTP(w, r)
 }
 
-func RegisterConnection(serverName, gameID, playerID string) error {
+func RegisterConnection(gameID, playerID string) error {
 	serverName, err := store.GetBackendByGameID(gameID)
 	if err != nil {
 		fmt.Printf("No proxy alias found in store for game: %s\n", gameID)
