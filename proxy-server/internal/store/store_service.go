@@ -51,6 +51,7 @@ func InitBackendServer(serverName string) {
 		fmt.Printf("Error initializing server in connection count set: %v\n", err)
 	}
 }
+
 func SaveBackendConnection(serverName, gameId, playerId string) {
 	connKey := fmt.Sprintf("backend:%s:connections", serverName)
 	gameKey := fmt.Sprintf("game_to_backend:%s", gameId)

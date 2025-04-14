@@ -2,54 +2,45 @@ package server
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"path/filepath"
 	"strings"
 
-	"net/http"
-
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
 )
+
+type SpaHandler struct {
+	StaticDir   string
+	RoutePrefix string
+}
 
 func NewProxy(target *url.URL) *httputil.ReverseProxy {
 	targetQuery := target.RawQuery
 	return &httputil.ReverseProxy{
 		Director: func(req *http.Request) {
-			// Preserve the full path after the matched prefix (e.g., /api/)
 			originalPath := req.URL.Path
 			targetBasePath := target.Path
-			fmt.Printf("Target query: %s \n", targetQuery)
-			fmt.Printf("Original path: %s \n", originalPath)
-			fmt.Printf("Target path: %s \n", targetBasePath)
-
-			// Combine target base path and request path
 			req.URL.Scheme = target.Scheme
 			req.URL.Host = target.Host
 			req.URL.Path = singleJoiningSlash(targetBasePath, originalPath)
 
-			// Preserve query string if any
 			if targetQuery == "" || req.URL.RawQuery == "" {
 				req.URL.RawQuery = targetQuery + req.URL.RawQuery
 			} else {
 				req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
 			}
-
-			// Optional: override Host header (depends on backend)
 			req.Host = target.Host
 		},
 	}
 }
 
-type SpaHandler struct {
-	StaticDir string
-}
-
 func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, h.RoutePrefix)
 	fs := http.Dir(h.StaticDir)
 	fileServer := http.FileServer(fs)
 
-	path := r.URL.Path
 	f, err := fs.Open(path)
 	if err != nil {
 		http.ServeFile(w, r, filepath.Join(h.StaticDir, "index.html"))
@@ -67,6 +58,7 @@ func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	r.URL.Path = path
 	fileServer.ServeHTTP(w, r)
 }
 
