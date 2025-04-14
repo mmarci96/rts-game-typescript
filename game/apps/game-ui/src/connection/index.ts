@@ -34,6 +34,8 @@ export class ConnectionHandler {
         const { gameId, playerId, socketEndpoint } = await this.getIdFromUrl(
             window.location.pathname,
         );
+        console.log("socketEndpoint", socketEndpoint);
+
         const game = await GameLoader.loadGame(gameId, playerId);
         const socket = io("/", {
             path: `/${socketEndpoint}/socket.io`,

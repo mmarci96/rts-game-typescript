@@ -2,19 +2,23 @@ import { defineConfig } from "vite";
 import path from "path";
 
 export default defineConfig({
-    base: "/game/",
+    base: "/game",
     plugins: [],
     server: {
         host: "0.0.0.0",
         port: 3000,
         proxy: {
-            "/socket.io": {
-                target: "http://localhost:3001",
+            "/server_0/socket.io": {
+                target: "http://localhost:8000",
                 changeOrigin: true,
                 ws: true,
             },
             "/api": {
                 target: "http://localhost:5000",
+                changeOrigin: true,
+            },
+            "/game_location": {
+                target: "http://localhost:8000",
                 changeOrigin: true,
             },
         },
