@@ -20,7 +20,10 @@ func Run() error {
 
 	for _, resource := range conf.Resources {
 		url, _ := url.Parse(resource.Desination_URL)
-		store.InitBackendServer(resource.Name)
+		isSocketIO := strings.Contains(resource.Desination_URL, "socket.io")
+		if isSocketIO {
+			store.InitBackendServer(resource.Name)
+		}
 		proxy := NewProxy(url)
 		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
 	}

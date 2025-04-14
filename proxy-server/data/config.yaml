@@ -13,3 +13,6 @@ resources:
   - name: "server_1"
     endpoint: "/server_1/socket.io/"
     desination_url: "http://localhost:8081/server_1/socket.io/"
+  - name: "api"
+    endpoint: "/api/"
+    desination_url: "http://localhost:5000/api/"
