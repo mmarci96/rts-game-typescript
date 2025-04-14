@@ -43,7 +43,7 @@ const Lobby = () => {
                     const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
                     let gameUrl = `/game/${gameId}/${player._id}`;
                     if (baseGameUrl) {
-                        gameUrl = `${baseGameUrl}/${gameUrl}`;
+                        gameUrl = baseGameUrl + gameUrl;
                     }
                     window.location.href = gameUrl;
                 }
