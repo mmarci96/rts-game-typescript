@@ -14,7 +14,7 @@ export default defineConfig({
                 ws: true,
             },
             "/api": {
-                target: "http://localhost:5000",
+                target: "http://localhost:8000",
                 changeOrigin: true,
             },
             "/game_location": {
