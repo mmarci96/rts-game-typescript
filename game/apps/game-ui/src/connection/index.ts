@@ -31,21 +31,31 @@ export class ConnectionHandler {
 
     public static async initialize() {
         document.addEventListener("contextmenu", (e) => e.preventDefault());
-        const { gameId, playerId } = this.getIdFromUrl(
+        const { gameId, playerId, socketEndpoint } = await this.getIdFromUrl(
             window.location.pathname,
         );
+        console.log("socketEndpoint", socketEndpoint);
+
         const game = await GameLoader.loadGame(gameId, playerId);
-        const socket = io();
+        const socket = io("/", {
+            path: `/${socketEndpoint}/socket.io`,
+        });
 
         return new ConnectionHandler(socket, playerId, gameId, game);
     }
 
-    private static getIdFromUrl(url: string) {
+    private static async getIdFromUrl(url: string) {
         const arr = url.split("/");
         const lastIndex = arr.length - 1;
+        const gameId = arr[lastIndex - 1];
+        const playerId = arr[lastIndex];
+        const res = await fetch(`/game_location/${gameId}/${playerId}`);
+        const data: { server_endpoint: string } = await res.json();
+
         return {
-            gameId: arr[lastIndex - 1],
-            playerId: arr[lastIndex],
+            gameId,
+            playerId,
+            socketEndpoint: data.server_endpoint,
         };
     }
 

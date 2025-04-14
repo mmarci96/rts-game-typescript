@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
@@ -19,6 +19,10 @@ app.use(express.json());
 
 app.get<{}, MessageResponse>("/health", (req, res) => {
     res.status(200).send({ message: "OK" });
+});
+
+app.get("/ping", (req: Request, res: Response) => {
+    res.status(200).send("PONG");
 });
 
 app.use("/api", api);

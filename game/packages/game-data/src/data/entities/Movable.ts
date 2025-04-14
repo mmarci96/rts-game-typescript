@@ -10,9 +10,14 @@ class Movable implements IMovable {
     private finalX: number;
     private finalY: number;
     private aStar: AStar | null;
-    private path: Tile[]
+    private path: Tile[];
 
-    constructor(speed: number, currentX: number, currentY: number, aStar: AStar | null) {
+    constructor(
+        speed: number,
+        currentX: number,
+        currentY: number,
+        aStar: AStar | null,
+    ) {
         this.speed = speed;
         this.targetX = null;
         this.targetY = null;
@@ -24,12 +29,24 @@ class Movable implements IMovable {
         this.path = [];
     }
 
+    hasPath() {
+        if (this.path.length === 0) {
+            return false;
+        }
+        return true;
+    }
+
     setTarget(targetX: number | null, targetY: number | null) {
         this.targetY = targetY;
         this.targetX = targetX;
     }
 
-    setupPathfinder(startX: number, startY: number, targetX: number, targetY: number) {
+    setupPathfinder(
+        startX: number,
+        startY: number,
+        targetX: number,
+        targetY: number,
+    ) {
         if (!this.aStar) {
             console.error("Pathfinder not initialized!");
             return [];
@@ -54,7 +71,11 @@ class Movable implements IMovable {
         if (this.path.length === 0) {
             this.currentX = this.finalX;
             this.currentY = this.finalY;
-            return { newX: this.currentX, newY: this.currentY, progress: "completed" };
+            return {
+                newX: this.currentX,
+                newY: this.currentY,
+                progress: "completed",
+            };
         }
 
         const nextTile = this.path[0];
@@ -86,7 +107,7 @@ class Movable implements IMovable {
         return {
             newX: this.currentX,
             newY: this.currentY,
-            progress: this.path.length === 0 ? "completed" : "progressing"
+            progress: this.path.length === 0 ? "completed" : "progressing",
         };
     }
 

@@ -5,6 +5,7 @@ dotenv.config();
 export const config = {
     PORT: process.env.PORT || "8080",
     HOST: process.env.HOST || "0.0.0.0",
+    NAMESPACE: process.env.NAMESPACE || "server_0",
     MONGO_URI:
         process.env.MONGO_URI || "mongodb://localhost:27017/rts-game-db-2",
     REDIS_HOST: process.env.REDIS_HOST || "127.0.0.1",
