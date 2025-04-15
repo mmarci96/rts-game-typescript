@@ -37,11 +37,6 @@ func InitializeStore() *StorageService {
 	fmt.Printf("Redis started successfully: pong message = {%s}\n", pong)
 
 	storeService.redisClient = redisClient
-	// err = cleanupBackendKeys(redisClient)
-	// if err != nil {
-	// 	fmt.Printf("Error cleaning up backend keys: %v\n", err)
-	// }
-
 	return storeService
 }
 
