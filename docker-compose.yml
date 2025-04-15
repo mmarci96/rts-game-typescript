@@ -2,19 +2,85 @@ services:
   mongodb:
     image: mongo:6.0
     container_name: game-mongodb
-    ports:
-      - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    ports:
+      - "27017:27017"
+
   redis:
     image: redis:latest
     container_name: game-redis-db
-    ports:
-      - "6379:6379"
     volumes:
       - redis_data:/data
+
+  game-api:
+    image: game-api:latest  
+    container_name: game-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: game-api
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://game-mongodb:27017/game-db-2
+      - NODE_ENV=production
+    depends_on:
+      - mongodb
+
+  game-server:
+    image: game-server:latest
+    container_name: game-server
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: game-server
+    environment:
+      - PORT=8080
+      - HOST=0.0.0.0
+      - MONGO_URI=mongodb://game-mongodb:27017/game-db-2
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - mongodb
+      - redis
+  
+  reverse-proxy:
+    image: reverse-proxy:latest
+    container_name: reverse-proxy
+    build:
+        context: .
+        dockerfile: Dockerfile
+        target: reverse-proxy 
+    depends_on:
+      - game-server
+      - game-api
+    ports:
+      - "80:80"
+
 volumes:
   redis_data:
     driver: local
   mongo-data:
     driver: local
+
+
+# services:
+#   mongodb:
+#     image: mongo:6.0
+#     container_name: game-mongodb
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongo-data:/data/db
+#   redis:
+#     image: redis:latest
+#     container_name: game-redis-db
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+# volumes:
+#   redis_data:
+#     driver: local
+#   mongo-data:
+#     driver: local
