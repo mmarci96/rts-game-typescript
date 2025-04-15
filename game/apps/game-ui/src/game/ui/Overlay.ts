@@ -37,7 +37,7 @@ class Overlay {
         if (!drawables.length) {
             return;
         }
-        this.selectedList = drawables
+        this.selectedList = drawables;
         if (!this.overlayDiv) {
             return;
         }
@@ -141,7 +141,10 @@ class Overlay {
         selectionDetails: HTMLElement,
     ) {
         selectionList.forEach((selected) => {
-            if (!(selected.entity instanceof Unit) && !(selected.entity instanceof Building)) {
+            if (
+                !(selected.entity instanceof Unit) &&
+                !(selected.entity instanceof Building)
+            ) {
                 return;
             }
             const hp = selected.entity.getHealth();
