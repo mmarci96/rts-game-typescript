@@ -22,11 +22,16 @@ func Run() error {
 		_, err := http.Get(resource.Desination_URL + "ping")
 		if err != nil {
 			fmt.Printf("Backend service check err, skipping: %s \n", resource.Name)
+			e := store.RemoveBackendServer(resource.Name)
+			if e != nil {
+				return fmt.Errorf("backend remove failed:: %v ", e)
+			}
 			continue
 		}
 		url, _ := url.Parse(resource.Desination_URL)
 		isSocketIO := strings.Contains(resource.Endpoint, "socket.io")
 		if isSocketIO {
+			fmt.Printf("Initiating backend service: %s", resource.Name)
 			store.InitBackendServer(resource.Name)
 		}
 		proxy := NewProxy(url)
@@ -41,7 +46,7 @@ func Run() error {
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
 	fmt.Printf("\nServer started: %s\n", hostUrl)
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
-		return fmt.Errorf("could not start the server: %v", err)
+		return fmt.Errorf("could not start the server: %v ", err)
 	}
 	return nil
 }
@@ -75,9 +80,7 @@ func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
 
 		store.SaveBackendConnection(serverName, gameId, playerId)
 	}
-
 	endpoint := serverEndpoint{Server: serverName}
-
 	w.WriteHeader(http.StatusOK)
 	err = json.NewEncoder(w).Encode(endpoint)
 	if err != nil {
