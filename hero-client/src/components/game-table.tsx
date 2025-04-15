@@ -5,6 +5,7 @@ import {
     TableBody,
     TableRow,
     TableCell,
+    Button,
 } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { GameData, HttpMethod } from "@/types";
@@ -12,7 +13,7 @@ import { useApiRequest } from "@/hooks/use-apirequest";
 
 export const GameTable = () => {
     const [gameLobbyList, setGameLobbyList] = useState<GameData[]>([]);
-    const { fetchApiData, error, loading } = useApiRequest();
+    const { fetchApiData, loading } = useApiRequest();
 
     useEffect(() => {
         const main = async (url: string, method: HttpMethod) => {
@@ -65,9 +66,13 @@ export const GameTable = () => {
                             {new Date(game.createdAt).toLocaleString()}
                         </TableCell>
                         <TableCell>
-                            <button className="bg-blue text-white px-2 py-1 rounded hover:bg-bblue transition">
+                            <Button
+                                color="success"
+                                variant="bordered"
+                                className="text-lg hover:ring-2 font-semibold hover:bg-success-50 transition-transform ease-in duration-300"
+                            >
                                 Join
-                            </button>
+                            </Button>
                         </TableCell>
                     </TableRow>
                 ))}

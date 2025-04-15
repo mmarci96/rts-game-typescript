@@ -81,7 +81,7 @@ export const CreateGameForm = () => {
     return (
         <Card
             fullWidth={true}
-            className="w-full max-w-xl min-h-72 py-8 px-6 bg-[#000] bg-opacity-60"
+            className="w-full max-w-xl min-h-72 py-8 px-6 bg-background bg-opacity-60"
             isBlurred={true}
         >
             <CardHeader>

@@ -1,4 +1,3 @@
-import { Button } from "@heroui/button";
 import { Kbd } from "@heroui/kbd";
 import { Link } from "@heroui/link";
 import { Input } from "@heroui/input";
@@ -16,7 +15,6 @@ import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
-import { Logo } from "@/components/icons";
 
 export const Navbar = () => {
     const searchInput = (
@@ -49,8 +47,11 @@ export const Navbar = () => {
                         color="foreground"
                         href="/"
                     >
-                        <Logo />
-                        <p className="font-bold text-inherit">RTS Game</p>
+                        <img className="w-8 h-8" src="./Helmet11.svg"></img>
+
+                        <p className="text-2xl font-bold text-inherit">
+                            RTS Game
+                        </p>
                     </Link>
                 </NavbarBrand>
                 <div className="hidden sm:flex gap-4 justify-start ml-2">
