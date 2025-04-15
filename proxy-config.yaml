@@ -1,8 +1,9 @@
 server:
   host: "0.0.0.0"
-  port: "8000"
+  port: "80"
+
 redis:
-  host: "localhost"
+  host: "game-redis-db"
   port: "6379"
 
 static:
@@ -12,10 +13,10 @@ static:
 resources:
   - name: "server_0"
     endpoint: "/server_0/socket.io/"
-    desination_url: "http://localhost:8080/"
+    desination_url: "http://game-server:8080/"
   - name: "server_1"
     endpoint: "/server_1/socket.io/"
     desination_url: "http://localhost:8081/"
   - name: "api"
     endpoint: "/api/"
-    desination_url: "http://localhost:5000/"
+    desination_url: "http://game-api:5000/"

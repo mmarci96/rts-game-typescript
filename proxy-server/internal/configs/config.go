@@ -17,6 +17,10 @@ type configuration struct {
 		Host string `mapstructure:"host"`
 		Port string `mapstructure:"port"`
 	} `mapstructure:"server"`
+	Redis struct {
+		Host string `mapstructure:"host"`
+		Port string `mapstructure:"port"`
+	} `mapstructure:"redis"`
 	Static struct {
 		Game string `mapstructure:"game"`
 		Home string `mapstructure:"home"`

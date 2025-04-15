@@ -16,6 +16,13 @@ func Run() error {
 	if err != nil {
 		return fmt.Errorf("could not load configuration: %v", err)
 	}
+	redisAddr := conf.Redis.Host + ":" + conf.Redis.Port
+	store.InitializeStore(redisAddr)
+	e := store.CleanupBackendKeys()
+	if e != nil {
+		fmt.Printf("Not deleted: %s", e)
+	}
+
 	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
 
 	for _, resource := range conf.Resources {

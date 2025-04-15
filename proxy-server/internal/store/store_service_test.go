@@ -13,11 +13,11 @@ var testStoreService = &StorageService{}
 var testCtx = context.Background()
 
 func init() {
-	testStoreService = InitializeStore()
+	testStoreService = InitializeStore("localhost:6379")
 }
 
 func TestMain(m *testing.M) {
-	testStoreService = InitializeStore()
+	testStoreService = InitializeStore("localhost:6379")
 
 	err := flushTestRedis()
 	if err != nil {
