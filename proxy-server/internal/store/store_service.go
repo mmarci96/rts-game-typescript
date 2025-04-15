@@ -35,6 +35,7 @@ func InitializeStore() *StorageService {
 		panic(fmt.Sprintf("Error init Redis: %v", err))
 	}
 	fmt.Printf("Redis started successfully: pong message = {%s}\n", pong)
+
 	storeService.redisClient = redisClient
 	return storeService
 }
@@ -126,4 +127,37 @@ func GetConnectionsForBackend(serverName string) ([]connection, error) {
 		connections = append(connections, c)
 	}
 	return connections, nil
+}
+
+func CleanupBackendKeys() error {
+	pattern := "backend:*:connections"
+	iter := storeService.redisClient.Scan(ctx, 0, pattern, 0).Iterator()
+	for iter.Next(ctx) {
+		key := iter.Val()
+		err := storeService.redisClient.Del(ctx, key).Err()
+		if err != nil {
+			return fmt.Errorf("failed to delete key %s: %v", key, err)
+		}
+		fmt.Printf("Deleted deleted key %s: %v", key, err)
+	}
+	if err := iter.Err(); err != nil {
+		return fmt.Errorf("error during Redis key scan: %v", err)
+	}
+	return nil
+}
+
+func RemoveBackendServer(serverName string) error {
+	connKey := fmt.Sprintf("backend:%s:connections", serverName)
+
+	err := storeService.redisClient.Del(ctx, connKey).Err()
+	if err != nil {
+		return fmt.Errorf("failed to delete connection key %s: %v", connKey, err)
+	}
+
+	err = storeService.redisClient.ZRem(ctx, "server_connection_count", serverName).Err()
+	if err != nil {
+		return fmt.Errorf("failed to remove server from server_connection_count: %v", err)
+	}
+
+	return nil
 }
