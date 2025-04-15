@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Total lines of code (excluding generated folders):"
-find . -type f \( -name "*.ts" -o -name "*.tsx" \) \
+find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.go" \) \
   -not -path "*/node_modules/*" \
   -not -path "*/dist/*" \
   -not -path "*/build/*" \
@@ -13,7 +13,7 @@ echo "------------------------------------"
 echo ""
 
 echo "Bigges files:"
-find . -type f \( -name "*.ts" -o -name "*.tsx" \) \
+find . -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.go" \) \
   -not -path "*/node_modules/*" \
   -not -path "*/dist/*" \
   -not -name "*.d.ts" \
