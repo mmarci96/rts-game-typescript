@@ -29,12 +29,7 @@ class Worker extends Unit implements ICollector {
             );
             if (distance > 1.6) {
                 this.setStatus("moving");
-                this.setupPathfinder(
-                    this.getX(),
-                    this.getY(),
-                    targetX,
-                    targetY,
-                );
+                this.setupPathfinder(targetX, targetY);
             } else {
                 this.setStatus("mining");
                 this.updateCollect(deltaTime);

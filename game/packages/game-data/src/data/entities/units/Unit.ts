@@ -4,6 +4,7 @@ import Movable from "../Movable";
 import Attacker from "../Attacker";
 import { IAttacker, IMovable } from "../../types";
 import { AStar } from "../../utils/pathfinding";
+import { MoveCommand } from "../../commands";
 
 abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
@@ -24,6 +25,10 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
             parameters.attackRange,
         );
         this.movable.setTarget(parameters.target.x, parameters.target.y);
+    }
+
+    handleMoveCommand(destination: { x: number; y: number }): void {
+        this.movable.handleMoveCommand(destination);
     }
 
     handleUpdateData(data: UnitUpdateData) {
@@ -72,7 +77,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
         if (!this.hasPath()) {
-            this.setupPathfinder(this.getX(), this.getY(), tx, tx);
+            this.setupPathfinder(tx, tx);
         }
         const dx = tx - this.getX();
         const dy = ty - this.getY();
@@ -130,13 +135,8 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         this.attacker.updateCooldown(deltaTime);
     }
 
-    setupPathfinder(
-        startX: number,
-        startY: number,
-        targetX: number,
-        targetY: number,
-    ): Tile[] {
-        return this.movable.setupPathfinder(startX, startY, targetX, targetY);
+    protected setupPathfinder(targetX: number, targetY: number): Tile[] {
+        return this.movable.setupPathfinder(targetX, targetY);
     }
 
     getAttackableTarget(): Attackable | null {

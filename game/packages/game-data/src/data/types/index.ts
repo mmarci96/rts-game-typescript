@@ -1,3 +1,4 @@
+import { MoveCommand } from "../commands";
 import { Resource } from "../entities";
 
 export interface GameUpdateData {
@@ -167,12 +168,7 @@ export interface IMovable {
     getTarget(): { targetX: number | null; targetY: number | null };
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;
-    setupPathfinder(
-        startX: number,
-        startY: number,
-        targetX: number,
-        targetY: number,
-    ): Tile[];
+    handleMoveCommand(destination: { x: number; y: number }): void;
 }
 
 export interface ICollector {

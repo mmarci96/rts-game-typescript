@@ -1,3 +1,4 @@
+import { MoveCommand } from "../commands";
 import { IMovable, Tile } from "../types";
 import { AStar } from "../utils/pathfinding";
 
@@ -36,21 +37,22 @@ class Movable implements IMovable {
         return true;
     }
 
+    handleMoveCommand(destination: { x: number; y: number }) {
+        return this.setupPathfinder(destination.x, destination.y);
+    }
+
     setTarget(targetX: number | null, targetY: number | null) {
         this.targetY = targetY;
         this.targetX = targetX;
     }
 
-    setupPathfinder(
-        startX: number,
-        startY: number,
-        targetX: number,
-        targetY: number,
-    ) {
+    setupPathfinder(targetX: number, targetY: number) {
         if (!this.aStar) {
             console.error("Pathfinder not initialized!");
             return [];
         }
+        const startX = this.currentX;
+        const startY = this.currentY;
         const currentTile = this.aStar.getTile(startX, startY);
         const targetTile = this.aStar.getTile(targetX, targetY);
         const path = this.aStar.search(currentTile, targetTile);
