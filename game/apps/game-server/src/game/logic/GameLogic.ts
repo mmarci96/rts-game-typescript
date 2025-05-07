@@ -87,12 +87,6 @@ class GameLogic {
         return this.entityController.loadMinedResources(player);
     }
 
-    handlePlayerCommands(commands: PlayerCommand[], player: Player) {
-        commands.forEach((command: PlayerCommand) => {
-            this.entityController.handlePlayerCommand(command, player);
-        });
-    }
-
     async saveGameState(redisCache: SaveGameStateParams) {
         await redisCache.cacheUnits(
             this.gameId,
