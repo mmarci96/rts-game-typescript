@@ -1,9 +1,13 @@
 import {
+    AttackCommand,
+    Command,
     ControlledEntity,
+    MineCommand,
     MoveCommand,
     Player,
     PlayerColor,
     Resource,
+    TrainCommand,
 } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
@@ -11,7 +15,6 @@ import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
 import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
-import { CommandOld } from "../../types";
 
 class MouseEventHandler {
     private player: Player;
@@ -65,7 +68,7 @@ class MouseEventHandler {
         this.overlay.updateSelection(this.selectedUnits);
     }
 
-    addCanvasEventListeners(createCommand: (commands: CommandOld[]) => void) {
+    addCanvasEventListeners(createCommand: (commands: Command[]) => void) {
         const ctx = this.canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");
@@ -188,7 +191,7 @@ class MouseEventHandler {
 
     createCommandsOnRightClick(clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
-        const commands: CommandOld[] = [];
+        const commands: Command[] = [];
         const entityArrSize = Math.round(Math.sqrt(this.selectedUnits.length));
         this.selectedUnits.forEach((unit, index) => {
             if (unit.isSelected) {
@@ -270,50 +273,37 @@ class MouseEventHandler {
             console.warn("Default cursor is not a valid image or URL.");
         }
     }
-    createMineResourceCommand(resourceId: string, unitId: string): CommandOld {
-        return {
-            action: "mining",
-            entityId: unitId,
-            targetId: resourceId,
-        };
+    createMineResourceCommand(resourceId: string, unitId: string): Command {
+        const timestamp = new Date();
+        const command = new MineCommand(timestamp, unitId, resourceId);
+        return command;
     }
 
-    createTrainUnitCommand(buildingId: string, unitType: string): CommandOld {
-        return {
-            action: "train",
-            entityId: buildingId,
-            unitType: unitType,
-        };
+    createTrainUnitCommand(buildingId: string, unitType: string): Command {
+        const timestamp = new Date();
+        const command = new TrainCommand(timestamp, buildingId, unitType);
+        return command;
     }
+
     createMoveUnitCommand(
         targetX: number,
         targetY: number,
         unitId: string,
-    ): CommandOld {
+    ): Command {
         const destination = { x: targetX, y: targetY };
         const timestamp = new Date();
         const command = new MoveCommand(timestamp, unitId, destination);
-        const action = "moving";
-        return {
-            entityId: unitId,
-            action: action,
-            targetX: targetX,
-            targetY: targetY,
-            targetId: undefined,
-            command,
-        };
+        return command;
     }
 
-    createAttackCommand(
-        targetUnit: ControlledEntity,
-        unitId: string,
-    ): CommandOld {
-        const action = "attack";
-        return {
-            entityId: unitId,
-            action: action,
-            targetId: targetUnit.getId(),
-        };
+    createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
+        const timestamp = new Date();
+        const command = new AttackCommand(
+            timestamp,
+            unitId,
+            targetUnit.getId(),
+        );
+        return command;
     }
 
     convertCursorPosition(clientX: number, clientY: number) {

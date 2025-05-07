@@ -2,20 +2,20 @@ import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
 import {
+    Command,
     GameState,
     GameUpdateData,
     PlayerColor,
     UnitData,
 } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
-import { CommandOld } from "../types";
 
 export class ConnectionHandler {
     private socket: Socket;
     private playerId: string;
     private gameId: string;
     private game: Game;
-    private pendingCommands: CommandOld[] = [];
+    private pendingCommands: Command[] = [];
     private lastPingTime = Date.now();
     private commandInterval: number = 0;
 
@@ -153,7 +153,7 @@ export class ConnectionHandler {
         displayGameOverScreen(data.name, afterGameUrl);
     }
 
-    private createCommand(commands: CommandOld[]) {
+    private createCommand(commands: Command[]) {
         console.log("Creating commands:", commands);
         this.pendingCommands.push(...commands);
     }
