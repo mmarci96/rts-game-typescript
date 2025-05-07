@@ -1,3 +1,4 @@
+import { Command } from "../../commands/Command";
 import { ActionProvider, BuildingParams } from "../../types";
 import Building from "./Building";
 
@@ -5,6 +6,10 @@ class MainBuilding extends Building implements ActionProvider {
     private currentTimer: number = 0;
     constructor(parameters: BuildingParams) {
         super(parameters);
+    }
+
+    handleCommand(command: Command): void {
+        console.log(command.commandType);
     }
 
     createUnit(unitType: string) {
@@ -36,6 +41,7 @@ class MainBuilding extends Building implements ActionProvider {
             this.currentTimer = 0;
         }
     }
+
     getType(): string {
         return "main";
     }

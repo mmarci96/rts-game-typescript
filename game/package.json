@@ -10,12 +10,13 @@
     "start:client": "pnpm --filter game-client dev",
     "start": "pnpm run start:ui  & pnpm run start:client & pnpm run start:api & pnpm run start:server",
     "update-packages": "pnpm --filter game-data build && pnpm --filter game-db build && pnpm add ./packages/game-data --workspace-root && pnpm add ./packages/game-db --workspace-root",
+    "update-gamedata": "pnpm --filter game-data build && pnpm add ./packages/game-data --workspace-root",
     "test": "pnpm recursive run test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.8.1",
+  "packageManager": "pnpm@10.10.0",
   "dependencies": {
     "@packages/game-data": "link:packages/game-data",
     "@packages/game-db": "link:packages/game-db",

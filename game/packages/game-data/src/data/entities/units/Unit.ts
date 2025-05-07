@@ -5,7 +5,7 @@ import Attacker from "../Attacker";
 import { IAttacker, IMovable } from "../../types";
 import { AStar } from "../../utils/pathfinding";
 
-class Unit extends Attackable implements IAttacker, IMovable {
+abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
     private movable: Movable;
     private attacker: Attacker;

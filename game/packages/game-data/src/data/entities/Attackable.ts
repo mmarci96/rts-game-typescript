@@ -1,7 +1,7 @@
 import { AttackableParams, IAttackable } from "../types";
 import ControlledEntity from "./ControlledEntity";
 
-class Attackable extends ControlledEntity implements IAttackable {
+abstract class Attackable extends ControlledEntity implements IAttackable {
     private health: number;
     private maxHealth: number;
 

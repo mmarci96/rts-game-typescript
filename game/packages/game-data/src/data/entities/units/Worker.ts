@@ -4,6 +4,7 @@ import Collector from "../Collector";
 import { calculateDistance } from "../../utils";
 import { AStar } from "../../utils/pathfinding";
 import { Resource } from "../resources";
+import { Command } from "../../commands/Command";
 
 class Worker extends Unit implements ICollector {
     collector: Collector;
@@ -11,6 +12,10 @@ class Worker extends Unit implements ICollector {
     constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters, aStar);
         this.collector = new Collector(5);
+    }
+
+    handleCommand(command: Command): void {
+        console.log(command.commandType);
     }
 
     mining(deltaTime: number): void {
