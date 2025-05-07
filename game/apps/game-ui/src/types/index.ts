@@ -1,14 +1,4 @@
-import { Command, PlayerColor, Tile } from "@packages/game-data";
-
-export interface CommandOld {
-    action: string;
-    entityId: string;
-    targetX?: number;
-    targetY?: number;
-    targetId?: string;
-    unitType?: string;
-    command?: Command;
-}
+import { PlayerColor, Tile } from "@packages/game-data";
 
 export interface PlayerData {
     id: string;

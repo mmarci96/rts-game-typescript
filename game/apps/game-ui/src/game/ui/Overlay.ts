@@ -1,7 +1,12 @@
-import { Building, MainBuilding, Unit } from "@packages/game-data";
+import {
+    Building,
+    Command,
+    MainBuilding,
+    TrainCommand,
+    Unit,
+} from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import StatusBar from "./Statusbar";
-import { CommandOld } from "../../types";
 
 class Overlay {
     private overlayDiv;
@@ -72,7 +77,7 @@ class Overlay {
 
     displayUnitSelection(
         selectedList: Drawable[],
-        createTrainUnitCommand: (commands: CommandOld[]) => void,
+        createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         this.selectedList = selectedList;
         if (!this.overlayDiv) {
@@ -118,7 +123,7 @@ class Overlay {
     displayAvailableActions(
         entity: Drawable,
         selectionDetails: HTMLElement,
-        createTrainUnitCommand: (commands: CommandOld[]) => void,
+        createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         if (!(entity.entity instanceof MainBuilding)) {
             return;
@@ -158,7 +163,7 @@ class Overlay {
     createActionCard(
         action: string,
         id: string | null,
-        createTrainUnitCommand: (commands: CommandOld[]) => void,
+        createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         const card = this.actionCard(action, id, createTrainUnitCommand);
         return card;
@@ -167,7 +172,7 @@ class Overlay {
     actionCard(
         actionText: string,
         id: string | null,
-        createTrainUnitCommand: (commands: CommandOld[]) => void,
+        createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         const unitType = actionText.split("_")[1].toLowerCase();
         const unitCard = document.createElement("li");
@@ -187,11 +192,7 @@ class Overlay {
             if (!id) {
                 return;
             }
-            const command: CommandOld = {
-                entityId: id,
-                unitType: unitType,
-                action: "train",
-            };
+            const command: Command = new TrainCommand(new Date(), id, unitType);
             createTrainUnitCommand([command]);
         });
         icon.textContent = actionIcon;
