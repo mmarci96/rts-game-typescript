@@ -1,10 +1,9 @@
 import Unit from "./Unit";
-import { ICollector, UnitParams } from "../../types";
+import { Command, ICollector, UnitParams } from "../../types";
 import Collector from "../Collector";
 import { calculateDistance } from "../../utils";
 import { AStar } from "../../utils/pathfinding";
 import { Resource } from "../resources";
-import { Command } from "../../commands/Command";
 
 class Worker extends Unit implements ICollector {
     collector: Collector;

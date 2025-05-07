@@ -1,5 +1,4 @@
-import { Command } from "../commands/Command";
-import { ControlledEntityParams } from "../types";
+import { Command, ControlledEntityParams } from "../types";
 import GameEntity from "./GameEntity";
 
 abstract class ControlledEntity extends GameEntity {

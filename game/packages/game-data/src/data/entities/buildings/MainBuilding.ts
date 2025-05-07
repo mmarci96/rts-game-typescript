@@ -1,5 +1,4 @@
-import { Command } from "../../commands/Command";
-import { ActionProvider, BuildingParams } from "../../types";
+import { ActionProvider, Command, BuildingParams } from "../../types";
 import Building from "./Building";
 
 class MainBuilding extends Building implements ActionProvider {

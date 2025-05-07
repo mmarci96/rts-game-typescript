@@ -1,4 +1,4 @@
-import { Command } from "./Command";
+import { Command } from "../types";
 
 class MoveCommand implements Command {
     readonly commandType: string = "move";

@@ -233,3 +233,9 @@ export interface Tile {
     pos: { x: number; y: number };
     isPassable: () => boolean;
 }
+
+export interface Command {
+    commandType: string;
+    timestamp: Date;
+    targetEntityId: string;
+}
