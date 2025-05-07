@@ -4,7 +4,6 @@ import Movable from "../Movable";
 import Attacker from "../Attacker";
 import { IAttacker, IMovable } from "../../types";
 import { AStar } from "../../utils/pathfinding";
-import { MoveCommand } from "../../commands";
 
 abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
@@ -28,6 +27,8 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     handleMoveCommand(destination: { x: number; y: number }): void {
+        this.setStatus("moving");
+        this.setAttackableTarget(null);
         this.movable.handleMoveCommand(destination);
     }
 
