@@ -8,14 +8,14 @@ import {
     UnitData,
 } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
-import { Command } from "../types";
+import { CommandOld } from "../types";
 
 export class ConnectionHandler {
     private socket: Socket;
     private playerId: string;
     private gameId: string;
     private game: Game;
-    private pendingCommands: Command[] = [];
+    private pendingCommands: CommandOld[] = [];
     private lastPingTime = Date.now();
     private commandInterval: number = 0;
 
@@ -153,7 +153,7 @@ export class ConnectionHandler {
         displayGameOverScreen(data.name, afterGameUrl);
     }
 
-    private createCommand(commands: Command[]) {
+    private createCommand(commands: CommandOld[]) {
         console.log("Creating commands:", commands);
         this.pendingCommands.push(...commands);
     }

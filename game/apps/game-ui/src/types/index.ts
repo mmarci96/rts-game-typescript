@@ -1,12 +1,13 @@
-import { PlayerColor, Tile } from "@packages/game-data";
+import { Command, PlayerColor, Tile } from "@packages/game-data";
 
-export interface Command {
+export interface CommandOld {
     action: string;
     entityId: string;
     targetX?: number;
     targetY?: number;
     targetId?: string;
     unitType?: string;
+    command?: Command;
 }
 
 export interface PlayerData {
@@ -23,5 +24,3 @@ export interface MapData {
     size: string;
     createdAt: Date;
 }
-
-

@@ -16,7 +16,7 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
-import { Command } from "../../types";
+import { CommandOld } from "../../types";
 import Overlay from "../ui/Overlay";
 
 class GameLogic {
@@ -81,7 +81,7 @@ class GameLogic {
         Overlay.statusBar.setResource("wood", playerResources.wood);
     }
 
-    startGameLoop(createCommand: (commands: Command[]) => void) {
+    startGameLoop(createCommand: (commands: CommandOld[]) => void) {
         this.running = true;
         const context = this.gameCanvas.getContext();
         const ctx: CanvasRenderingContext2D | null = context;

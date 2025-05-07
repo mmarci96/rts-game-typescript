@@ -1,11 +1,17 @@
-import { ControlledEntity, Player, PlayerColor, Resource } from "@packages/game-data";
+import {
+    ControlledEntity,
+    MoveCommand,
+    Player,
+    PlayerColor,
+    Resource,
+} from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
 import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
-import { Command } from "../../types";
+import { CommandOld } from "../../types";
 
 class MouseEventHandler {
     private player: Player;
@@ -43,25 +49,23 @@ class MouseEventHandler {
         this.assets = assets;
         this.entities = [];
         this.selectedUnits = [];
-        this.setCursor("default")
+        this.setCursor("default");
     }
 
     updateDrawables(drawables: Iterable<Drawable>) {
         this.entities = Array.from(drawables);
         this.selectedUnits.forEach((selected: Drawable) => {
-            const updater = this.entities
-                .find(
-                    (updatedDrawable) => updatedDrawable.entity.getId() === selected.entity.getId()
-                );
+            const updater = this.entities.find(
+                (updatedDrawable) =>
+                    updatedDrawable.entity.getId() === selected.entity.getId(),
+            );
             if (!updater) return;
             selected.entity = updater.entity;
-        })
+        });
         this.overlay.updateSelection(this.selectedUnits);
     }
 
-    addCanvasEventListeners(
-        createCommand: (commands: Command[]) => void,
-    ) {
+    addCanvasEventListeners(createCommand: (commands: CommandOld[]) => void) {
         const ctx = this.canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");
@@ -102,9 +106,7 @@ class MouseEventHandler {
             const selectableEntities: Drawable[] = [];
             this.entities.forEach((drawable: Drawable) => {
                 if (drawable.entity instanceof ControlledEntity) {
-                    if (
-                        drawable.entity.getColor() === this.player.getColor()
-                    ) {
+                    if (drawable.entity.getColor() === this.player.getColor()) {
                         selectableEntities.push(drawable);
                     }
                 } else {
@@ -175,17 +177,18 @@ class MouseEventHandler {
             this.setCursor("attack");
         } else if (hoveredEntity.entity instanceof Resource) {
             const selectedWorkers = this.selectedUnits.filter(
-                (drawable: Drawable) => drawable.entity.getType() === "worker" && drawable
-            )
+                (drawable: Drawable) =>
+                    drawable.entity.getType() === "worker" && drawable,
+            );
             if (selectedWorkers.length >= 1) {
-                this.setCursor("mine")
+                this.setCursor("mine");
             }
         }
     }
 
     createCommandsOnRightClick(clientX: number, clientY: number) {
         const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
-        const commands: Command[] = [];
+        const commands: CommandOld[] = [];
         const entityArrSize = Math.round(Math.sqrt(this.selectedUnits.length));
         this.selectedUnits.forEach((unit, index) => {
             if (unit.isSelected) {
@@ -200,10 +203,14 @@ class MouseEventHandler {
                             unit.entity.getId(),
                         );
                         commands.push(attackCommand);
-                    } if (targetEntity instanceof Resource) {
+                    }
+                    if (targetEntity instanceof Resource) {
                         console.log(targetEntity);
-                        const mineCommand = this.createMineResourceCommand(targetEntity.getId(), unit.entity.getId())
-                        commands.push(mineCommand)
+                        const mineCommand = this.createMineResourceCommand(
+                            targetEntity.getId(),
+                            unit.entity.getId(),
+                        );
+                        commands.push(mineCommand);
                     }
                 } else {
                     let { targetX, targetY } = this.createCheapGrid(
@@ -215,7 +222,7 @@ class MouseEventHandler {
                         index,
                     );
                     if (targetX < 0) {
-                        targetX = 0.01
+                        targetX = 0.01;
                     }
                     if (targetY < 0) {
                         targetY = 0.01;
@@ -263,15 +270,15 @@ class MouseEventHandler {
             console.warn("Default cursor is not a valid image or URL.");
         }
     }
-    createMineResourceCommand(resourceId: string, unitId: string): Command {
+    createMineResourceCommand(resourceId: string, unitId: string): CommandOld {
         return {
             action: "mining",
             entityId: unitId,
-            targetId: resourceId
-        }
+            targetId: resourceId,
+        };
     }
 
-    createTrainUnitCommand(buildingId: string, unitType: string): Command {
+    createTrainUnitCommand(buildingId: string, unitType: string): CommandOld {
         return {
             action: "train",
             entityId: buildingId,
@@ -282,7 +289,10 @@ class MouseEventHandler {
         targetX: number,
         targetY: number,
         unitId: string,
-    ): Command {
+    ): CommandOld {
+        const destination = { x: targetX, y: targetY };
+        const timestamp = new Date();
+        const command = new MoveCommand(timestamp, unitId, destination);
         const action = "moving";
         return {
             entityId: unitId,
@@ -290,10 +300,14 @@ class MouseEventHandler {
             targetX: targetX,
             targetY: targetY,
             targetId: undefined,
+            command,
         };
     }
 
-    createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
+    createAttackCommand(
+        targetUnit: ControlledEntity,
+        unitId: string,
+    ): CommandOld {
         const action = "attack";
         return {
             entityId: unitId,

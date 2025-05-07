@@ -1,7 +1,7 @@
 import { Building, MainBuilding, Unit } from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import StatusBar from "./Statusbar";
-import { Command } from "../../types";
+import { CommandOld } from "../../types";
 
 class Overlay {
     private overlayDiv;
@@ -37,7 +37,7 @@ class Overlay {
         if (!drawables.length) {
             return;
         }
-        this.selectedList = drawables
+        this.selectedList = drawables;
         if (!this.overlayDiv) {
             return;
         }
@@ -72,7 +72,7 @@ class Overlay {
 
     displayUnitSelection(
         selectedList: Drawable[],
-        createTrainUnitCommand: (commands: Command[]) => void,
+        createTrainUnitCommand: (commands: CommandOld[]) => void,
     ) {
         this.selectedList = selectedList;
         if (!this.overlayDiv) {
@@ -118,7 +118,7 @@ class Overlay {
     displayAvailableActions(
         entity: Drawable,
         selectionDetails: HTMLElement,
-        createTrainUnitCommand: (commands: Command[]) => void,
+        createTrainUnitCommand: (commands: CommandOld[]) => void,
     ) {
         if (!(entity.entity instanceof MainBuilding)) {
             return;
@@ -141,7 +141,10 @@ class Overlay {
         selectionDetails: HTMLElement,
     ) {
         selectionList.forEach((selected) => {
-            if (!(selected.entity instanceof Unit) && !(selected.entity instanceof Building)) {
+            if (
+                !(selected.entity instanceof Unit) &&
+                !(selected.entity instanceof Building)
+            ) {
                 return;
             }
             const hp = selected.entity.getHealth();
@@ -155,7 +158,7 @@ class Overlay {
     createActionCard(
         action: string,
         id: string | null,
-        createTrainUnitCommand: (commands: Command[]) => void,
+        createTrainUnitCommand: (commands: CommandOld[]) => void,
     ) {
         const card = this.actionCard(action, id, createTrainUnitCommand);
         return card;
@@ -164,7 +167,7 @@ class Overlay {
     actionCard(
         actionText: string,
         id: string | null,
-        createTrainUnitCommand: (commands: Command[]) => void,
+        createTrainUnitCommand: (commands: CommandOld[]) => void,
     ) {
         const unitType = actionText.split("_")[1].toLowerCase();
         const unitCard = document.createElement("li");
@@ -184,7 +187,7 @@ class Overlay {
             if (!id) {
                 return;
             }
-            const command: Command = {
+            const command: CommandOld = {
                 entityId: id,
                 unitType: unitType,
                 action: "train",
