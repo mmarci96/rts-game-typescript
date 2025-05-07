@@ -1,4 +1,5 @@
 import {
+    GameEntity,
     GameMap,
     GameState,
     Player,
@@ -7,7 +8,7 @@ import {
 } from "@packages/game-data/dist";
 import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
-import { PlayerCommand, SaveGameStateParams } from "../../types";
+import { SaveGameStateParams } from "../../types";
 import BuildingController from "./BuildingController";
 import ResourceController from "./ResourceController";
 import UnitController from "./UnitController";
@@ -124,6 +125,10 @@ class GameLogic {
 
     getWinner() {
         return this.winner;
+    }
+
+    getEntityById(id: string): GameEntity | null {
+        return this.entityController.getEntityById(id);
     }
 }
 

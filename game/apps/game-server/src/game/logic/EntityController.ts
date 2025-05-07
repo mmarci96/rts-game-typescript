@@ -1,10 +1,8 @@
 import {
-    Attackable,
     Building,
     GameEntity,
     GameState,
     GameUpdateData,
-    MainBuilding,
     Player,
     Resource,
     ResourceUpdateData,
@@ -12,14 +10,10 @@ import {
     Unit,
     UnitData,
     UnitUpdateData,
-    Worker,
 } from "@packages/game-data/dist";
 import BuildingController from "./BuildingController";
 import ResourceController from "./ResourceController";
 import UnitController from "./UnitController";
-import { PlayerCommand } from "../../types";
-import { createUnit } from "@packages/game-db/dist";
-import { mapMongoUnitToData } from "../../utils/parseData";
 
 const UNIT_CONSTRUCTION_COST = {
     warrior: { food: 20, wood: 20 },
@@ -108,6 +102,22 @@ class EntityController {
             buildingUpdateData,
             resourceUpdateData,
         };
+    }
+
+    getEntityById(id: string): GameEntity | null {
+        const unit = this.unitController.getUnitById(id);
+        if (unit) {
+            return unit;
+        }
+        const building = this.buildingController.getBuildingById(id);
+        if (building) {
+            return building;
+        }
+        const resource = this.resourceController.getResourceById(id);
+        if (resource) {
+            return resource;
+        }
+        return null;
     }
 
     getUnits(): Unit[] {
