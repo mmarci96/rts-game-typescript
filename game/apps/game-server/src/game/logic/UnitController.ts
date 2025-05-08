@@ -30,10 +30,42 @@ class UnitController {
                 return;
             }
             unit.update(deltaTime);
-            if (unit.idleTime >= 1 && unit.idleTime < 2) {
+            if (unit.idleTime >= 1 && unit.idleTime < 10) {
                 this.adjustIdleUnitPosition(unit);
             }
+            this.handleAggro(unit);
         });
+    }
+
+    private handleAggro(unit: Unit) {
+        if (unit.getStatus() !== "idle") {
+            return;
+        }
+        const target = this.getEnemyUnitInRange(unit);
+        if (!target) {
+            return;
+        }
+        unit.setAttackableTarget(target);
+        unit.setStatus("moving");
+    }
+
+    private getEnemyUnitInRange(unit: Unit): Unit | null {
+        const radius = 8 + unit.getAttackRange() / 10;
+        const maxX = unit.getX() + radius;
+        const minX = unit.getX() - radius;
+        const maxY = unit.getY() + radius;
+        const minY = unit.getY() - radius;
+        const enemyUnit = this.getEnemyUnits(unit.getColor()).find((eUnit) => {
+            const tx = eUnit.getX();
+            const ty = eUnit.getY();
+            if (tx >= minX && tx <= maxX && ty >= minY && ty <= maxY) {
+                return eUnit;
+            }
+        });
+        if (!enemyUnit) {
+            return null;
+        }
+        return enemyUnit;
     }
 
     groupUnitsByColor(): Record<PlayerColor, Unit[]> {
