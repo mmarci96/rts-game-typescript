@@ -125,10 +125,8 @@ class MouseEventHandler {
 
                 if (this.selectedUnits.length > 0) {
                     this.selectionActive = true;
-                    this.overlay.setVisible();
                 } else {
                     this.selectionActive = false;
-                    this.overlay.setInvisible();
                 }
                 this.overlay.displayUnitSelection(
                     this.selectedUnits,
