@@ -1,9 +1,9 @@
 import { createUnit } from "@packages/game-db";
 import Game from "../Game";
 import {
+    Attackable,
     AttackCommand,
     Command,
-    GameEntity,
     MainBuilding,
     MineCommand,
     MoveCommand,
@@ -27,34 +27,21 @@ export class GameCommandService {
         player: Player,
     ) {
         for (const command of commands) {
-            const entity = game
-                .getLogic()
-                .getEntityById(command.targetEntityId);
-            if (!entity) {
-                console.error("No entity found: ", command.targetEntityId);
-                return;
-            }
-            console.log("Entity found: ", entity);
-
             switch (command.commandType) {
                 case "move":
                     const moveCommand = command as MoveCommand;
-                    this.handleMoveCommand(moveCommand, entity);
+                    this.handleMoveCommand(moveCommand, game);
                     console.log("Movecommand processed: ", moveCommand);
                     break;
                 case "train":
                     const trainCommand = command as TrainCommand;
                     console.log("Traincommand processed: ", trainCommand);
-                    await this.handleTrainCommand(
-                        trainCommand,
-                        entity,
-                        player,
-                        game,
-                    );
+                    await this.handleTrainCommand(trainCommand, player, game);
                     break;
                 case "attack":
                     const attackCommand = command as AttackCommand;
                     console.log("AttackCommand processed: ", attackCommand);
+                    this.handleAttackCommand(attackCommand, game);
                     break;
                 case "mine":
                     const mineCommand = command as MineCommand;
@@ -67,12 +54,27 @@ export class GameCommandService {
         }
     }
 
-    async handleTrainCommand(
+    private handleAttackCommand(command: AttackCommand, game: Game) {
+        const unit = game.getLogic().getEntityById(command.targetEntityId);
+        if (!(unit instanceof Unit)) {
+            console.error("No unit found: ", command.targetEntityId);
+            return;
+        }
+        const victim = game.getLogic().getEntityById(command.atttackTargetId);
+        if (!(victim instanceof Attackable)) {
+            console.error("No target found: ", command.atttackTargetId);
+            return;
+        }
+        unit.setAttackableTarget(victim as Attackable);
+        unit.setStatus("moving");
+    }
+
+    private async handleTrainCommand(
         command: TrainCommand,
-        building: GameEntity,
         player: Player,
         game: Game,
     ) {
+        const building = game.getLogic().getEntityById(command.targetEntityId);
         if (!(building instanceof MainBuilding)) {
             console.error("Entity cannot train units");
             return;
@@ -100,11 +102,12 @@ export class GameCommandService {
         }
     }
 
-    private handleMoveCommand(comm: MoveCommand, entity: GameEntity) {
+    private handleMoveCommand(command: MoveCommand, game: Game) {
+        const entity = game.getLogic().getEntityById(command.targetEntityId);
         if (!(entity instanceof Unit)) {
             console.error("This entity cannot move!");
             return;
         }
-        entity.handleMoveCommand(comm.destination);
+        entity.handleMoveCommand(command.destination);
     }
 }

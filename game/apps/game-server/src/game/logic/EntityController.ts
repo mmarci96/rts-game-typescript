@@ -20,19 +20,16 @@ class EntityController {
     private buildingController: BuildingController;
     private resourceController: ResourceController;
     private createdUnits: Set<UnitData>;
-    private gameId: string;
 
     constructor(
         unitController: UnitController,
         buildingController: BuildingController,
         resourceController: ResourceController,
-        gameId: string,
     ) {
         this.unitController = unitController;
         this.buildingController = buildingController;
         this.resourceController = resourceController;
         this.createdUnits = new Set();
-        this.gameId = gameId;
     }
 
     loadEntities(data: GameState) {

@@ -36,7 +36,6 @@ class GameLogic {
             unitController,
             buildingController,
             resourceController,
-            this.gameId,
         );
 
         this.loadData(gameData);
