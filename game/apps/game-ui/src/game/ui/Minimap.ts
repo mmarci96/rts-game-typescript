@@ -25,9 +25,11 @@ class Minimap {
         for (let y = 0; y < this.tiles.length; y++) {
             const row = this.tiles[y];
             for (let x = 0; x < row.length; x++) {
+                console.log(row[x]);
+
                 const tileSize = 156 / row.length;
                 const tname = row[x].tile;
-                ctx.fillStyle = tname === "water1" ? "blue" : "brown";
+                ctx.fillStyle = tname === "water1" ? "blue" : "green";
                 ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
             }
         }
