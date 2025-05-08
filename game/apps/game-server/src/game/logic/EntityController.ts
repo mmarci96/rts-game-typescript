@@ -15,13 +15,6 @@ import BuildingController from "./BuildingController";
 import ResourceController from "./ResourceController";
 import UnitController from "./UnitController";
 
-const UNIT_CONSTRUCTION_COST = {
-    warrior: { food: 20, wood: 20 },
-    worker: { food: 20, wood: 0 },
-    archer: { food: 30, wood: 30 },
-} as const;
-type UnitType = keyof typeof UNIT_CONSTRUCTION_COST;
-
 class EntityController {
     private unitController: UnitController;
     private buildingController: BuildingController;
@@ -68,6 +61,10 @@ class EntityController {
 
     emptyCreatedUnits() {
         this.createdUnits.clear();
+    }
+
+    addCreatedUnit(data: UnitData) {
+        this.createdUnits.add(data);
     }
 
     getEntityUpdateData(): GameUpdateData {

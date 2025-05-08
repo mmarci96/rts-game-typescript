@@ -55,6 +55,10 @@ class GameLogic {
         this.entityController.loadCreatedUnit(data);
     }
 
+    addCreatedUnit(data: UnitData) {
+        this.entityController.addCreatedUnit(data);
+    }
+
     emptyCreatedUnits() {
         this.entityController.emptyCreatedUnits();
     }
