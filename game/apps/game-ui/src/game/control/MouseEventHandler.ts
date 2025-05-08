@@ -1,11 +1,20 @@
-import { ControlledEntity, Player, PlayerColor, Resource } from "@packages/game-data";
+import {
+    AttackCommand,
+    Command,
+    ControlledEntity,
+    MineCommand,
+    MoveCommand,
+    Player,
+    PlayerColor,
+    Resource,
+    TrainCommand,
+} from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
 import SelectionBox from "../ui/SelectionBox";
 import Drawable from "../data/Drawable";
 import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
-import { Command } from "../../types";
 
 class MouseEventHandler {
     private player: Player;
@@ -43,25 +52,23 @@ class MouseEventHandler {
         this.assets = assets;
         this.entities = [];
         this.selectedUnits = [];
-        this.setCursor("default")
+        this.setCursor("default");
     }
 
     updateDrawables(drawables: Iterable<Drawable>) {
         this.entities = Array.from(drawables);
         this.selectedUnits.forEach((selected: Drawable) => {
-            const updater = this.entities
-                .find(
-                    (updatedDrawable) => updatedDrawable.entity.getId() === selected.entity.getId()
-                );
+            const updater = this.entities.find(
+                (updatedDrawable) =>
+                    updatedDrawable.entity.getId() === selected.entity.getId(),
+            );
             if (!updater) return;
             selected.entity = updater.entity;
-        })
+        });
         this.overlay.updateSelection(this.selectedUnits);
     }
 
-    addCanvasEventListeners(
-        createCommand: (commands: Command[]) => void,
-    ) {
+    addCanvasEventListeners(createCommand: (commands: Command[]) => void) {
         const ctx = this.canvas.getContext("2d");
         if (!ctx) {
             throw new Error("no canvas");
@@ -102,9 +109,7 @@ class MouseEventHandler {
             const selectableEntities: Drawable[] = [];
             this.entities.forEach((drawable: Drawable) => {
                 if (drawable.entity instanceof ControlledEntity) {
-                    if (
-                        drawable.entity.getColor() === this.player.getColor()
-                    ) {
+                    if (drawable.entity.getColor() === this.player.getColor()) {
                         selectableEntities.push(drawable);
                     }
                 } else {
@@ -175,10 +180,11 @@ class MouseEventHandler {
             this.setCursor("attack");
         } else if (hoveredEntity.entity instanceof Resource) {
             const selectedWorkers = this.selectedUnits.filter(
-                (drawable: Drawable) => drawable.entity.getType() === "worker" && drawable
-            )
+                (drawable: Drawable) =>
+                    drawable.entity.getType() === "worker" && drawable,
+            );
             if (selectedWorkers.length >= 1) {
-                this.setCursor("mine")
+                this.setCursor("mine");
             }
         }
     }
@@ -200,10 +206,14 @@ class MouseEventHandler {
                             unit.entity.getId(),
                         );
                         commands.push(attackCommand);
-                    } if (targetEntity instanceof Resource) {
+                    }
+                    if (targetEntity instanceof Resource) {
                         console.log(targetEntity);
-                        const mineCommand = this.createMineResourceCommand(targetEntity.getId(), unit.entity.getId())
-                        commands.push(mineCommand)
+                        const mineCommand = this.createMineResourceCommand(
+                            targetEntity.getId(),
+                            unit.entity.getId(),
+                        );
+                        commands.push(mineCommand);
                     }
                 } else {
                     let { targetX, targetY } = this.createCheapGrid(
@@ -215,7 +225,7 @@ class MouseEventHandler {
                         index,
                     );
                     if (targetX < 0) {
-                        targetX = 0.01
+                        targetX = 0.01;
                     }
                     if (targetY < 0) {
                         targetY = 0.01;
@@ -264,42 +274,36 @@ class MouseEventHandler {
         }
     }
     createMineResourceCommand(resourceId: string, unitId: string): Command {
-        return {
-            action: "mining",
-            entityId: unitId,
-            targetId: resourceId
-        }
+        const timestamp = new Date();
+        const command = new MineCommand(timestamp, unitId, resourceId);
+        return command;
     }
 
     createTrainUnitCommand(buildingId: string, unitType: string): Command {
-        return {
-            action: "train",
-            entityId: buildingId,
-            unitType: unitType,
-        };
+        const timestamp = new Date();
+        const command = new TrainCommand(timestamp, buildingId, unitType);
+        return command;
     }
+
     createMoveUnitCommand(
         targetX: number,
         targetY: number,
         unitId: string,
     ): Command {
-        const action = "moving";
-        return {
-            entityId: unitId,
-            action: action,
-            targetX: targetX,
-            targetY: targetY,
-            targetId: undefined,
-        };
+        const destination = { x: targetX, y: targetY };
+        const timestamp = new Date();
+        const command = new MoveCommand(timestamp, unitId, destination);
+        return command;
     }
 
     createAttackCommand(targetUnit: ControlledEntity, unitId: string): Command {
-        const action = "attack";
-        return {
-            entityId: unitId,
-            action: action,
-            targetId: targetUnit.getId(),
-        };
+        const timestamp = new Date();
+        const command = new AttackCommand(
+            timestamp,
+            unitId,
+            targetUnit.getId(),
+        );
+        return command;
     }
 
     convertCursorPosition(clientX: number, clientY: number) {

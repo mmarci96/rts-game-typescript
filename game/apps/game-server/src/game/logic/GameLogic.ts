@@ -1,4 +1,5 @@
 import {
+    GameEntity,
     GameMap,
     GameState,
     Player,
@@ -7,7 +8,7 @@ import {
 } from "@packages/game-data/dist";
 import { IMap, IPlayer } from "@packages/game-db/dist";
 import EntityController from "./EntityController";
-import { PlayerCommand, SaveGameStateParams } from "../../types";
+import { SaveGameStateParams } from "../../types";
 import BuildingController from "./BuildingController";
 import ResourceController from "./ResourceController";
 import UnitController from "./UnitController";
@@ -35,7 +36,6 @@ class GameLogic {
             unitController,
             buildingController,
             resourceController,
-            this.gameId,
         );
 
         this.loadData(gameData);
@@ -52,6 +52,10 @@ class GameLogic {
 
     loadCreatedUnit(data: UnitData) {
         this.entityController.loadCreatedUnit(data);
+    }
+
+    addCreatedUnit(data: UnitData) {
+        this.entityController.addCreatedUnit(data);
     }
 
     emptyCreatedUnits() {
@@ -85,12 +89,6 @@ class GameLogic {
 
     loadMinedResources(player: Player) {
         return this.entityController.loadMinedResources(player);
-    }
-
-    handlePlayerCommands(commands: PlayerCommand[], player: Player) {
-        commands.forEach((command: PlayerCommand) => {
-            this.entityController.handlePlayerCommand(command, player);
-        });
     }
 
     async saveGameState(redisCache: SaveGameStateParams) {
@@ -130,6 +128,22 @@ class GameLogic {
 
     getWinner() {
         return this.winner;
+    }
+
+    getEntityById(id: string): GameEntity | null {
+        return this.entityController.getEntityById(id);
+    }
+
+    getUnitById(id: string) {
+        return this.entityController.getUnitById(id);
+    }
+
+    getBuildingById(id: string) {
+        return this.entityController.getBuildingById(id);
+    }
+
+    getResourceById(id: string) {
+        return this.entityController.getResourceById(id);
     }
 }
 

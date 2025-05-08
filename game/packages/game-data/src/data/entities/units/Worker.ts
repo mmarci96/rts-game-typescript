@@ -13,6 +13,30 @@ class Worker extends Unit implements ICollector {
         this.collector = new Collector(5);
     }
 
+    update(deltaTime: number) {
+        let state = this.getStatus();
+        if (state !== "idle") this.idleTime = 0;
+        switch (state) {
+            case "attack":
+                this.attackHandler();
+                break;
+            case "moving":
+                this.updatePosition(deltaTime);
+                break;
+            case "cooldown":
+                this.updateCooldown(deltaTime);
+                break;
+            case "idle":
+                this.idleTime += deltaTime;
+                break;
+            case "mining":
+                this.mining(deltaTime);
+                break;
+            default:
+                break;
+        }
+    }
+
     mining(deltaTime: number): void {
         const targetResource = this.getTargetResource();
         if (targetResource) {
@@ -25,12 +49,7 @@ class Worker extends Unit implements ICollector {
             );
             if (distance > 1.6) {
                 this.setStatus("moving");
-                this.setupPathfinder(
-                    this.getX(),
-                    this.getY(),
-                    targetX,
-                    targetY,
-                );
+                this.setupPathfinder(targetX, targetY);
             } else {
                 this.setStatus("mining");
                 this.updateCollect(deltaTime);

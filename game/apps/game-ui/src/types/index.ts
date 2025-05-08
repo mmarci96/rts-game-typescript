@@ -1,14 +1,5 @@
 import { PlayerColor, Tile } from "@packages/game-data";
 
-export interface Command {
-    action: string;
-    entityId: string;
-    targetX?: number;
-    targetY?: number;
-    targetId?: string;
-    unitType?: string;
-}
-
 export interface PlayerData {
     id: string;
     color: PlayerColor;
@@ -23,5 +14,3 @@ export interface MapData {
     size: string;
     createdAt: Date;
 }
-
-

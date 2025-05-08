@@ -2,13 +2,13 @@ import { io, Socket } from "socket.io-client";
 import GameLoader from "../game/GameLoader";
 import Game from "../game/Game";
 import {
+    Command,
     GameState,
     GameUpdateData,
     PlayerColor,
     UnitData,
 } from "@packages/game-data/dist";
 import Overlay from "../game/ui/Overlay";
-import { Command } from "../types";
 
 export class ConnectionHandler {
     private socket: Socket;

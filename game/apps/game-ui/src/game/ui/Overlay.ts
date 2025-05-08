@@ -1,7 +1,12 @@
-import { Building, MainBuilding, Unit } from "@packages/game-data";
+import {
+    Building,
+    Command,
+    MainBuilding,
+    TrainCommand,
+    Unit,
+} from "@packages/game-data";
 import Drawable from "../data/Drawable";
 import StatusBar from "./Statusbar";
-import { Command } from "../../types";
 
 class Overlay {
     private overlayDiv;
@@ -187,11 +192,7 @@ class Overlay {
             if (!id) {
                 return;
             }
-            const command: Command = {
-                entityId: id,
-                unitType: unitType,
-                action: "train",
-            };
+            const command: Command = new TrainCommand(new Date(), id, unitType);
             createTrainUnitCommand([command]);
         });
         icon.textContent = actionIcon;

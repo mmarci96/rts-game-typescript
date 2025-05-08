@@ -153,7 +153,7 @@ export interface IAttackable {
 }
 
 export interface IAttacker {
-    attack(target: IAttackable): string;
+    attack(): string;
     getAttackableTarget(): IAttackable | null;
     setAttackableTarget(target: IAttackable | null): void;
     getAttackRange(): number;
@@ -167,12 +167,7 @@ export interface IMovable {
     getTarget(): { targetX: number | null; targetY: number | null };
     setTarget(x: number | null, y: number | null): void;
     getSpeed(): number;
-    setupPathfinder(
-        startX: number,
-        startY: number,
-        targetX: number,
-        targetY: number,
-    ): Tile[];
+    handleMoveCommand(destination: { x: number; y: number }): void;
 }
 
 export interface ICollector {
@@ -232,4 +227,10 @@ export interface Tile {
     type: number;
     pos: { x: number; y: number };
     isPassable: () => boolean;
+}
+
+export interface Command {
+    commandType: string;
+    timestamp: Date;
+    targetEntityId: string;
 }

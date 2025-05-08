@@ -5,7 +5,7 @@ import Attacker from "../Attacker";
 import { IAttacker, IMovable } from "../../types";
 import { AStar } from "../../utils/pathfinding";
 
-class Unit extends Attackable implements IAttacker, IMovable {
+abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
     private movable: Movable;
     private attacker: Attacker;
@@ -24,6 +24,12 @@ class Unit extends Attackable implements IAttacker, IMovable {
             parameters.attackRange,
         );
         this.movable.setTarget(parameters.target.x, parameters.target.y);
+    }
+
+    handleMoveCommand(destination: { x: number; y: number }): void {
+        this.setStatus("moving");
+        this.setAttackableTarget(null);
+        this.movable.handleMoveCommand(destination);
     }
 
     handleUpdateData(data: UnitUpdateData) {
@@ -54,15 +60,15 @@ class Unit extends Attackable implements IAttacker, IMovable {
             case "idle":
                 this.idleTime += deltaTime;
                 break;
-            case "mining":
-                this.mining(deltaTime);
-                break;
+            // case "mining":
+            // this.mining(deltaTime);
+            // break;
             default:
                 break;
         }
     }
 
-    private attackHandler() {
+    protected attackHandler() {
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
@@ -72,7 +78,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
         if (!this.hasPath()) {
-            this.setupPathfinder(this.getX(), this.getY(), tx, tx);
+            this.movable.setupPathfinder(tx, ty);
         }
         const dx = tx - this.getX();
         const dy = ty - this.getY();
@@ -116,13 +122,7 @@ class Unit extends Attackable implements IAttacker, IMovable {
         }
     }
 
-    mining(deltaTime: number) {
-        if (deltaTime) {
-            this.setStatus("idle");
-        }
-    }
-
-    private updateCooldown(deltaTime: number) {
+    protected updateCooldown(deltaTime: number) {
         if (this.canAttack()) {
             this.attackHandler();
             return;
@@ -130,13 +130,8 @@ class Unit extends Attackable implements IAttacker, IMovable {
         this.attacker.updateCooldown(deltaTime);
     }
 
-    setupPathfinder(
-        startX: number,
-        startY: number,
-        targetX: number,
-        targetY: number,
-    ): Tile[] {
-        return this.movable.setupPathfinder(startX, startY, targetX, targetY);
+    protected setupPathfinder(targetX: number, targetY: number): Tile[] {
+        return this.movable.setupPathfinder(targetX, targetY);
     }
 
     getAttackableTarget(): Attackable | null {

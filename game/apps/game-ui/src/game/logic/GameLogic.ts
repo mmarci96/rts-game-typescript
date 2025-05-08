@@ -5,6 +5,7 @@ import {
     PlayerResources,
     GameUpdateData,
     UnitData,
+    Command,
 } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import GameMapDrawer from "../GameMapDrawer";
@@ -16,7 +17,6 @@ import Game from "../Game";
 import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
-import { Command } from "../../types";
 import Overlay from "../ui/Overlay";
 
 class GameLogic {
