@@ -78,7 +78,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
         if (!this.hasPath()) {
-            this.setupPathfinder(tx, tx);
+            this.movable.setupPathfinder(tx, ty);
         }
         const dx = tx - this.getX();
         const dy = ty - this.getY();

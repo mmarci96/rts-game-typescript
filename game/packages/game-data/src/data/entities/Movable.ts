@@ -1,4 +1,3 @@
-import { MoveCommand } from "../commands";
 import { IMovable, Tile } from "../types";
 import { AStar } from "../utils/pathfinding";
 
