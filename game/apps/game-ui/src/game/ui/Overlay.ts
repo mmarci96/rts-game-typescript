@@ -10,32 +10,15 @@ import StatusBar from "./Statusbar";
 
 class Overlay {
     private overlayDiv;
-    private isVisible;
+    private selectionDiv;
     selectedList: Drawable[] = [];
     static statusBar: StatusBar;
 
     constructor() {
         this.overlayDiv = document.getElementById("overlay");
-        this.isVisible = false;
+        this.selectionDiv = document.getElementById("selection");
         Overlay.statusBar = new StatusBar();
         document.body.appendChild(Overlay.statusBar.element);
-    }
-
-    setVisible() {
-        if (this.overlayDiv) {
-            this.overlayDiv.style.display = "flex";
-            this.isVisible = true;
-        }
-    }
-
-    setInvisible() {
-        if (this.overlayDiv) {
-            this.overlayDiv.style.display = "none";
-            this.isVisible = false;
-        }
-    }
-    getIsVisible() {
-        return this.isVisible;
     }
 
     updateSelection(drawables: Drawable[]) {
@@ -43,7 +26,8 @@ class Overlay {
             return;
         }
         this.selectedList = drawables;
-        if (!this.overlayDiv) {
+        if (!this.overlayDiv || !this.selectionDiv) {
+            console.error("Missing html elements");
             return;
         }
 
@@ -66,11 +50,11 @@ class Overlay {
         }
 
         if (!buildings.size && units.size) {
-            this.overlayDiv.innerHTML = "";
+            this.selectionDiv.innerHTML = "";
             const selectionDetails = document.createElement("ul");
             selectionDetails.id = "selectionList";
             selectionDetails.style.display = "flex";
-            this.overlayDiv.appendChild(selectionDetails);
+            this.selectionDiv.appendChild(selectionDetails);
             this.displaySelection(units, selectionDetails);
         }
     }
@@ -80,17 +64,17 @@ class Overlay {
         createTrainUnitCommand: (commands: Command[]) => void,
     ) {
         this.selectedList = selectedList;
-        if (!this.overlayDiv) {
+        if (!this.selectionDiv) {
             return;
         }
 
-        this.overlayDiv.innerHTML = "";
+        this.selectionDiv.innerHTML = "";
         const units = new Set<Drawable>();
         const buildings = new Set<Drawable>();
         const selectionDetails = document.createElement("ul");
         selectionDetails.id = "selectionList";
         selectionDetails.style.display = "flex";
-        this.overlayDiv.appendChild(selectionDetails);
+        this.selectionDiv.appendChild(selectionDetails);
         this.selectedList.forEach((selectedEntity) => {
             if (selectedEntity.entity instanceof Unit) {
                 units.add(selectedEntity);
@@ -129,7 +113,6 @@ class Overlay {
             return;
         }
         const actions = [...entity.entity.getAvailableActions().values()];
-        console.log(actions);
 
         actions.forEach((action: string) => {
             const actionCard = this.createActionCard(

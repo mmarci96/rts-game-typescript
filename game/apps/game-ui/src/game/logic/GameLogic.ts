@@ -18,6 +18,7 @@ import Drawable from "../data/Drawable";
 import MouseEventHandler from "../control/MouseEventHandler";
 import SelectionBox from "../ui/SelectionBox";
 import Overlay from "../ui/Overlay";
+import Minimap from "../ui/Minimap";
 
 class GameLogic {
     static CAMERA_SIZE = Math.round(window.innerWidth / 32);
@@ -31,6 +32,7 @@ class GameLogic {
     private mouseEventHandler: MouseEventHandler;
     private gameCanvas: GameCanvas;
     private entityManager: EntityManager;
+    private minimap: Minimap;
 
     constructor(assets: AssetManager, tiles: Tile[][], currentPlayer: Player) {
         this.player = currentPlayer;
@@ -51,10 +53,15 @@ class GameLogic {
         this.assets = assets;
         this.gameMapDrawer = new GameMapDrawer(tiles, this.camera, this.assets);
         this.gameCanvas = new GameCanvas();
+        this.minimap = new Minimap(tiles, this.camera);
 
         this.gameMapDrawer.drawMap();
+        this.minimap.drawMinimap();
         this.keyEventHandler = new KeyEventHandler(this.camera);
-        this.keyEventHandler.setupCameraControl(this.gameMapDrawer);
+        this.keyEventHandler.setupCameraControl(
+            this.gameMapDrawer,
+            this.minimap,
+        );
 
         this.mouseEventHandler = new MouseEventHandler(
             this.player,

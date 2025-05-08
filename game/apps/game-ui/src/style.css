@@ -20,18 +20,10 @@ body {
 button {
     background: black;
     color: white;
-    /* min-height: 24px; */
-    /* min-width: 40px; */
     padding: 2px;
     text-align: center;
     margin: 2px auto;
     border-radius: 100%;
-}
-
-input {
-    padding: 4px;
-    width: 280px;
-    margin: 4px auto;
 }
 
 canvas {
@@ -39,34 +31,6 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-}
-
-form {
-    position: absolute;
-    top: 25%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 1px solid black;
-    background-color: #42414d;
-    height: 280px;
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 8px;
-}
-
-#login-form {
-    top: 75%;
-}
-
-#join-session-form {
-    position: absolute;
-    top: 36%;
-}
-
-#create-session-form {
-    top: 75%;
 }
 
 .game-over {
@@ -84,17 +48,19 @@ form {
 }
 
 .unit-card {
-    width: 48px;
-    padding: 2px;
-    margin: 2px;
+    width: 60px;
+    padding: 4px;
+    margin: 4px;
     border: 1px solid black;
+    border-radius: 4px;
     background: rgba(0, 0, 0, 0.5);
     /* Adjust transparency as needed */
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    height: 80px;
+    font-size: 24px;
+    height: 96px;
 }
 
 
@@ -111,7 +77,6 @@ form {
     width: 100%;
     height: 5px;
     background: red;
-    /* Background for lost health */
     border: 1px solid black;
     position: relative;
     overflow: hidden;
@@ -120,7 +85,6 @@ form {
 .health-bar {
     height: 100%;
     background: green;
-    /* Health remaining */
     transition: width 0.3s;
 }
 
@@ -137,9 +101,28 @@ form {
     width: 100vw;
     z-index: 20;
     background: rgba(0, 0, 0, 0.5);
-    /* Adjust transparency as needed */
     color: white;
-    /* Ensures text inside is visible */
     border: solid 2px black;
-    display: none;
+    display: flex;
+    height: 160px;
+}
+
+#selection {
+    display: flex;
+    margin: auto;
+    margin-left: 0px;
+}
+
+#minimap-canvas {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #000;
+    right: 0%;
+    left: 100%;
+    transform: translate(0%, -50%);
+    margin-left: auto;
+    margin-right: 8px;
+    position: block;
+    height: 156px;
+    width: 156px;
+    border-radius: 4px;
 }
