@@ -60,15 +60,15 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
             case "idle":
                 this.idleTime += deltaTime;
                 break;
-            case "mining":
-                this.mining(deltaTime);
-                break;
+            // case "mining":
+            // this.mining(deltaTime);
+            // break;
             default:
                 break;
         }
     }
 
-    private attackHandler() {
+    protected attackHandler() {
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
@@ -122,13 +122,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         }
     }
 
-    mining(deltaTime: number) {
-        if (deltaTime) {
-            this.setStatus("idle");
-        }
-    }
-
-    private updateCooldown(deltaTime: number) {
+    protected updateCooldown(deltaTime: number) {
         if (this.canAttack()) {
             this.attackHandler();
             return;

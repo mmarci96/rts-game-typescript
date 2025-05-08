@@ -1,4 +1,4 @@
-import { Command, ControlledEntityParams } from "../types";
+import { ControlledEntityParams } from "../types";
 import GameEntity from "./GameEntity";
 
 abstract class ControlledEntity extends GameEntity {
@@ -23,8 +23,6 @@ abstract class ControlledEntity extends GameEntity {
     setStatus(status: string) {
         this.status = status;
     }
-
-    abstract handleCommand(command: Command): void;
 }
 
 export default ControlledEntity;

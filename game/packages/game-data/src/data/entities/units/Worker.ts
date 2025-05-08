@@ -1,5 +1,5 @@
 import Unit from "./Unit";
-import { Command, ICollector, UnitParams } from "../../types";
+import { ICollector, UnitParams } from "../../types";
 import Collector from "../Collector";
 import { calculateDistance } from "../../utils";
 import { AStar } from "../../utils/pathfinding";
@@ -13,8 +13,28 @@ class Worker extends Unit implements ICollector {
         this.collector = new Collector(5);
     }
 
-    handleCommand(command: Command): void {
-        console.log(command.commandType);
+    update(deltaTime: number) {
+        let state = this.getStatus();
+        if (state !== "idle") this.idleTime = 0;
+        switch (state) {
+            case "attack":
+                this.attackHandler();
+                break;
+            case "moving":
+                this.updatePosition(deltaTime);
+                break;
+            case "cooldown":
+                this.updateCooldown(deltaTime);
+                break;
+            case "idle":
+                this.idleTime += deltaTime;
+                break;
+            case "mining":
+                this.mining(deltaTime);
+                break;
+            default:
+                break;
+        }
     }
 
     mining(deltaTime: number): void {

@@ -1,4 +1,3 @@
-import { MoveCommand } from "../commands";
 import { Resource } from "../entities";
 
 export interface GameUpdateData {
@@ -154,7 +153,7 @@ export interface IAttackable {
 }
 
 export interface IAttacker {
-    attack(target: IAttackable): string;
+    attack(): string;
     getAttackableTarget(): IAttackable | null;
     setAttackableTarget(target: IAttackable | null): void;
     getAttackRange(): number;
