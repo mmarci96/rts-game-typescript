@@ -38,7 +38,7 @@ class UnitController {
     }
 
     private handleAggro(unit: Unit) {
-        if (unit.getStatus() !== "idle") {
+        if (unit.getStatus() !== "idle" || unit.getStatus() !== "attack_move") {
             return;
         }
         const target = this.getEnemyUnitInRange(unit);
