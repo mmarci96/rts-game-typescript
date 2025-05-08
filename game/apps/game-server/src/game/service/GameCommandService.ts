@@ -3,6 +3,7 @@ import Game from "../Game";
 import {
     Attackable,
     AttackCommand,
+    Collector,
     Command,
     MainBuilding,
     MineCommand,
@@ -10,6 +11,7 @@ import {
     Player,
     TrainCommand,
     Unit,
+    Worker,
 } from "@packages/game-data/dist";
 import { mapMongoUnitToData } from "../../utils/parseData";
 
@@ -46,12 +48,30 @@ export class GameCommandService {
                 case "mine":
                     const mineCommand = command as MineCommand;
                     console.log("MineCommand processed: ", mineCommand);
+                    this.handleMineCommand(mineCommand, game);
                     break;
                 default:
                     console.error("Invalid command: ", command);
                     break;
             }
         }
+    }
+
+    private handleMineCommand(command: MineCommand, game: Game) {
+        const worker = game.getLogic().getUnitById(command.targetEntityId);
+        if (!(worker instanceof Worker)) {
+            console.error("Unit cannot mine!");
+            return;
+        }
+        const resource = game
+            .getLogic()
+            .getResourceById(command.resourceTargetId);
+        if (!resource) {
+            console.error("No target resource found");
+            return;
+        }
+        worker.setStatus("moving");
+        worker.collectResource(resource);
     }
 
     private handleAttackCommand(command: AttackCommand, game: Game) {
