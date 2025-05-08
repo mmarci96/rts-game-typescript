@@ -114,6 +114,30 @@ class EntityController {
         return null;
     }
 
+    getUnitById(id: string): Unit | null {
+        const unit = this.unitController.getUnitById(id);
+        if (!unit) {
+            return null;
+        }
+        return unit;
+    }
+
+    getBuildingById(id: string): Building | null {
+        const building = this.buildingController.getBuildingById(id);
+        if (!building) {
+            return null;
+        }
+        return building;
+    }
+
+    getResourceById(id: string): Resource | null {
+        const resource = this.resourceController.getResourceById(id);
+        if (!resource) {
+            return null;
+        }
+        return resource;
+    }
+
     getUnits(): Unit[] {
         return this.unitController.getUnits();
     }

@@ -133,6 +133,18 @@ class GameLogic {
     getEntityById(id: string): GameEntity | null {
         return this.entityController.getEntityById(id);
     }
+
+    getUnitById(id: string) {
+        return this.entityController.getUnitById(id);
+    }
+
+    getBuildingById(id: string) {
+        return this.entityController.getBuildingById(id);
+    }
+
+    getResourceById(id: string) {
+        return this.entityController.getResourceById(id);
+    }
 }
 
 export default GameLogic;

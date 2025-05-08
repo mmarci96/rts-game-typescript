@@ -55,8 +55,8 @@ export class GameCommandService {
     }
 
     private handleAttackCommand(command: AttackCommand, game: Game) {
-        const unit = game.getLogic().getEntityById(command.targetEntityId);
-        if (!(unit instanceof Unit)) {
+        const unit = game.getLogic().getUnitById(command.targetEntityId);
+        if (!unit) {
             console.error("No unit found: ", command.targetEntityId);
             return;
         }
@@ -74,7 +74,9 @@ export class GameCommandService {
         player: Player,
         game: Game,
     ) {
-        const building = game.getLogic().getEntityById(command.targetEntityId);
+        const building = game
+            .getLogic()
+            .getBuildingById(command.targetEntityId);
         if (!(building instanceof MainBuilding)) {
             console.error("Entity cannot train units");
             return;
@@ -103,11 +105,11 @@ export class GameCommandService {
     }
 
     private handleMoveCommand(command: MoveCommand, game: Game) {
-        const entity = game.getLogic().getEntityById(command.targetEntityId);
-        if (!(entity instanceof Unit)) {
-            console.error("This entity cannot move!");
+        const unit = game.getLogic().getUnitById(command.targetEntityId);
+        if (!unit) {
+            console.error("Entity not found!");
             return;
         }
-        entity.handleMoveCommand(command.destination);
+        unit.handleMoveCommand(command.destination);
     }
 }
