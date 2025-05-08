@@ -53,6 +53,7 @@ export class GameCommandService {
                     const attackMoveCommand = command as AttackMoveCommand;
                     console.log("AttMoveComm processed: ", attackMoveCommand);
                     this.handleAttackMoveCommand(attackMoveCommand, game);
+                    break;
                 default:
                     console.error("Invalid command: ", command);
                     break;
