@@ -9,6 +9,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
     private movable: Movable;
     private attacker: Attacker;
+    private onAttackMove: boolean = false;
 
     constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters.controlledParams);
@@ -51,13 +52,30 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     updateAttackMove(deltaTime: number) {
-        console.log("AttackMoving!", deltaTime);
+        console.log("AttackMoving: ", this);
+        const { newX, newY, progress } = this.move(deltaTime);
+        if (progress === "completed") {
+            this.movable.setTarget(null, null);
+            if (!this.attacker.getAttackableTarget()) {
+                this.setStatus("idle");
+                this.onAttackMove = false;
+            }
+        } else {
+            this.idleTime = 0;
+            this.setX(newX);
+            this.setY(newY);
+            this.setStatus("attack_move");
+        }
+        if (this.attacker.getAttackableTarget()) {
+            this.attackHandler();
+        }
     }
 
     handleAttackMoveCommand(
         destination: { x: number; y: number } | null,
         victim: Attackable | null,
     ) {
+        this.onAttackMove = true;
         this.setStatus("attack_move");
         this.setAttackableTarget(victim);
         if (!victim && destination) {
@@ -68,6 +86,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
 
     handleMoveCommand(destination: { x: number; y: number }): void {
         this.setStatus("moving");
+        this.onAttackMove = false;
         this.setAttackableTarget(null);
         this.movable.handleMoveCommand(destination);
     }
@@ -93,8 +112,15 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         }
         const tx = targetUnit.getX();
         const ty = targetUnit.getY();
+        const targetLocation = this.movable.getTarget();
         if (!this.hasPath()) {
             this.movable.setupPathfinder(tx, ty);
+        } else if (targetLocation.targetY && targetLocation.targetX) {
+            const diffX = Math.abs(tx - targetLocation.targetX);
+            const diffY = Math.abs(ty - targetLocation.targetY);
+            if (diffX >= 1 || diffY >= 1) {
+                this.movable.setupPathfinder(tx, ty);
+            }
         }
         const dx = tx - this.getX();
         const dy = ty - this.getY();
@@ -107,6 +133,8 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         if (distance <= attackRangeWithBuffer + epsilon) {
             const status = this.attack();
             this.setStatus(status);
+        } else if (this.onAttackMove) {
+            this.setStatus("attack_move");
         } else {
             this.setStatus("moving");
         }
