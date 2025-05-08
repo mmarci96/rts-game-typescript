@@ -26,6 +26,46 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         this.movable.setTarget(parameters.target.x, parameters.target.y);
     }
 
+    update(deltaTime: number) {
+        let state = this.getStatus();
+        if (state !== "idle") this.idleTime = 0;
+        switch (state) {
+            case "attack":
+                this.attackHandler();
+                break;
+            case "moving":
+                this.updatePosition(deltaTime);
+                break;
+            case "cooldown":
+                this.updateCooldown(deltaTime);
+                break;
+            case "attack_move":
+                this.updateAttackMove(deltaTime);
+                break;
+            case "idle":
+                this.idleTime += deltaTime;
+                break;
+            default:
+                break;
+        }
+    }
+
+    updateAttackMove(deltaTime: number) {
+        console.log("AttackMoving!", deltaTime);
+    }
+
+    handleAttackMoveCommand(
+        destination: { x: number; y: number } | null,
+        victim: Unit | null,
+    ) {
+        this.setStatus("attack_move");
+        this.setAttackableTarget(victim);
+        if (!victim && destination) {
+            const { x, y } = destination;
+            this.setupPathfinder(x, y);
+        }
+    }
+
     handleMoveCommand(destination: { x: number; y: number }): void {
         this.setStatus("moving");
         this.setAttackableTarget(null);
@@ -41,30 +81,6 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         }
         if (this.getStatus() !== data.state) {
             this.setStatus(data.state);
-        }
-    }
-
-    update(deltaTime: number) {
-        let state = this.getStatus();
-        if (state !== "idle") this.idleTime = 0;
-        switch (state) {
-            case "attack":
-                this.attackHandler();
-                break;
-            case "moving":
-                this.updatePosition(deltaTime);
-                break;
-            case "cooldown":
-                this.updateCooldown(deltaTime);
-                break;
-            case "idle":
-                this.idleTime += deltaTime;
-                break;
-            // case "mining":
-            // this.mining(deltaTime);
-            // break;
-            default:
-                break;
         }
     }
 
