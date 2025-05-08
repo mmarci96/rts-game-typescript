@@ -38,34 +38,45 @@ class UnitController {
     }
 
     private handleAggro(unit: Unit) {
-        if (unit.getStatus() !== "idle" && unit.getStatus() !== "attack_move") {
-            return;
+        const now = Date.now();
+        if (!unit.lastAggroCheck || now - unit.lastAggroCheck > 400) {
+            unit.lastAggroCheck = now;
+
+            if (
+                unit.getStatus() !== "idle" &&
+                unit.getStatus() !== "attack_move"
+            ) {
+                return;
+            }
+
+            const target = this.getEnemyUnitInRange(unit);
+            if (target) {
+                unit.setAttackableTarget(target);
+                unit.setStatus("moving");
+            }
         }
-        const target = this.getEnemyUnitInRange(unit);
-        if (!target) {
-            return;
-        }
-        unit.setAttackableTarget(target);
-        unit.setStatus("moving");
     }
 
     private getEnemyUnitInRange(unit: Unit): Unit | null {
         const radius = 8 + unit.getAttackRange() / 10;
-        const maxX = unit.getX() + radius;
-        const minX = unit.getX() - radius;
-        const maxY = unit.getY() + radius;
-        const minY = unit.getY() - radius;
-        const enemyUnit = this.getEnemyUnits(unit.getColor()).find((eUnit) => {
-            const tx = eUnit.getX();
-            const ty = eUnit.getY();
-            if (tx >= minX && tx <= maxX && ty >= minY && ty <= maxY) {
-                return eUnit;
+        const radiusSquared = radius * radius;
+        const unitX = unit.getX();
+        const unitY = unit.getY();
+        let closestEnemy: Unit | null = null;
+        let closestDistanceSq = Infinity;
+
+        for (const enemy of this.getEnemyUnits(unit.getColor())) {
+            const dx = unitX - enemy.getX();
+            const dy = unitY - enemy.getY();
+            const distanceSq = dx * dx + dy * dy;
+
+            if (distanceSq <= radiusSquared && distanceSq < closestDistanceSq) {
+                closestEnemy = enemy;
+                closestDistanceSq = distanceSq;
             }
-        });
-        if (!enemyUnit) {
-            return null;
         }
-        return enemyUnit;
+
+        return closestEnemy;
     }
 
     groupUnitsByColor(): Record<PlayerColor, Unit[]> {
