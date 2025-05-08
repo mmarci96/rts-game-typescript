@@ -7,10 +7,6 @@ class MainBuilding extends Building implements ActionProvider {
         super(parameters);
     }
 
-    handleCommand(command: Command): void {
-        console.log(command.commandType);
-    }
-
     createUnit(unitType: string) {
         let trainingDuration = 4;
         if (unitType === "warrior") {

@@ -29,12 +29,20 @@ class Worker extends Unit implements ICollector {
             case "idle":
                 this.idleTime += deltaTime;
                 break;
+            case "attack_move":
+                this.updateAttackMove(deltaTime);
+                break;
             case "mining":
                 this.mining(deltaTime);
                 break;
             default:
                 break;
         }
+    }
+
+    handleMineCommand(resource: Resource) {
+        this.setStatus("moving");
+        this.collectResource(resource);
     }
 
     mining(deltaTime: number): void {
@@ -62,16 +70,13 @@ class Worker extends Unit implements ICollector {
         const { newX, newY, progress } = this.move(deltaTime);
         if (progress === "completed") {
             this.setTarget(null, null);
-        }
-
-        if (progress !== "completed") {
+        } else {
             this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
             this.setStatus("moving");
             return;
         }
-
         if (this.getAttackableTarget()) {
             this.idleTime = 0;
             this.setStatus("attack");
@@ -79,10 +84,12 @@ class Worker extends Unit implements ICollector {
         }
         if (this.getTargetResource()) {
             this.setStatus("mining");
+            this.onAttackMove = false;
             return;
         }
 
         this.setStatus("idle");
+        this.onAttackMove = false;
         return;
     }
 

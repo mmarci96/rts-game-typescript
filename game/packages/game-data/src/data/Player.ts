@@ -34,7 +34,7 @@ class Player {
 
     spendWood(amount: number) {
         if (this.resources.wood < amount) {
-            console.log("not enough wood!");
+            console.error("not enough wood!");
             return;
         }
         this.resources.wood = this.resources.wood - amount;
@@ -42,7 +42,7 @@ class Player {
 
     spendFood(amount: number) {
         if (this.resources.food < amount) {
-            console.log("not enough food!");
+            console.error("not enough food!");
             return;
         }
         this.resources.food = this.resources.food - amount;

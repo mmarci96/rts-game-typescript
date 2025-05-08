@@ -9,7 +9,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
     private movable: Movable;
     private attacker: Attacker;
-    private onAttackMove: boolean = false;
+    protected onAttackMove: boolean = false;
 
     constructor(parameters: UnitParams, aStar: AStar | null) {
         super(parameters.controlledParams);
@@ -52,7 +52,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     updateAttackMove(deltaTime: number) {
-        console.log("AttackMoving: ", this);
+        this.idleTime = 0;
         const { newX, newY, progress } = this.move(deltaTime);
         if (progress === "completed") {
             this.movable.setTarget(null, null);
@@ -61,7 +61,6 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
                 this.onAttackMove = false;
             }
         } else {
-            this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
             this.setStatus("attack_move");
@@ -84,6 +83,11 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
         }
     }
 
+    handleAttackCommand(victim: Attackable) {
+        this.setAttackableTarget(victim);
+        this.setStatus("moving");
+    }
+
     handleMoveCommand(destination: { x: number; y: number }): void {
         this.setStatus("moving");
         this.onAttackMove = false;
@@ -104,6 +108,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     protected attackHandler() {
+        this.idleTime = 0;
         const targetUnit = this.getAttackableTarget();
         if (!targetUnit || targetUnit.getHealth() <= 0) {
             this.setStatus("idle");
@@ -149,14 +154,15 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     protected updatePosition(deltaTime: number) {
+        this.idleTime = 0;
         const { newX, newY, progress } = this.move(deltaTime);
         if (progress === "completed") {
             this.movable.setTarget(null, null);
             if (!this.attacker.getAttackableTarget()) {
+                this.onAttackMove = false;
                 this.setStatus("idle");
             }
         } else {
-            this.idleTime = 0;
             this.setX(newX);
             this.setY(newY);
             this.setStatus("moving");
@@ -167,6 +173,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
     }
 
     protected updateCooldown(deltaTime: number) {
+        this.idleTime = 0;
         if (this.canAttack()) {
             this.attackHandler();
             return;
