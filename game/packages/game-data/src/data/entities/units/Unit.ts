@@ -56,7 +56,7 @@ abstract class Unit extends Attackable implements IAttacker, IMovable {
 
     handleAttackMoveCommand(
         destination: { x: number; y: number } | null,
-        victim: Unit | null,
+        victim: Attackable | null,
     ) {
         this.setStatus("attack_move");
         this.setAttackableTarget(victim);
