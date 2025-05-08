@@ -53,12 +53,15 @@ class GameLogic {
         this.assets = assets;
         this.gameMapDrawer = new GameMapDrawer(tiles, this.camera, this.assets);
         this.gameCanvas = new GameCanvas();
-        this.minimap = new Minimap(tiles);
-        this.minimap.drawMinimap();
+        this.minimap = new Minimap(tiles, this.camera);
 
         this.gameMapDrawer.drawMap();
+        this.minimap.drawMinimap();
         this.keyEventHandler = new KeyEventHandler(this.camera);
-        this.keyEventHandler.setupCameraControl(this.gameMapDrawer);
+        this.keyEventHandler.setupCameraControl(
+            this.gameMapDrawer,
+            this.minimap,
+        );
 
         this.mouseEventHandler = new MouseEventHandler(
             this.player,

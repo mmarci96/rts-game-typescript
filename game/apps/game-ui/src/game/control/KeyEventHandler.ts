@@ -1,5 +1,6 @@
 import GameMapDrawer from "../GameMapDrawer";
 import Camera from "../ui/Camera";
+import Minimap from "../ui/Minimap";
 
 class KeyEventHandler {
     private camera;
@@ -7,7 +8,7 @@ class KeyEventHandler {
         this.camera = camera;
     }
 
-    setupCameraControl(gameMap: GameMapDrawer) {
+    setupCameraControl(gameMap: GameMapDrawer, minimap: Minimap) {
         const setupMovementListeners = (callbacks: any) => {
             const {
                 onUp = () => {},
@@ -65,21 +66,25 @@ class KeyEventHandler {
         const onDown = () => {
             this.camera.moveCamera(1, 1);
             enforceBounds(this.camera.getX(), this.camera.getY());
+            minimap.drawMinimap();
             gameMap.drawMap();
         };
         const onRight = () => {
             this.camera.moveCamera(1, -1);
             enforceBounds(this.camera.getX(), this.camera.getY());
+            minimap.drawMinimap();
             gameMap.drawMap();
         };
         const onLeft = () => {
             this.camera.moveCamera(-1, 1);
             enforceBounds(this.camera.getX(), this.camera.getY());
+            minimap.drawMinimap();
             gameMap.drawMap();
         };
         const onUp = () => {
             this.camera.moveCamera(-1, -1);
             enforceBounds(this.camera.getX(), this.camera.getY());
+            minimap.drawMinimap();
             gameMap.drawMap();
         };
         setupMovementListeners({ onUp, onDown, onLeft, onRight });
