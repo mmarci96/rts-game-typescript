@@ -16,7 +16,7 @@ class Overlay {
 
     constructor() {
         this.overlayDiv = document.getElementById("overlay");
-        this.isVisible = false;
+        this.isVisible = true;
         Overlay.statusBar = new StatusBar();
         document.body.appendChild(Overlay.statusBar.element);
     }
@@ -29,10 +29,10 @@ class Overlay {
     }
 
     setInvisible() {
-        if (this.overlayDiv) {
-            this.overlayDiv.style.display = "none";
-            this.isVisible = false;
-        }
+        // if (this.overlayDiv) {
+        //     this.overlayDiv.style.display = "none";
+        //     this.isVisible = false;
+        // }
     }
     getIsVisible() {
         return this.isVisible;

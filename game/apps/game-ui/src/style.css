@@ -141,5 +141,19 @@ form {
     color: white;
     /* Ensures text inside is visible */
     border: solid 2px black;
-    display: none;
+    display: flex;
+    height: 160px;
+}
+
+#minimap-canvas {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #000;
+    right: 0%;
+    left: 100%;
+    transform: translate(0%, -50%);
+    margin-left:  auto;
+    margin-right: 8px;
+    position: block;
+    height: 156px;
+    width: 156px;
 }
