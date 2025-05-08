@@ -375,10 +375,10 @@ class MouseEventHandler {
                     hovering?.entity instanceof Attackable &&
                     hovering.entity.getColor() !== unit.entity.getColor()
                 ) {
-                    victim = hovering.entity;
+                    victim = hovering.entity.getId();
                 }
                 const attackMoveCommand = this.createAttackMoveCommand(
-                    victim as ControlledEntity,
+                    victim,
                     unit.entity.getId(),
                     { x: targetX, y: targetY },
                 );
@@ -389,7 +389,7 @@ class MouseEventHandler {
         return commands;
     }
     createAttackMoveCommand(
-        targetUnit: ControlledEntity,
+        targetUnitId: string | null,
         unitId: string,
         destination?: { x: number; y: number },
     ): Command {
@@ -398,7 +398,7 @@ class MouseEventHandler {
         const command = new AttackMoveCommand(
             timestamp,
             unitId,
-            targetUnit.getId(),
+            targetUnitId,
             d,
         );
         return command;

@@ -160,6 +160,11 @@ class AnimatedSprite extends Drawable {
                 this.maxFrame = 5;
                 this.loopAnimation = true;
                 break;
+            case "attack_move":
+                this.frameY = 1;
+                this.maxFrame = 5;
+                this.loopAnimation = true;
+                break;
             case "idle":
                 this.frameY = 0;
                 this.maxFrame = 5;
