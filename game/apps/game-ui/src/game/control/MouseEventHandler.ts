@@ -1,5 +1,7 @@
 import {
+    Attackable,
     AttackCommand,
+    AttackMoveCommand,
     Command,
     ControlledEntity,
     MineCommand,
@@ -8,6 +10,7 @@ import {
     PlayerColor,
     Resource,
     TrainCommand,
+    Unit,
 } from "@packages/game-data";
 import AssetManager from "../data/AssetManager";
 import Camera from "../ui/Camera";
@@ -17,6 +20,7 @@ import VectorTransformer from "../utils/VectorTransformer";
 import Overlay from "../ui/Overlay";
 
 class MouseEventHandler {
+    private attackMoveMode: boolean = false;
     private player: Player;
     private canvas: HTMLCanvasElement;
     private camera: Camera;
@@ -77,14 +81,6 @@ class MouseEventHandler {
         let startX = 0;
         let startY = 0;
 
-        this.canvas.addEventListener("mousedown", (e) => {
-            if (e.button === 2) return;
-            const rect = this.canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left;
-            startY = e.clientY - rect.top;
-            isSelecting = true;
-        });
-
         this.canvas.addEventListener("mousemove", (e) => {
             if (isSelecting) {
                 this.onSelecting(e.clientX, e.clientY, startX, startY, ctx);
@@ -96,50 +92,96 @@ class MouseEventHandler {
 
         this.canvas.addEventListener("mouseup", (e) => {
             if (e.button === 2) return;
-            this.entities.forEach(
-                (entity: Drawable) => (entity.isSelected = false),
-            );
             const rect = this.canvas.getBoundingClientRect();
             const finalX = e.clientX - rect.left;
             const finalY = e.clientY - rect.top;
 
-            this.selectionBox.drawBox(startX, startY, finalX, finalY);
-            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            isSelecting = false;
-            const selectableEntities: Drawable[] = [];
-            this.entities.forEach((drawable: Drawable) => {
-                if (drawable.entity instanceof ControlledEntity) {
-                    if (drawable.entity.getColor() === this.player.getColor()) {
+            if (isSelecting) {
+                this.entities.forEach(
+                    (entity: Drawable) => (entity.isSelected = false),
+                );
+
+                this.selectionBox.drawBox(startX, startY, finalX, finalY);
+                ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                const selectableEntities: Drawable[] = [];
+                this.entities.forEach((drawable: Drawable) => {
+                    if (drawable.entity instanceof ControlledEntity) {
+                        if (
+                            drawable.entity.getColor() ===
+                            this.player.getColor()
+                        ) {
+                            selectableEntities.push(drawable);
+                        }
+                    } else {
                         selectableEntities.push(drawable);
                     }
-                } else {
-                    selectableEntities.push(drawable);
-                }
-            });
+                });
 
-            this.selectedUnits = this.selectionBox.handleSelecting(
-                selectableEntities,
-                this.camera,
-            );
-            if (this.selectedUnits.length > 0) {
-                this.selectionActive = true;
-                this.overlay.setVisible();
-            } else {
-                this.selectionActive = false;
-                this.overlay.setInvisible();
+                this.selectedUnits = this.selectionBox.handleSelecting(
+                    selectableEntities,
+                    this.camera,
+                );
+
+                if (this.selectedUnits.length > 0) {
+                    this.selectionActive = true;
+                    this.overlay.setVisible();
+                } else {
+                    this.selectionActive = false;
+                    this.overlay.setInvisible();
+                }
+                this.overlay.displayUnitSelection(
+                    this.selectedUnits,
+                    createCommand,
+                );
             }
-            this.overlay.displayUnitSelection(
-                this.selectedUnits,
-                createCommand,
-            );
+
+            isSelecting = false;
         });
+
         this.canvas.addEventListener("mousedown", (e) => {
-            if (e.button === 2) {
+            const isRightClick = e.button === 2;
+            const isLeftClick = e.button === 0;
+
+            if (isRightClick) {
                 const commands = this.createCommandsOnRightClick(
                     e.clientX,
                     e.clientY,
                 );
                 createCommand(commands);
+            }
+
+            if (isLeftClick && this.attackMoveMode) {
+                const commands = this.createCommandsOnAttackMove(
+                    e.clientX,
+                    e.clientY,
+                );
+                createCommand(commands);
+            } else if (isLeftClick) {
+                const rect = this.canvas.getBoundingClientRect();
+                startX = e.clientX - rect.left;
+                startY = e.clientY - rect.top;
+                isSelecting = true;
+            }
+            this.attackMoveMode = false;
+            this.setCursor("default");
+        });
+
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "q" || e.key === "Q") {
+                if (this.selectedUnits.length > 0) {
+                    this.attackMoveMode = true;
+                    this.setCursor("attack");
+                }
+            }
+        });
+
+        window.addEventListener("keyup", (e) => {
+            if (e.key === "q" || e.key === "Q") {
+                if (this.selectedUnits.length > 0) {
+                    this.attackMoveMode = true;
+                    this.setCursor("attack");
+                }
             }
         });
     }
@@ -166,7 +208,7 @@ class MouseEventHandler {
         if (hovering) {
             this.hoveredEntity = hovering;
             this.onHover(this.hoveredEntity);
-        } else {
+        } else if (!this.attackMoveMode) {
             this.hoveredEntity = null;
             this.setCursor("default");
         }
@@ -302,6 +344,62 @@ class MouseEventHandler {
             timestamp,
             unitId,
             targetUnit.getId(),
+        );
+        return command;
+    }
+
+    createCommandsOnAttackMove(clientX: number, clientY: number) {
+        const { worldX, worldY } = this.convertCursorPosition(clientX, clientY);
+        const commands: Command[] = [];
+        const entityArrSize = Math.round(Math.sqrt(this.selectedUnits.length));
+        const hovering = this.hoveredEntity;
+
+        this.selectedUnits.forEach((unit, index) => {
+            if (unit.isSelected && unit.entity instanceof Unit) {
+                let { targetX, targetY } = this.createCheapGrid(
+                    unit.entity.getX(),
+                    unit.entity.getY(),
+                    worldX,
+                    worldY,
+                    entityArrSize,
+                    index,
+                );
+                if (targetX < 0) {
+                    targetX = 0.000001;
+                }
+                if (targetY < 0) {
+                    targetY = 0.000001;
+                }
+                let victim = null;
+                if (
+                    hovering?.entity instanceof Attackable &&
+                    hovering.entity.getColor() !== unit.entity.getColor()
+                ) {
+                    victim = hovering.entity.getId();
+                }
+                const attackMoveCommand = this.createAttackMoveCommand(
+                    victim,
+                    unit.entity.getId(),
+                    { x: targetX, y: targetY },
+                );
+                commands.push(attackMoveCommand);
+            }
+        });
+
+        return commands;
+    }
+    createAttackMoveCommand(
+        targetUnitId: string | null,
+        unitId: string,
+        destination?: { x: number; y: number },
+    ): Command {
+        const timestamp = new Date();
+        const d = destination ? destination : null;
+        const command = new AttackMoveCommand(
+            timestamp,
+            unitId,
+            targetUnitId,
+            d,
         );
         return command;
     }

@@ -3,6 +3,7 @@ import Game from "../Game";
 import {
     Attackable,
     AttackCommand,
+    AttackMoveCommand,
     Command,
     MainBuilding,
     MineCommand,
@@ -48,11 +49,28 @@ export class GameCommandService {
                     console.log("MineCommand processed: ", mineCommand);
                     this.handleMineCommand(mineCommand, game);
                     break;
+                case "attack_move":
+                    const attackMoveCommand = command as AttackMoveCommand;
+                    console.log("AttMoveComm processed: ", attackMoveCommand);
+                    this.handleAttackMoveCommand(attackMoveCommand, game);
                 default:
                     console.error("Invalid command: ", command);
                     break;
             }
         }
+    }
+
+    private handleAttackMoveCommand(command: AttackMoveCommand, game: Game) {
+        const unit = game.getLogic().getUnitById(command.targetEntityId);
+        if (!command.atttackTargetId) {
+            unit?.handleAttackMoveCommand(command.destination, null);
+            return;
+        }
+        const victim = game.getLogic().getEntityById(command.atttackTargetId);
+        if (!(victim instanceof Attackable)) {
+            return;
+        }
+        unit?.handleAttackMoveCommand(null, victim);
     }
 
     private handleMineCommand(command: MineCommand, game: Game) {
