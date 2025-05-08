@@ -7,6 +7,7 @@ import { AStar } from "../../utils/pathfinding";
 
 abstract class Unit extends Attackable implements IAttacker, IMovable {
     public idleTime: number = 0;
+    public lastAggroCheck = 0;
     private movable: Movable;
     private attacker: Attacker;
     protected onAttackMove: boolean = false;
