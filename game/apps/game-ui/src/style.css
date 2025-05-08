@@ -137,9 +137,7 @@ form {
     width: 100vw;
     z-index: 20;
     background: rgba(0, 0, 0, 0.5);
-    /* Adjust transparency as needed */
     color: white;
-    /* Ensures text inside is visible */
     border: solid 2px black;
     display: flex;
     height: 160px;
@@ -156,4 +154,5 @@ form {
     position: block;
     height: 156px;
     width: 156px;
+    border-radius:4px;
 }
