@@ -3,7 +3,6 @@ import {
     BuildingData,
     mapBuildingToBuildingParams,
     MainBuilding,
-    PlayerColor,
 } from "@packages/game-data/dist";
 class BuildingController {
     private buildings;
@@ -50,12 +49,6 @@ class BuildingController {
 
     getBuildingById(buildingId: string) {
         return this.buildings.get(buildingId);
-    }
-
-    getEnemyBuildings(color: PlayerColor) {
-        return [...this.buildings.values()].filter(
-            (building) => building.getColor() !== color,
-        );
     }
 }
 
