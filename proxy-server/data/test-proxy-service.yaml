@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-server
+  namespace: test-proxy
+  labels:
+    app: game-server
+spec:
+  selector:
+    app: game-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
