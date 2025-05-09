@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { requestLogger } from "./middleware/logger";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
@@ -6,6 +7,8 @@ import { websocketController } from "./ws";
 import { config } from "./config";
 const app = express();
 const { NAMESPACE } = config;
+
+app.use(requestLogger);
 
 app.get("/health", (req: Request, res: Response) => {
     console.log(`[ ${req.method} ] - Health request on: `, req.path);
