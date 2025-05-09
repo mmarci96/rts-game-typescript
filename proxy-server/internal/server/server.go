@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
+	// "net/url"
 	"strings"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
@@ -25,25 +25,25 @@ func Run() error {
 
 	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
 
-	for _, resource := range conf.Resources {
-		_, err := http.Get(resource.Desination_URL + "ping")
-		if err != nil {
-			fmt.Printf("Backend service check err, skipping: %s \n", resource.Name)
-			e := store.RemoveBackendServer(resource.Name)
-			if e != nil {
-				return fmt.Errorf("backend remove failed:: %v ", e)
-			}
-			continue
-		}
-		url, _ := url.Parse(resource.Desination_URL)
-		isSocketIO := strings.Contains(resource.Endpoint, "socket.io")
-		if isSocketIO {
-			fmt.Printf("Initiating backend service: %s", resource.Name)
-			store.InitBackendServer(resource.Name)
-		}
-		proxy := NewProxy(url)
-		http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
-	}
+	// for _, resource := range conf.Resources {
+	// 	_, err := http.Get(resource.Desination_URL + "ping")
+	// 	if err != nil {
+	// 		fmt.Printf("Backend service check err, skipping: %s \n", resource.Name)
+	// 		e := store.RemoveBackendServer(resource.Name)
+	// 		if e != nil {
+	// 			return fmt.Errorf("backend remove failed:: %v ", e)
+	// 		}
+	// 		continue
+	// 	}
+	// 	url, _ := url.Parse(resource.Desination_URL)
+	// 	isSocketIO := strings.Contains(resource.Endpoint, "socket.io")
+	// 	if isSocketIO {
+	// 		fmt.Printf("Initiating backend service: %s", resource.Name)
+	// 		store.InitBackendServer(resource.Name)
+	// 	}
+	// 	proxy := NewProxy(url)
+	// 	http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
+	// }
 
 	gameApp := SpaHandler{StaticDir: conf.Static.Game, RoutePrefix: "/game"}
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
