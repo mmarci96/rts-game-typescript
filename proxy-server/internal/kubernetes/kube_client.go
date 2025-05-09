@@ -15,9 +15,9 @@ import (
 )
 
 func WatchEndpointSlices() {
-	fmt.Println("hiii?")
 	config, err := rest.InClusterConfig()
 	if err != nil {
+		fmt.Printf("No clusterconfig %v", err)
 		config, err = clientcmd.BuildConfigFromFlags("", filepath.Join(os.Getenv("HOME"), ".kube", "config"))
 		if err != nil {
 			log.Fatalf("Failed to build kube config: %v", err)
