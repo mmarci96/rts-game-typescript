@@ -11,12 +11,10 @@ const { NAMESPACE } = config;
 app.use(requestLogger);
 
 app.get("/health", (req: Request, res: Response) => {
-    console.log(`[ ${req.method} ] - Health request on: `, req.path);
     res.status(200).send({ health: "ok" });
 });
 
 app.get("/ping", (req: Request, res: Response) => {
-    console.log(`[ ${req.method} ] - Ping request on: `, req.path);
     res.status(200).send("PONG");
 });
 

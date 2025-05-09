@@ -6,7 +6,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
     res.on("finish", () => {
         const duration = Date.now() - start;
         console.log(
-            `[${req.method}] ${req.originalUrl} - ${res.statusCode} - ${duration}ms - IP: ${req.ip}`,
+            `[${new Date().toLocaleTimeString()}] - [${req.method}] ${req.originalUrl} - ${res.statusCode} - ${duration}ms - IP: ${req.ip}`,
         );
     });
 
