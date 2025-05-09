@@ -24,7 +24,7 @@ spec:
             - name: HOST
               value: "0.0.0.0"
             - name: MONGO_URI
-              value: "mongodb+srv://@funcluster.tddj6.mongodb.net/rts-game-db"
+              value: "mongodb://mongo-service:27017/rts-game-db"
             - name: REDIS_HOST
               value: "redis" 
             - name: REDIS_PORT
