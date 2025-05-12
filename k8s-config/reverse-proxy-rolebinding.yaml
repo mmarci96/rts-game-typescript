@@ -2,11 +2,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: reverse-proxy-rolebinding
-  namespace: test-proxy
+  namespace: rts-game
 subjects:
 - kind: ServiceAccount
   name: default   # <-- your reverse-proxy pod uses the default service account
-  namespace: test-proxy
+  namespace: rts-game
 roleRef:
   kind: Role
   name: reverse-proxy-role

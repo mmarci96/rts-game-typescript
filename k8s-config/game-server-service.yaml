@@ -4,7 +4,7 @@ metadata:
   name: game-server
   labels:
     app: game-server
-  namespace: test-proxy
+  namespace: rts-game
 spec:
   selector:
     app: game-server

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: reverse-proxy
-  namespace: test-proxy
+  namespace: rts-game
 spec:
   type: NodePort
   selector:
