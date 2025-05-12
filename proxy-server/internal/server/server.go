@@ -1,15 +1,32 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	// "net/url"
+	"net/http/httputil"
+	"net/url"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/configs"
 	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/store"
+	"github.com/mmarci96/rts-game-monorepo/proxy-server/internal/watcher"
 )
+
+var proxyClient = &http.Client{
+	Timeout: time.Second,
+	Transport: &http.Transport{
+		MaxIdleConnsPerHost: 100,
+		IdleConnTimeout:     90 * time.Second,
+	},
+}
+
+type SpaHandler struct {
+	StaticDir   string
+	RoutePrefix string
+}
 
 func Run() error {
 	conf, err := configs.NewConfiguration()
@@ -23,76 +40,99 @@ func Run() error {
 		fmt.Printf("Not deleted: %s", e)
 	}
 
-	http.Handle("/game_location/", http.HandlerFunc(getServerEndpoint))
-
-	// for _, resource := range conf.Resources {
-	// 	_, err := http.Get(resource.Desination_URL + "ping")
-	// 	if err != nil {
-	// 		fmt.Printf("Backend service check err, skipping: %s \n", resource.Name)
-	// 		e := store.RemoveBackendServer(resource.Name)
-	// 		if e != nil {
-	// 			return fmt.Errorf("backend remove failed:: %v ", e)
-	// 		}
-	// 		continue
-	// 	}
-	// 	url, _ := url.Parse(resource.Desination_URL)
-	// 	isSocketIO := strings.Contains(resource.Endpoint, "socket.io")
-	// 	if isSocketIO {
-	// 		fmt.Printf("Initiating backend service: %s", resource.Name)
-	// 		store.InitBackendServer(resource.Name)
-	// 	}
-	// 	proxy := NewProxy(url)
-	// 	http.HandleFunc(resource.Endpoint, proxy.ServeHTTP)
-	// }
-
 	gameApp := SpaHandler{StaticDir: conf.Static.Game, RoutePrefix: "/game"}
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
+
+	http.HandleFunc("/socket.io/", gameServerProxyHandler)
+
 	http.Handle("/game/", gameApp)
 	http.Handle("/", homeApp)
 
 	hostUrl := conf.Server.Host + ":" + conf.Server.Port
-	fmt.Printf("\nServer started: %s\n", hostUrl)
+	fmt.Println("Server started: " + hostUrl)
 	if err := http.ListenAndServe(hostUrl, nil); err != nil {
 		return fmt.Errorf("could not start the server: %v ", err)
 	}
 	return nil
 }
 
-func getServerEndpoint(w http.ResponseWriter, r *http.Request) {
-	type serverEndpoint struct {
-		Server string `json:"server_endpoint"`
-	}
-
-	path := r.URL.Path
-	s := strings.Split(path, "/")
-	if len(s) < 3 {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
+func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
+	gameId := r.URL.Query().Get("gameId")
+	playerId := r.URL.Query().Get("playerId")
+	backends := watcher.GetGameServers()
+	if len(backends) == 0 {
+		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
 	}
+	// Implement your load balancing logic here using 'backends'
+	// Example: Round Robin, Random selection, etc.
+	fmt.Println("Backend on handler", backends)
+	fmt.Println("Gameid on request", gameId)
+	fmt.Println("Playerid on request", playerId)
+	backend := backends[0]
+	gameServerProxyRequest(backend, w, r)
 
-	gameId := s[len(s)-2]
-	playerId := s[len(s)-1]
+}
 
-	var serverName string
-	var err error
-
-	serverName, err = store.GetBackendByGameID(gameId)
-	if err != nil || serverName == "" {
-		serverName, err = store.GetServerWithLeastConnections()
-		if err != nil {
-			http.Error(w, "No backend servers available", http.StatusServiceUnavailable)
-			fmt.Printf("No chill server: %v\n", err)
-			return
-		}
-
-		store.SaveBackendConnection(serverName, gameId, playerId)
+/*Creates a proxy client with the backendurl from the parameters for the
+* game-server sockets, connection socketio clients to server. Removing the
+* queries after the right server endpoiint was founf. Added extra header
+* X-Forwarded-For but preserving rest of the Scheme
+ */
+func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
+	target := &url.URL{
+		Scheme: "http",
+		Host:   backend + ":8080",
 	}
-	endpoint := serverEndpoint{Server: serverName}
-	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(endpoint)
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = proxyClient.Transport
+
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+
+		query := req.URL.Query()
+		query.Del("gameId")
+		query.Del("playerId")
+		req.URL.RawQuery = query.Encode()
+
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Host = target.Host
+		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	}
+
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("[ERROR] Proxy error: %v", err)
+		w.WriteHeader(http.StatusBadGateway)
+	}
+
+	proxy.ServeHTTP(w, r)
+}
+
+func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, h.RoutePrefix)
+	fs := http.Dir(h.StaticDir)
+	fileServer := http.FileServer(fs)
+
+	f, err := fs.Open(path)
 	if err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		fmt.Printf("Error encoding JSON response: %v\n", err)
+		http.ServeFile(w, r, filepath.Join(h.StaticDir, "index.html"))
 		return
 	}
+	defer func() {
+		if cerr := f.Close(); cerr != nil {
+			fmt.Printf("Error closing file: %v\n", cerr)
+		}
+	}()
+
+	stat, err := f.Stat()
+	if err != nil || stat.IsDir() {
+		http.ServeFile(w, r, filepath.Join(h.StaticDir, "index.html"))
+		return
+	}
+
+	r.URL.Path = path
+	fileServer.ServeHTTP(w, r)
 }
