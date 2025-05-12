@@ -4,9 +4,7 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 import { websocketController } from "./ws";
-import { config } from "./config";
 const app = express();
-const { NAMESPACE } = config;
 
 app.use(requestLogger);
 
@@ -27,8 +25,8 @@ const io = new Server(server, {
         origin: "http://localhost:**",
         methods: ["GET", "POST"],
     },
-    path: `/${NAMESPACE}`,
 });
+
 websocketController(io);
 
 export default server;
