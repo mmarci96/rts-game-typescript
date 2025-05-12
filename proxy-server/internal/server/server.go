@@ -64,6 +64,12 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
 	}
+	existing, _ := store.GetBackendByGameID(gameId)
+	if existing != "" {
+		store.SaveBackendConnection(backends[0], gameId, playerId)
+	}
+
+	fmt.Println("[DEBUG] Existing backend by gameid: ", existing)
 	// Implement your load balancing logic here using 'backends'
 	// Example: Round Robin, Random selection, etc.
 	fmt.Println("Backend on handler", backends)
@@ -80,6 +86,7 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 * X-Forwarded-For but preserving rest of the Scheme
  */
 func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
+	store.InitBackendServer(backend)
 	target := &url.URL{
 		Scheme: "http",
 		Host:   backend + ":8080",
