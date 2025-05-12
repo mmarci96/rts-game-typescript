@@ -34,8 +34,8 @@ COPY --from=build /prod/game-server .
 RUN apk add --no-cache dumb-init
 CMD ["dumb-init", "node", "dist/index.js"]
 
-FROM golang:1.24.2-alpine AS reverse-proxy
-WORKDIR /app
+FROM golang:1.24.3-alpine AS build-proxy
+WORKDIR /build
 RUN apk add --no-cache git
 COPY ./proxy-server/go.mod ./proxy-server/go.sum ./
 RUN go mod download
@@ -44,5 +44,14 @@ COPY --from=build /prod/go/home ./internal/html/game
 COPY --from=build /prod/go/home ./internal/html/home
 COPY ./proxy-config.yaml ./data/config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/main.go
+
+# --- final small runtime image ---
+FROM alpine:3.20 AS reverse-proxy
+WORKDIR /app
+RUN apk add --no-cache dumb-init
+COPY --from=build-proxy /build/main /app/main
+COPY --from=build-proxy /build/internal/html /app/internal/html
+COPY --from=build-proxy /build/data/config.yaml /app/data/config.yaml
 EXPOSE 80
 ENTRYPOINT ["/app/main"]
+

@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -24,10 +25,14 @@ var (
 
 const CacheDuration = 6 * time.Hour
 
-func InitializeStore(redisAddr string) *StorageService {
+func InitializeStore(connectionString string) *StorageService {
+	fmt.Printf("Redis addr: %s", connectionString)
+	redisAddr := strings.TrimPrefix(connectionString, "redis:tcp://")
+
+	fmt.Printf("Connecting on: %s", redisAddr)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     redisAddr,
-		Password: "",
+		Password: "redis",
 		DB:       0,
 	})
 	pong, err := redisClient.Ping(ctx).Result()
