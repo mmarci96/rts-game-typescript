@@ -57,8 +57,8 @@ func WatchEndpointSlices() {
 
 	// First: LIST existing EndpointSlices
 	fmt.Println("[DEBUG] Listing existing EndpointSlices...")
-	list, err := clientset.DiscoveryV1().EndpointSlices("game-test").List(context.TODO(), metav1.ListOptions{
-		LabelSelector: "app=server-test",
+	list, err := clientset.DiscoveryV1().EndpointSlices("rts-game").List(context.TODO(), metav1.ListOptions{
+		LabelSelector: "app=game-server",
 	})
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to list EndpointSlices: %v", err)
@@ -71,15 +71,15 @@ func WatchEndpointSlices() {
 	UpdateGameServers(initialEndpoints)
 
 	fmt.Println("[DEBUG] Starting watch for EndpointSlices...")
-	watchInterface, err := clientset.DiscoveryV1().EndpointSlices("game-test").Watch(context.TODO(), metav1.ListOptions{
-		LabelSelector: "app=server-test",
+	watchInterface, err := clientset.DiscoveryV1().EndpointSlices("rts-game").Watch(context.TODO(), metav1.ListOptions{
+		LabelSelector: "app=game-server",
 	})
 	if err != nil {
 		log.Fatalf("[FATAL] Failed to start watch on EndpointSlices: %v", err)
 	}
 
 	for range watchInterface.ResultChan() {
-		list, err := clientset.DiscoveryV1().EndpointSlices("game-test").List(context.TODO(), metav1.ListOptions{LabelSelector: "app=server-test"})
+		list, err := clientset.DiscoveryV1().EndpointSlices("rts-game").List(context.TODO(), metav1.ListOptions{LabelSelector: "app=server-test"})
 		if err != nil {
 			log.Printf("[ERROR] Failed to re-list EndpointSlices: %v", err)
 			continue
