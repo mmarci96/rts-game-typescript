@@ -45,7 +45,6 @@ func Run() error {
 
 	http.HandleFunc("/socket.io/", gameServerProxyHandler)
 	http.HandleFunc("/api/", apiServerProxyHandler)
-
 	http.Handle("/game/", gameApp)
 	http.Handle("/", homeApp)
 
@@ -87,39 +86,6 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func apiServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
-	store.InitBackendServer(backend)
-	target := &url.URL{
-		Scheme: "http",
-		Host:   backend + ":5000",
-	}
-
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.Transport = proxyClient.Transport
-
-	originalDirector := proxy.Director
-	proxy.Director = func(req *http.Request) {
-		originalDirector(req)
-
-		query := req.URL.Query()
-		query.Del("gameId")
-		query.Del("playerId")
-		req.URL.RawQuery = query.Encode()
-
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.Host = target.Host
-		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
-	}
-
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		log.Printf("[ERROR] Proxy error: %v", err)
-		w.WriteHeader(http.StatusBadGateway)
-	}
-
-	proxy.ServeHTTP(w, r)
-}
-
 /*Creates a proxy client with the backendurl from the parameters for the
 * game-server sockets, connection socketio clients to server. Removing the
 * queries after the right server endpoiint was founf. Added extra header
@@ -129,7 +95,7 @@ func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Reque
 	store.InitBackendServer(backend)
 	target := &url.URL{
 		Scheme: "http",
-		Host:   backend + ":8080",
+		Host:   backend,
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
@@ -158,6 +124,36 @@ func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Reque
 	proxy.ServeHTTP(w, r)
 }
 
+/* Almost indentical to the gameServerProxyRequest function. does not strip url from it*/
+func apiServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
+	store.InitBackendServer(backend)
+	target := &url.URL{
+		Scheme: "http",
+		Host:   backend,
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = proxyClient.Transport
+
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Host = target.Host
+		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	}
+
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("[ERROR] Proxy error: %v", err)
+		w.WriteHeader(http.StatusBadGateway)
+	}
+
+	proxy.ServeHTTP(w, r)
+}
+
+/*Serves static files, can handle single page app with react-routing*/
 func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, h.RoutePrefix)
 	fs := http.Dir(h.StaticDir)

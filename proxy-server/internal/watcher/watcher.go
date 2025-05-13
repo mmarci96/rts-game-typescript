@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -128,7 +129,6 @@ func processEndpointSlice(es *discoveryv1.EndpointSlice, healthPath string, port
 			urlStr := fmt.Sprintf("http://%s:%d%s", address, port, healthPath)
 			client := &http.Client{Timeout: 2 * time.Second}
 
-			fmt.Println("[DEBUG] Pinging endpoint: ", urlStr)
 			resp, err := client.Get(urlStr)
 			if err != nil {
 				fmt.Printf("[ERROR] Health check failed for %s: %v\n", urlStr, err)
@@ -142,7 +142,8 @@ func processEndpointSlice(es *discoveryv1.EndpointSlice, healthPath string, port
 			}
 			if resp.StatusCode == http.StatusOK {
 				fmt.Printf("[INFO] Successfully pinged backend at %s\n", urlStr)
-				endpoints = append(endpoints, address)
+				endpointUrl := address + ":" + strconv.Itoa(port)
+				endpoints = append(endpoints, endpointUrl)
 			} else {
 				fmt.Printf("[WARNING] Backend at %s responded with status: %d\n", urlStr, resp.StatusCode)
 			}
