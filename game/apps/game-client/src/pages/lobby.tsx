@@ -40,12 +40,12 @@ const Lobby = () => {
                 if (timeLeft < 0) {
                     clearInterval(countdownInterval);
                     console.log(countdown);
-                    const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
+                    // const baseGameUrl = import.meta.env.VITE_GAME_BASE_URL;
                     let gameUrl = `/game/${gameId}/${player._id}`;
-                    if (baseGameUrl) {
-                        gameUrl = baseGameUrl + gameUrl;
-                    }
-                    window.location.href = gameUrl;
+                    // if (baseGameUrl) {
+                    //     gameUrl = baseGameUrl + gameUrl;
+                    // }
+                    window.location.pathname = gameUrl;
                 }
             }, 1000);
         }
