@@ -1,0 +1,48 @@
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-api
+  namespace: rts-game
+  labels:
+    app: game-api
+spec:
+  selector:
+    matchLabels:
+      app: game-api
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: game-api
+    spec:
+      containers:
+        - name: game-api
+          image: mmarci96/game-api:latest
+          env:
+          - name: DB_HOST
+            value: "5000"
+          - name: MONGO_URI
+            value: "mongodb://mongo-service:27017/rts-game-db"
+          - name: NODE_ENV
+            value: "production"
+          ports:
+          - containerPort: 5000
+---
+# https://kubernetes.io/docs/concepts/services-networking/service/
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-api
+  namespace: rts-game
+  labels:
+      app: game-api 
+spec:
+  selector:
+    app: game-api
+  ports:
+  - port: 5000
+    targetPort: 5000
+---
+
+
