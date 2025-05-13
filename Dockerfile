@@ -40,7 +40,7 @@ RUN apk add --no-cache git
 COPY ./proxy-server/go.mod ./proxy-server/go.sum ./
 RUN go mod download
 COPY ./proxy-server/ .
-COPY --from=build /prod/go/home ./internal/html/game
+COPY --from=build /prod/go/game ./internal/html/game
 COPY --from=build /prod/go/home ./internal/html/home
 COPY ./proxy-config.yaml ./data/config.yaml
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o main ./cmd/main.go
