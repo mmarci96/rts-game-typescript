@@ -8,7 +8,9 @@ import (
 )
 
 func main() {
-	go watcher.WatchEndpointSlices()
+	go watcher.WatchEndpointSlices("game-server", "rts-game", "app=game-server")
+
+	go watcher.WatchEndpointSlices("game-api", "rts-game", "app=game-api")
 
 	err := server.Run()
 	if err != nil {

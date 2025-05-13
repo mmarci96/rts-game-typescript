@@ -44,6 +44,7 @@ func Run() error {
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
 
 	http.HandleFunc("/socket.io/", gameServerProxyHandler)
+	http.HandleFunc("/api/", apiServerProxyHandler)
 
 	http.Handle("/game/", gameApp)
 	http.Handle("/", homeApp)
@@ -56,10 +57,16 @@ func Run() error {
 	return nil
 }
 
+func apiServerProxyHandler(w http.ResponseWriter, r *http.Request) {
+	apiServers := watcher.GetServiceEndpoints("game-api")
+	backend := apiServers[0]
+	apiServerProxyRequest(backend, w, r)
+}
+
 func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 	gameId := r.URL.Query().Get("gameId")
 	playerId := r.URL.Query().Get("playerId")
-	backends := watcher.GetGameServers()
+	backends := watcher.GetServiceEndpoints("game-server")
 	if len(backends) == 0 {
 		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
@@ -78,6 +85,39 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 	backend := backends[0]
 	gameServerProxyRequest(backend, w, r)
 
+}
+
+func apiServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
+	store.InitBackendServer(backend)
+	target := &url.URL{
+		Scheme: "http",
+		Host:   backend + ":5000",
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = proxyClient.Transport
+
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+
+		query := req.URL.Query()
+		query.Del("gameId")
+		query.Del("playerId")
+		req.URL.RawQuery = query.Encode()
+
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Host = target.Host
+		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	}
+
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("[ERROR] Proxy error: %v", err)
+		w.WriteHeader(http.StatusBadGateway)
+	}
+
+	proxy.ServeHTTP(w, r)
 }
 
 /*Creates a proxy client with the backendurl from the parameters for the
