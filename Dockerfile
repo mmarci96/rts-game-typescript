@@ -34,9 +34,9 @@ COPY --from=build /prod/game-server .
 RUN apk add --no-cache dumb-init
 CMD ["dumb-init", "node", "dist/index.js"]
 
-FROM golang:1.24.3-alpine AS build-proxy
+FROM golang:1.24.3 AS build-proxy
 WORKDIR /build
-RUN apk add --no-cache git
+# RUN apk add --no-cache git
 COPY ./proxy-server/go.mod ./proxy-server/go.sum ./
 RUN go mod download
 COPY ./proxy-server/ .
