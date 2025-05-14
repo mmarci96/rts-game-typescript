@@ -60,6 +60,7 @@ func Run() error {
 func initServiceStore() {
 	gameServers := watcher.GetServiceEndpoints("game-server")
 	for _, serverEndpoints := range gameServers {
+		fmt.Println("[DEBUG] InitServerStorage for server endpoint: ", serverEndpoints)
 		store.InitBackendServer(serverEndpoints)
 	}
 }
@@ -78,20 +79,20 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
 	}
-	existing, _ := store.GetBackendByGameID(gameId)
-	if existing != "" {
+	existing, err := store.GetBackendByGameID(gameId)
+	if err != nil {
+		fmt.Println("[WARNING] No existing backend: ", err)
 		store.SaveBackendConnection(backends[0], gameId, playerId)
 	}
 
 	fmt.Println("[DEBUG] Existing backend by gameid: ", existing)
 	// Implement your load balancing logic here using 'backends'
 	// Example: Round Robin, Random selection, etc.
-	fmt.Println("Backend on handler", backends)
-	fmt.Println("Gameid on request", gameId)
-	fmt.Println("Playerid on request", playerId)
+	fmt.Println("[INFO] Backend on handler", backends,
+		"Gameid on request", gameId,
+		"Playerid on request", playerId)
 	backend := backends[0]
 	gameServerProxyRequest(backend, w, r)
-
 }
 
 /*Creates a proxy client with the backendurl from the parameters for the
