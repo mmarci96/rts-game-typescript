@@ -35,10 +35,11 @@ func Run() error {
 	}
 	redisAddr := conf.Redis.Host + ":" + conf.Redis.Port
 	store.InitializeStore(redisAddr)
-	e := store.CleanupBackendKeys()
-	if e != nil {
-		fmt.Printf("Not deleted: %s", e)
-	}
+	// e := store.CleanupBackendKeys()
+	// if e != nil {
+	// 	fmt.Printf("Not deleted: %s", e)
+	// }
+	initServiceStore()
 
 	gameApp := SpaHandler{StaticDir: conf.Static.Game, RoutePrefix: "/game"}
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
@@ -54,6 +55,13 @@ func Run() error {
 		return fmt.Errorf("could not start the server: %v ", err)
 	}
 	return nil
+}
+
+func initServiceStore() {
+	gameServers := watcher.GetServiceEndpoints("game-server")
+	for _, serverEndpoints := range gameServers {
+		store.InitBackendServer(serverEndpoints)
+	}
 }
 
 func apiServerProxyHandler(w http.ResponseWriter, r *http.Request) {
