@@ -13,6 +13,7 @@ import {
     Select,
     RadioGroup,
     Radio,
+    Chip,
 } from "@heroui/react";
 
 export const CreateGameForm = () => {
@@ -88,7 +89,7 @@ export const CreateGameForm = () => {
                 <div className="flex flex-col items-center mb-auto mt-0">
                     <h2 className="text-2xl font-bold mr-auto">Create Game</h2>
                     <small className="text-default-500 italic mr-auto">
-                        12 Tracks
+                        Choose from the options...
                     </small>
                 </div>
             </CardHeader>
@@ -128,6 +129,7 @@ export const CreateGameForm = () => {
                             orientation="horizontal"
                             className="mx-auto ml-1 "
                             onChange={handleColorChange}
+                            defaultValue={PlayerColor.RED}
                         >
                             <Radio value={PlayerColor.RED}>Red</Radio>
                             <Radio value={PlayerColor.BLUE}>Blue</Radio>
@@ -142,7 +144,8 @@ export const CreateGameForm = () => {
                             className="rounded-xl w-[120px] ml-8 m-4 mr-0 hover:ring-2"
                             type="submit"
                             size="lg"
-                            variant="bordered"
+                            variant="faded"
+                            isDisabled={selectedMap ? false : true}
                         >
                             Create game
                         </Button>
@@ -151,6 +154,11 @@ export const CreateGameForm = () => {
             </CardBody>
             <CardFooter>
                 <p>Create a new lobby and find opponent</p>
+                {error && (
+                    <Chip variant="flat" color="warning">
+                        {error.toString()}
+                    </Chip>
+                )}
             </CardFooter>
         </Card>
     );
