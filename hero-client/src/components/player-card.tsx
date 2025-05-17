@@ -8,7 +8,7 @@ export const PlayerCard = ({ player }: PlayerCardProps) => {
     console.log(player);
 
     return (
-        <Card className="max-w-[400px] p-4 m-4">
+        <Card className="max-w-[400px] p-2 m-4 min-w-[320px]">
             <CardHeader className="flex gap-3">
                 <RxAvatar color={player.color} size={36} />
                 <div className="flex flex-col">

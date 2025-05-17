@@ -5,8 +5,7 @@ interface JoinedPlayersProps {
 }
 export const JoinedPlayers = ({ players }: JoinedPlayersProps) => {
     return (
-        <ul>
-            JoinedPlayers
+        <ul className="flex ">
             {players.map((player) => (
                 <li key={player._id}>
                     <PlayerCard player={player} />
