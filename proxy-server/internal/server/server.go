@@ -35,17 +35,12 @@ func Run() error {
 	}
 	redisAddr := conf.Redis.Host + ":" + conf.Redis.Port
 	store.InitializeStore(redisAddr)
-	e := store.CleanupBackendKeys()
-	if e != nil {
-		fmt.Printf("Not deleted: %s", e)
-	}
 
 	gameApp := SpaHandler{StaticDir: conf.Static.Game, RoutePrefix: "/game"}
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
 
 	http.HandleFunc("/socket.io/", gameServerProxyHandler)
 	http.HandleFunc("/api/", apiServerProxyHandler)
-
 	http.Handle("/game/", gameApp)
 	http.Handle("/", homeApp)
 
@@ -60,7 +55,7 @@ func Run() error {
 func apiServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 	apiServers := watcher.GetServiceEndpoints("game-api")
 	backend := apiServers[0]
-	apiServerProxyRequest(backend, w, r)
+	apiServerProxyRequest(backend.Url, w, r)
 }
 
 func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
@@ -71,53 +66,24 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
 	}
-	existing, _ := store.GetBackendByGameID(gameId)
-	if existing != "" {
-		store.SaveBackendConnection(backends[0], gameId, playerId)
+	for _, a := range backends {
+		fmt.Println("[DEBUG] endpoint: ", a)
+	}
+	b := store.GetGameEndpointByGameId(gameId)
+	if b == "" {
+		err := store.SaveGameEndpoint(gameId, backends[0].Id)
+		if err != nil {
+
+			fmt.Println("[WARNING] No existing backend: ", err)
+		}
 	}
 
-	fmt.Println("[DEBUG] Existing backend by gameid: ", existing)
-	// Implement your load balancing logic here using 'backends'
-	// Example: Round Robin, Random selection, etc.
-	fmt.Println("Backend on handler", backends)
-	fmt.Println("Gameid on request", gameId)
-	fmt.Println("Playerid on request", playerId)
+	fmt.Println("[DEBUG] NEW method: ", b)
+	fmt.Println("[INFO] Backend on handler", backends,
+		"Gameid on request", gameId,
+		"Playerid on request", playerId)
 	backend := backends[0]
-	gameServerProxyRequest(backend, w, r)
-
-}
-
-func apiServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
-	store.InitBackendServer(backend)
-	target := &url.URL{
-		Scheme: "http",
-		Host:   backend + ":5000",
-	}
-
-	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.Transport = proxyClient.Transport
-
-	originalDirector := proxy.Director
-	proxy.Director = func(req *http.Request) {
-		originalDirector(req)
-
-		query := req.URL.Query()
-		query.Del("gameId")
-		query.Del("playerId")
-		req.URL.RawQuery = query.Encode()
-
-		req.URL.Scheme = target.Scheme
-		req.URL.Host = target.Host
-		req.Host = target.Host
-		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
-	}
-
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
-		log.Printf("[ERROR] Proxy error: %v", err)
-		w.WriteHeader(http.StatusBadGateway)
-	}
-
-	proxy.ServeHTTP(w, r)
+	gameServerProxyRequest(backend.Url, w, r)
 }
 
 /*Creates a proxy client with the backendurl from the parameters for the
@@ -129,7 +95,7 @@ func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Reque
 	store.InitBackendServer(backend)
 	target := &url.URL{
 		Scheme: "http",
-		Host:   backend + ":8080",
+		Host:   backend,
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
@@ -158,6 +124,36 @@ func gameServerProxyRequest(backend string, w http.ResponseWriter, r *http.Reque
 	proxy.ServeHTTP(w, r)
 }
 
+/* Almost indentical to the gameServerProxyRequest function. does not strip url from it*/
+func apiServerProxyRequest(backend string, w http.ResponseWriter, r *http.Request) {
+	store.InitBackendServer(backend)
+	target := &url.URL{
+		Scheme: "http",
+		Host:   backend,
+	}
+
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.Transport = proxyClient.Transport
+
+	originalDirector := proxy.Director
+	proxy.Director = func(req *http.Request) {
+		originalDirector(req)
+
+		req.URL.Scheme = target.Scheme
+		req.URL.Host = target.Host
+		req.Host = target.Host
+		req.Header.Set("X-Forwarded-For", r.RemoteAddr)
+	}
+
+	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		log.Printf("[ERROR] Proxy error: %v", err)
+		w.WriteHeader(http.StatusBadGateway)
+	}
+
+	proxy.ServeHTTP(w, r)
+}
+
+/*Serves static files, can handle single page app with react-routing*/
 func (h SpaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, h.RoutePrefix)
 	fs := http.Dir(h.StaticDir)

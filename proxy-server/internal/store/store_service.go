@@ -18,6 +18,11 @@ type connection struct {
 	PlayerId string `json:"player_id"`
 }
 
+type gameEndpoint struct {
+	GameId         string `json:"game_id"`
+	ServerEndpoint string `json:"server_endpoint"`
+}
+
 var (
 	storeService = &StorageService{}
 	ctx          = context.Background()
@@ -43,6 +48,25 @@ func InitializeStore(connectionString string) *StorageService {
 
 	storeService.redisClient = redisClient
 	return storeService
+}
+
+func SaveGameEndpoint(gameId, endpoint string) error {
+	result, err := storeService.redisClient.Set(ctx, gameId, endpoint, CacheDuration).Result()
+	if err != nil {
+		fmt.Println("[WARNING] Did not save gameId:", gameId, endpoint)
+		return err
+	}
+	fmt.Println("[DEBUG] Saved gamendpoint:", result)
+	return nil
+}
+
+func GetGameEndpointByGameId(gameId string) string {
+	result, err := storeService.redisClient.Get(ctx, gameId).Result()
+	if err != nil {
+		fmt.Println("[ERROR] Did found endpoint:", err)
+		return ""
+	}
+	return result
 }
 
 func InitBackendServer(serverName string) {

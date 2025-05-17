@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -20,9 +21,14 @@ import (
 
 var _ watch.Interface
 
+type ServiceData struct {
+	Id  string
+	Url string
+}
+
 type ServiceTracker struct {
 	mu          sync.RWMutex
-	endpoints   []string
+	endpoints   []ServiceData
 	healthPath  string
 	servicePort int
 }
@@ -40,7 +46,7 @@ var (
 	}
 )
 
-func UpdateServiceEndpoints(serviceName string, newEndpoints []string) {
+func UpdateServiceEndpoints(serviceName string, newEndpoints []ServiceData) {
 	if tracker, exists := services[serviceName]; exists {
 		tracker.mu.Lock()
 		defer tracker.mu.Unlock()
@@ -48,7 +54,7 @@ func UpdateServiceEndpoints(serviceName string, newEndpoints []string) {
 	}
 }
 
-func GetServiceEndpoints(serviceName string) []string {
+func GetServiceEndpoints(serviceName string) []ServiceData {
 	if tracker, exists := services[serviceName]; exists {
 		tracker.mu.RLock()
 		defer tracker.mu.RUnlock()
@@ -86,7 +92,7 @@ func WatchEndpointSlices(serviceName, namespace, labelSelector string) {
 		log.Fatalf("[FATAL] Failed to list EndpointSlices: %v", err)
 	}
 
-	var initialEndpoints []string
+	var initialEndpoints []ServiceData
 	for _, es := range list.Items {
 		eps := processEndpointSlice(&es, tracker.healthPath, tracker.servicePort)
 		initialEndpoints = append(initialEndpoints, eps...)
@@ -110,7 +116,7 @@ func WatchEndpointSlices(serviceName, namespace, labelSelector string) {
 			continue
 		}
 
-		var currentEndpoints []string
+		var currentEndpoints []ServiceData
 		for _, es := range list.Items {
 			eps := processEndpointSlice(&es, tracker.healthPath, tracker.servicePort)
 			currentEndpoints = append(currentEndpoints, eps...)
@@ -119,19 +125,19 @@ func WatchEndpointSlices(serviceName, namespace, labelSelector string) {
 	}
 }
 
-func processEndpointSlice(es *discoveryv1.EndpointSlice, healthPath string, port int) []string {
+func processEndpointSlice(es *discoveryv1.EndpointSlice, healthPath string, port int) []ServiceData {
 	fmt.Printf("[DEBUG] Processing EndpointSlice: %s\n", es.Name)
-	var endpoints []string
+	var endpoints []ServiceData
 
 	for _, endpoint := range es.Endpoints {
 		for _, address := range endpoint.Addresses {
 			urlStr := fmt.Sprintf("http://%s:%d%s", address, port, healthPath)
 			client := &http.Client{Timeout: 2 * time.Second}
 
-			fmt.Println("[DEBUG] Pinging endpoint: ", urlStr)
+			id := endpoint.TargetRef.Name
 			resp, err := client.Get(urlStr)
 			if err != nil {
-				fmt.Printf("[ERROR] Health check failed for %s: %v\n", urlStr, err)
+				fmt.Printf("[ERROR] Health check failed for %s | %s: %v\n", id, urlStr, err)
 				continue
 			}
 
@@ -142,7 +148,9 @@ func processEndpointSlice(es *discoveryv1.EndpointSlice, healthPath string, port
 			}
 			if resp.StatusCode == http.StatusOK {
 				fmt.Printf("[INFO] Successfully pinged backend at %s\n", urlStr)
-				endpoints = append(endpoints, address)
+				endpointUrl := address + ":" + strconv.Itoa(port)
+				data := ServiceData{Id: id, Url: endpointUrl}
+				endpoints = append(endpoints, data)
 			} else {
 				fmt.Printf("[WARNING] Backend at %s responded with status: %d\n", urlStr, resp.StatusCode)
 			}
