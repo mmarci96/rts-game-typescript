@@ -24,7 +24,7 @@ export const AuthModal = () => {
     ) : (
         <>
             <span className="flex">
-                <RxAvatar size={32} className="mt-1" />
+                {/* <RxAvatar size={32} className="mt-1" /> */}
                 <Button onPress={onOpen} className="mt-0 ml-1" variant="light">
                     Login
                 </Button>
