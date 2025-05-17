@@ -37,6 +37,25 @@ export interface Player {
     userId?: string;
     _id: string;
 }
+
+export interface UserData {
+    id: string;
+    email: string;
+    username: string;
+}
+
+export interface UserContent {
+    id: string | null;
+    username: string | null;
+    email: string | null;
+}
+
+export type UserContextType = {
+    userData: UserContent;
+    onLogin: (data: UserContent) => void;
+    onLogout: () => void;
+};
+
 export type IconSvgProps = SVGProps<SVGSVGElement> & {
     size?: number;
 };
