@@ -15,6 +15,7 @@ import clsx from "clsx";
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
 import { SearchIcon } from "@/components/icons";
+import { AuthModal } from "./auth-modal";
 
 export const Navbar = () => {
     const searchInput = (
@@ -76,9 +77,7 @@ export const Navbar = () => {
                 className="hidden sm:flex basis-1/5 sm:basis-full"
                 justify="end"
             >
-                <NavbarItem className="hidden sm:flex">
-                    {searchInput}
-                </NavbarItem>
+                <AuthModal />
                 <ThemeSwitch />
             </NavbarContent>
 
