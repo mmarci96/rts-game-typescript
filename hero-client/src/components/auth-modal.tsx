@@ -9,14 +9,26 @@ import {
 } from "@heroui/react";
 import { RxAvatar } from "react-icons/rx";
 import { AuthForm } from "./auth-form";
+import { useUserContext } from "@/context/user-context";
 
 export const AuthModal = () => {
+    const { userData, onLogout } = useUserContext();
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    return (
-        <>
-            <Button onPress={onOpen} className="rounded-full" variant="light">
-                <RxAvatar size={28} />
+    return userData.id ? (
+        <span className="flex">
+            <RxAvatar size={32} className="mt-1 text-secondary-500" />
+            <Button onPress={onLogout} className="mt-0 ml-1" variant="light">
+                Logout
             </Button>
+        </span>
+    ) : (
+        <>
+            <span className="flex">
+                <RxAvatar size={32} className="mt-1" />
+                <Button onPress={onOpen} className="mt-0 ml-1" variant="light">
+                    Login
+                </Button>
+            </span>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
                 <ModalContent>
                     {(onClose) => (
