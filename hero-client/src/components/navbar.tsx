@@ -48,7 +48,7 @@ export const Navbar = () => {
                         color="foreground"
                         href="/"
                     >
-                        <img className="w-8 h-8" src="./Helmet11.svg"></img>
+                        <img className="w-8 h-8" src="/Helmet11.svg"></img>
 
                         <p className="text-2xl font-bold text-inherit">
                             RTS Game
