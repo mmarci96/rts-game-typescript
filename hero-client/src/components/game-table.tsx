@@ -10,6 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import { GameData, HttpMethod } from "@/types";
 import { useApiRequest } from "@/hooks/use-apirequest";
+import { JoinGameModal } from "./join-game-modal";
 
 export const GameTable = () => {
     const [gameLobbyList, setGameLobbyList] = useState<GameData[]>([]);
@@ -34,6 +35,7 @@ export const GameTable = () => {
             classNames={{
                 table: "min-w-lg",
             }}
+            className="overflow-y-scroll max-h-[80%]"
         >
             <TableHeader>
                 <TableColumn>
@@ -66,13 +68,7 @@ export const GameTable = () => {
                             {new Date(game.createdAt).toLocaleString()}
                         </TableCell>
                         <TableCell>
-                            <Button
-                                color="success"
-                                variant="bordered"
-                                className="text-lg hover:ring-2 font-semibold hover:bg-success-50 transition-transform ease-in duration-300"
-                            >
-                                Join
-                            </Button>
+                            <JoinGameModal gameId={game._id} />
                         </TableCell>
                     </TableRow>
                 ))}

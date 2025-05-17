@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, PointerEvent } from "react";
+import { useState, useEffect, ChangeEvent } from "react";
 import { TbMapSearch, TbMapStar } from "react-icons/tb";
 import { PlayerColor, GameMap } from "@/types";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +50,6 @@ export const CreateGameForm = () => {
                 },
             });
             const { data } = await res.json();
-            console.log(data.game._id);
             if (data.game._id) {
                 navigate(`/lobby/${data.game._id}`);
             }
