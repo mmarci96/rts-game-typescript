@@ -8,13 +8,13 @@ export default defineConfig({
         host: "0.0.0.0",
         port: 3000,
         proxy: {
-            "/server_0/socket.io": {
-                target: "http://localhost:8000",
+            "/socket.io": {
+                target: "http://localhost:8080",
                 changeOrigin: true,
                 ws: true,
             },
             "/api": {
-                target: "http://localhost:8000",
+                target: "http://localhost:5000",
                 changeOrigin: true,
             },
             "/game_location": {

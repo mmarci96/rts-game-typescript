@@ -35,11 +35,6 @@ func Run() error {
 	}
 	redisAddr := conf.Redis.Host + ":" + conf.Redis.Port
 	store.InitializeStore(redisAddr)
-	// e := store.CleanupBackendKeys()
-	// if e != nil {
-	// 	fmt.Printf("Not deleted: %s", e)
-	// }
-	initServiceStore()
 
 	gameApp := SpaHandler{StaticDir: conf.Static.Game, RoutePrefix: "/game"}
 	homeApp := SpaHandler{StaticDir: conf.Static.Home}
@@ -57,18 +52,10 @@ func Run() error {
 	return nil
 }
 
-func initServiceStore() {
-	gameServers := watcher.GetServiceEndpoints("game-server")
-	for _, serverEndpoints := range gameServers {
-		fmt.Println("[DEBUG] InitServerStorage for server endpoint: ", serverEndpoints)
-		store.InitBackendServer(serverEndpoints)
-	}
-}
-
 func apiServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 	apiServers := watcher.GetServiceEndpoints("game-api")
 	backend := apiServers[0]
-	apiServerProxyRequest(backend, w, r)
+	apiServerProxyRequest(backend.Url, w, r)
 }
 
 func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,20 +66,24 @@ func gameServerProxyHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No backends available", http.StatusServiceUnavailable)
 		return
 	}
-	existing, err := store.GetBackendByGameID(gameId)
-	if err != nil {
-		fmt.Println("[WARNING] No existing backend: ", err)
-		store.SaveBackendConnection(backends[0], gameId, playerId)
+	for _, a := range backends {
+		fmt.Println("[DEBUG] endpoint: ", a)
+	}
+	b := store.GetGameEndpointByGameId(gameId)
+	if b == "" {
+		err := store.SaveGameEndpoint(gameId, backends[0].Id)
+		if err != nil {
+
+			fmt.Println("[WARNING] No existing backend: ", err)
+		}
 	}
 
-	fmt.Println("[DEBUG] Existing backend by gameid: ", existing)
-	// Implement your load balancing logic here using 'backends'
-	// Example: Round Robin, Random selection, etc.
+	fmt.Println("[DEBUG] NEW method: ", b)
 	fmt.Println("[INFO] Backend on handler", backends,
 		"Gameid on request", gameId,
 		"Playerid on request", playerId)
 	backend := backends[0]
-	gameServerProxyRequest(backend, w, r)
+	gameServerProxyRequest(backend.Url, w, r)
 }
 
 /*Creates a proxy client with the backendurl from the parameters for the
